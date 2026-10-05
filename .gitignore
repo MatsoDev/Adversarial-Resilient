@@ -1,0 +1,61 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+ENV/
+env/
+pip-wheel-metadata/
+*.egg-info/
+.eggs/
+
+# Env / secrets
+.env
+.env.local
+
+# Data & models (never commit datasets or weights)
+data/raw/
+data/processed/
+data/adversarial/
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!data/adversarial/.gitkeep
+*.pt
+*.pth
+*.onnx
+*.pkl
+*.h5
+models/*.pt
+models/*.pth
+!models/.gitkeep
+
+# MLflow
+mlruns/
+mlartifacts/
+
+# Notebooks
+.ipynb_checkpoints/
+
+# Node (dashboard future)
+node_modules/
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# PyTorch / misc caches
+.cache/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+coverage/
+htmlcov/
+dist/
+build/
