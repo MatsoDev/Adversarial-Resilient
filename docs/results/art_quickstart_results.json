@@ -1,0 +1,81 @@
+{
+  "clean_accuracy": 0.92,
+  "seed": 42,
+  "epochs": 2,
+  "attacks": {
+    "fgsm": {
+      "eps": 0.3,
+      "adv_accuracy": 0.066,
+      "attack_success_rate": 0.934,
+      "mean_l2": 6.446223258972168,
+      "mean_linf": 0.30000004172325134,
+      "method": "FGSM",
+      "params": {
+        "eps": 0.3
+      },
+      "n_samples": 1000,
+      "clean_accuracy_subset": 0.909
+    },
+    "pgd": {
+      "eps": 0.3,
+      "adv_accuracy": 0.045,
+      "attack_success_rate": 0.955,
+      "mean_l2": 5.789580345153809,
+      "mean_linf": 0.30000004172325134,
+      "method": "PGD",
+      "params": {
+        "eps": 0.3,
+        "eps_step": 0.1,
+        "max_iter": 10
+      },
+      "n_samples": 1000,
+      "clean_accuracy_subset": 0.909
+    },
+    "cw_l2": {
+      "eps": 0.0,
+      "adv_accuracy": 0.25,
+      "attack_success_rate": 0.75,
+      "mean_l2": 1.7849334478378296,
+      "mean_linf": 0.5046142339706421,
+      "method": "CW-L2",
+      "params": {
+        "confidence": 0.0,
+        "max_iter": 10
+      },
+      "n_samples": 20,
+      "clean_accuracy_subset": 0.95
+    }
+  },
+  "accuracy_vs_eps": [
+    {
+      "eps": 0.0,
+      "fgsm_acc": 0.909,
+      "pgd_acc": 0.909
+    },
+    {
+      "eps": 0.05,
+      "fgsm_acc": 0.875,
+      "pgd_acc": 0.874
+    },
+    {
+      "eps": 0.1,
+      "fgsm_acc": 0.741,
+      "pgd_acc": 0.714
+    },
+    {
+      "eps": 0.15,
+      "fgsm_acc": 0.538,
+      "pgd_acc": 0.412
+    },
+    {
+      "eps": 0.2,
+      "fgsm_acc": 0.308,
+      "pgd_acc": 0.143
+    },
+    {
+      "eps": 0.3,
+      "fgsm_acc": 0.066,
+      "pgd_acc": 0.046
+    }
+  ]
+}
