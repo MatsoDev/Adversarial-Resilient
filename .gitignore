@@ -17,11 +17,11 @@ pip-wheel-metadata/
 .env.local
 
 # Data & models (never commit datasets or weights)
-data/raw/
-data/processed/
-data/adversarial/
+data/raw/*
 !data/raw/.gitkeep
+data/processed/*
 !data/processed/.gitkeep
+data/adversarial/*
 !data/adversarial/.gitkeep
 *.pt
 *.pth
