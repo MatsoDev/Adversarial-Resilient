@@ -1,0 +1,14 @@
+# Normalize line endings
+* text=auto
+
+# Images / binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.pt binary
+*.pth binary
+*.onnx binary
+
+# Large data files - never diff
+data/** -diff
+mlruns/** -diff

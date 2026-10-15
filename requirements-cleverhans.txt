@@ -1,0 +1,9 @@
+# CleverHans is kept SEPARATE (see docs/DECISIONS.md).
+# cleverhans 4.0.0 (last release, 2020) pins very old TF/numpy/scipy
+# and conflicts with torch 2.x + numpy 1.26 + ART 1.18 on Python 3.11/3.12.
+# Install only in an isolated env if you need the --cleverhans cross-check:
+#   python -m venv .venv-ch && .venv-ch/Scripts/activate (Windows)
+#   pip install -r requirements-cleverhans.txt
+cleverhans==4.0.0
+tensorflow==2.15.0
+numpy==1.26.4
