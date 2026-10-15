@@ -52,11 +52,13 @@ and one Makefile fix (`clean`); no changes to application code or CI behavior.
   file that failed `ruff format --check` — the pre-commit `ruff-format` hook
   would have reformatted it on the next local commit. Purely line-wrapping
   changes; logic untouched.
-- **Official project plan committed as `docs/project_plan.html`.** The plan
-  was previously an untracked `Project-Plan.html` at the repo root; sprint
-  docs cite it as the authoritative scope/schedule reference, so it is now
-  versioned (lower_snake_case path, HTML kept verbatim to preserve the
-  export) and linked from `docs/README.md`.
+- **Project plan converted to Markdown (`docs/project_plan.md`); HTML removed.**
+  The HTML export rendered as raw source on GitHub and mixed the content with
+  embedded CSS; every other doc is Markdown. Conversion used pandoc and was
+  verified token-by-token against the original (the only added tokens are the
+  header note pointing at the tracker and the ordinals pandoc emits for `<ol>`
+  lists). The original export remains in git history (commit `c8a9d0a` added
+  `docs/project_plan.html`) if the exact file is ever needed.
 - **`docs/PR_sprint1.md` labeled as a historical snapshot.** Kept for the
   sprint record (the merged PR body also exists on GitHub); a header note
   now points readers to `sprint1_report.md` as the living report.

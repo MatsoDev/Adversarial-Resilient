@@ -30,7 +30,7 @@ and how to get it running; this page is the map to everything else.
 
 | Document | What it covers |
 |---|---|
-| [`project_plan.html`](project_plan.html) | Official project plan: scope, sprints, milestones, risks (reference) |
+| [`project_plan.md`](project_plan.md) | Canonical project plan: scope, sprints, milestones, risks (baseline) |
 | [`DECISIONS.md`](DECISIONS.md) | Log of non-obvious technical decisions, sprint by sprint |
 | [`sprint1_report.md`](sprint1_report.md) | Sprint 1 report: what was done, run, measured, not verified |
 | [`PR_sprint1.md`](PR_sprint1.md) | Snapshot of the Sprint 1 pull request description (historical) |

@@ -50,7 +50,7 @@ Adversarial-Resilient/
 │   ├── architecture.md          # components, data flows, dependency rules
 │   ├── project-structure.md     # this file
 │   ├── threat_model_v0.1.md     # security scope and attacker model
-│   ├── project_plan.html        # official project plan (HTML export)
+│   ├── project_plan.md          # canonical scope/schedule baseline
 │   ├── DECISIONS.md             # log of non-obvious decisions
 │   ├── reading_list.md          # papers and why they matter
 │   ├── sprint1_report.md        # Sprint 1 report (history)
@@ -146,8 +146,9 @@ artifacts' generator (`scripts/art_quickstart.py`).
   torchvision and is not part of the repository.
 - `docs/PR_sprint1.md` is a historical snapshot of the merged Sprint 1 pull
   request; it is kept for the project record, not as live documentation.
-- `docs/project_plan.html` is the official plan kept as a self-contained HTML
-  export (not converted to Markdown) so the source stays faithful.
+- `docs/project_plan.md` is the Markdown conversion of the official plan HTML
+  export; the original HTML is preserved in git history (commit `c8a9d0a`)
+  if the exact export is ever needed.
 - The `src/data`, `src/attacks`, `src/defenses`, and `src/evaluation` packages
   currently contain only `__init__.py` and a README describing planned
   contents; they reserve the module boundaries for later sprints.
