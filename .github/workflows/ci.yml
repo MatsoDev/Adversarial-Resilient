@@ -1,9 +1,19 @@
 name: ci
 on: [push, pull_request]
 
+# One run per branch: a new push cancels the still-queued/running one.
+# (Halves runner usage since push + pull_request otherwise run everything twice.)
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
 jobs:
   lint-test:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -20,6 +30,7 @@ jobs:
         run: pytest -q
   docker:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - name: Build image (no push)
