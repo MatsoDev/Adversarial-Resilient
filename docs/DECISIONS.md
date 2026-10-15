@@ -33,6 +33,29 @@
   `docs/results` + `docs/figures`; Sprint 2 should redirect synthetic to temp.
   Restored real outputs by re-running `--fast` after tests.
 
+## Post-merge maintenance (2026-10-15, Linux, Python 3.11.16)
+
+Branch `chore/repository-structure-cleanup` (main is protected; nothing pushed
+to it directly). Scope: repository navigation/documentation and small hygiene
+fixes; no behavior changes to code or workflows.
+
+- **Documentation system added.** `docs/README.md` is now the documentation
+  index; `docs/architecture.md` documents components/dependency rules/data
+  flows; `docs/project-structure.md` is the "where does this belong" reference;
+  `AGENTS.md` is the short navigation map for AI coding agents. The root README
+  links to them. Rationale: future contributors and agents previously had to
+  reverse-engineer the structure; there was no index and no agent instructions.
+- **Dead `[tool.black]` config removed from `pyproject.toml`.** Black is not in
+  any requirements file nor in pre-commit; `ruff format` (pre-commit hook) is
+  the configured formatter. The section was misleading configuration only.
+- **`scripts/art_quickstart.py` formatted with `ruff format`.** It was the only
+  file that failed `ruff format --check` — the pre-commit `ruff-format` hook
+  would have reformatted it on the next local commit. Purely line-wrapping
+  changes; logic untouched.
+- **`Project-Plan.html` (untracked) intentionally left alone.** It is a
+  pre-existing, uncommitted copy of the official project plan; it is not
+  referenced by the repository and was not added, modified, or removed.
+
 ## Pre-merge audit (2026-10-15, Linux, Python 3.11.16)
 
 - **Demo/test outputs are caller-supplied.** `run_demo(args, output_dir=...)`
