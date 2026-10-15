@@ -164,9 +164,19 @@ def eval_attack(y_true, y_pred_adv, x_orig, x_adv, eps) -> dict:
     }
 
 
-def run_demo(args: argparse.Namespace) -> dict:
+def run_demo(args: argparse.Namespace, output_dir: Path | None = None) -> dict:
+    """Run the demo and write JSON/figures/MLflow.
+
+    By default outputs land in the repo (`docs/results`, `docs/figures`,
+    `mlruns/`). Tests pass `output_dir` (e.g. pytest `tmp_path`) so synthetic
+    runs never overwrite the committed demo artifacts.
+    """
     ensure_dirs()
     set_seed(args.seed)
+
+    results_dir = output_dir / "results" if output_dir else RESULTS_DIR
+    figures_dir = output_dir / "figures" if output_dir else FIGURES_DIR
+    tracking_dir = output_dir / "mlruns" if output_dir else ROOT / "mlruns"
 
     fast = args.fast or args.synthetic
     epochs = args.epochs if args.epochs is not None else (2 if fast else 3)
@@ -260,14 +270,14 @@ def run_demo(args: argparse.Namespace) -> dict:
         results["cleverhans"] = cleverhans_check(model, x_fgsm, y_fgsm, args.eps)
 
     # --- save JSON + figures + MLflow ---
-    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
-    FIGURES_DIR.mkdir(parents=True, exist_ok=True)
-    with open(RESULTS_DIR / "art_quickstart_results.json", "w") as f:
+    results_dir.mkdir(parents=True, exist_ok=True)
+    figures_dir.mkdir(parents=True, exist_ok=True)
+    with open(results_dir / "art_quickstart_results.json", "w") as f:
         json.dump(results, f, indent=2)
-    logger.info("wrote %s", RESULTS_DIR / "art_quickstart_results.json")
+    logger.info("wrote %s", results_dir / "art_quickstart_results.json")
 
-    save_figures(x_fgsm, x_adv_fgsm, x_adv_pgd, y_fgsm, pred_fgsm, table)
-    log_mlflow(results, args)
+    save_figures(x_fgsm, x_adv_fgsm, x_adv_pgd, y_fgsm, pred_fgsm, table, figures_dir)
+    log_mlflow(results, args, results_dir, figures_dir, tracking_dir)
     return results
 
 
@@ -298,7 +308,7 @@ def cleverhans_check(model, x_np, y_np, eps: float) -> dict:
     return out
 
 
-def save_figures(x_orig, x_fgsm, x_pgd, y_true, y_pred_fgsm, table) -> None:
+def save_figures(x_orig, x_fgsm, x_pgd, y_true, y_pred_fgsm, table, figures_dir: Path) -> None:
     import matplotlib
 
     matplotlib.use("Agg")
@@ -319,7 +329,7 @@ def save_figures(x_orig, x_fgsm, x_pgd, y_true, y_pred_fgsm, table) -> None:
         axes[2, i].set_title("PGD")
         axes[2, i].axis("off")
     fig.tight_layout()
-    fig.savefig(FIGURES_DIR / "art_samples.png", dpi=120)
+    fig.savefig(figures_dir / "art_samples.png", dpi=120)
     plt.close(fig)
 
     eps = [r["eps"] for r in table]
@@ -332,18 +342,24 @@ def save_figures(x_orig, x_fgsm, x_pgd, y_true, y_pred_fgsm, table) -> None:
     plt.legend()
     plt.grid(True, alpha=0.3)
     plt.tight_layout()
-    plt.savefig(FIGURES_DIR / "art_accuracy_vs_eps.png", dpi=120)
+    plt.savefig(figures_dir / "art_accuracy_vs_eps.png", dpi=120)
     plt.close()
-    logger.info("wrote figures to %s", FIGURES_DIR)
+    logger.info("wrote figures to %s", figures_dir)
 
 
-def log_mlflow(results: dict, args: argparse.Namespace) -> None:
+def log_mlflow(
+    results: dict,
+    args: argparse.Namespace,
+    results_dir: Path,
+    figures_dir: Path,
+    tracking_dir: Path,
+) -> None:
     try:
         import mlflow
     except Exception as e:
         logger.warning("mlflow not available, skipping logging: %s", e)
         return
-    mlflow.set_tracking_uri(f"file:{ROOT / 'mlruns'}")
+    mlflow.set_tracking_uri(f"file:{tracking_dir}")
     mlflow.set_experiment("art_quickstart")
     with mlflow.start_run():
         mlflow.log_param("seed", args.seed)
@@ -356,9 +372,9 @@ def log_mlflow(results: dict, args: argparse.Namespace) -> None:
                 mlflow.log_metric(f"{k}_adv_acc", v["adv_accuracy"])
                 mlflow.log_metric(f"{k}_asr", v["attack_success_rate"])
         try:
-            mlflow.log_artifact(str(RESULTS_DIR / "art_quickstart_results.json"))
+            mlflow.log_artifact(str(results_dir / "art_quickstart_results.json"))
             for p in ["art_samples.png", "art_accuracy_vs_eps.png"]:
-                fp = FIGURES_DIR / p
+                fp = figures_dir / p
                 if fp.exists():
                     mlflow.log_artifact(str(fp))
         except Exception as e:
