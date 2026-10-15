@@ -1,0 +1,162 @@
+# Architecture overview
+
+This document describes how the repository is actually built today (Sprint 1
+state) and the rules that keep it coherent as the project grows.
+
+## What the system is
+
+Machine-learning detectors for malware (EMBER) and network intrusion
+(CIC-IDS-2017) that are attacked with adversarial examples (FGSM, PGD,
+Carlini-Wagner) and later hardened with defenses. The current code proves the
+attack tooling works end to end on an MNIST demo; the security-relevant
+datasets, baselines, attacks, and defenses are implemented in later sprints
+(see the module READMEs under [`../src/`](../src/)).
+
+## Components
+
+```text
+                     +-----------------------------+
+                     |  scripts/art_quickstart.py  |
+                     |  (end-to-end ART demo)      |
+                     +--------------+--------------+
+                                    | imports
+                                    v
+  +-----------+   +-------------------------------------------+
+  | api/      |   |  src/  (shared library, importable as     |
+  | FastAPI   |-->|  `src.*`)                                 |
+  | /health   |   |  config.py  utils/seed  models/           |
+  +-----------+   |  data/ attacks/ defenses/ evaluation/     |
+        ^         |  (later-sprint placeholder packages)      |
+        |         +-------------------------------------------+
+        | calls /health
+  +-----------+      +-------------------+   +------------------+
+  | dashboard/|      | docs/results +    |   | mlruns/          |
+  | Streamlit |      | docs/figures      |   | MLflow tracking  |
+  +-----------+      | (committed demo   |   | (gitignored)     |
+                     |  artifacts)       |   +------------------+
+                     +-------------------+
+```
+
+### `src/` — shared library
+
+The single home for reusable code. Everything else imports from here, never
+the other way around.
+
+- [`src/config.py`](../src/config.py) — central paths (`ROOT`, `DATA_DIR`,
+  `FIGURES_DIR`, ...), the default `SEED`, and demo constants. All modules are
+  expected to import paths from here instead of constructing their own so the
+  project stays portable across Windows/Linux/macOS. `ensure_dirs()` creates
+  the gitignored runtime directories.
+- [`src/utils/seed.py`](../src/utils/seed.py) — `set_seed()` seeds
+  `random`, numpy, and torch, and enables deterministic torch settings where
+  possible. Every experiment should call it first.
+- [`src/models/baseline_mlp.py`](../src/models/baseline_mlp.py) —
+  `BaselineMLP` (tabular baseline skeleton) and `SmallCNN` (the MNIST demo
+  model).
+- `src/data/`, `src/attacks/`, `src/defenses/`, `src/evaluation/` — placeholder
+  packages whose READMEs describe the planned contents (dataset loaders,
+  attack wrappers, defenses, metrics/plots). They contain no logic yet.
+
+### `scripts/` — runnable entry points
+
+One-off and demo scripts that wire the library together. `scripts/` may import
+`src/`; `src/` must never import `scripts/`.
+
+- [`scripts/art_quickstart.py`](../scripts/art_quickstart.py) — the Sprint 1
+  deliverable: downloads MNIST via torchvision into `data/raw/`, trains
+  `SmallCNN`, wraps it with ART's `PyTorchClassifier`, runs FGSM/PGD/CW-L2,
+  computes an accuracy-vs-epsilon table, then writes the JSON report,
+  the two figures, and MLflow data. `--synthetic` runs on random data for
+  tests, and `run_demo(args, output_dir=...)` redirects all outputs (the smoke
+  test uses pytest's `tmp_path` so committed artifacts are never overwritten).
+
+### `api/` — FastAPI service
+
+[`api/main.py`](../api/main.py) exposes `GET /health` (used by compose and CI)
+and `GET /`. Semester 2 adds the real `/predict`, `/attack`, and `/defend`
+endpoints. The Docker image (`Dockerfile`) runs this app with uvicorn.
+
+### `dashboard/` — Streamlit UI
+
+[`dashboard/app.py`](../dashboard/app.py) is a placeholder page with a button
+that calls the API's `/health` endpoint. It reads `API_URL` from the
+environment (compose sets it to `http://api:8000`).
+
+### Deployment stack
+
+[`docker-compose.yml`](../docker-compose.yml) defines three services:
+
+- `api` — built from the repo `Dockerfile`, served on `${API_PORT:-8000}`;
+- `dashboard` — same image, runs Streamlit on `${DASHBOARD_PORT:-8501}`;
+- `mlflow` — the official MLflow image, serving `./mlruns` on
+  `${MLFLOW_PORT:-5000}`.
+
+The stack reads `.env` (copied from [`.env.example`](../.env.example)).
+`.dockerignore` keeps the build context small. The image is CPU-only and runs
+as a non-root user.
+
+### CI
+
+[`.github/workflows/ci.yml`](../.github/workflows/ci.yml) runs on every push
+and pull request:
+
+- `lint-test` — Python 3.11, `ruff check`, then `pytest`.
+- `docker` — `docker build` only (no push).
+
+## Dependency rules
+
+1. `src/` is the base layer: it may depend only on third-party packages
+   (torch, numpy, ART, ...), never on `api/`, `dashboard/`, `scripts/`, or
+   `tests/`.
+2. `api/`, `dashboard/`, and `scripts/` may import `src/`.
+3. `api/` and `dashboard/` are independent of each other; the dashboard talks
+   to the API over HTTP.
+4. `tests/` may import anything.
+5. Paths come from `src/config.py`; seeds come from `src/utils/seed.py`.
+6. New reusable code goes in `src/`; new runnable demos go in `scripts/`.
+
+## Key data flows
+
+**ART demo (`make demo`):**
+
+```text
+torchvision MNIST --> data/raw/MNIST/ --> SmallCNN (train) --> ART PyTorchClassifier
+        --> FGSM / PGD / CW-L2 --> metrics (adv accuracy, ASR, L2/Linf)
+        --> docs/results/art_quickstart_results.json
+        --> docs/figures/art_samples.png, art_accuracy_vs_eps.png
+        --> mlruns/ (MLflow file store)
+```
+
+**API + dashboard:**
+
+```text
+Streamlit (dashboard/) --HTTP GET /health--> FastAPI (api/) --> {"status": "ok"}
+```
+
+## Constraints and invariants
+
+- Python 3.10–3.12 (CI uses 3.11; pins do not support newer interpreters).
+- CPU-only; torch/torchvision CPU wheels from the PyTorch index
+  (`requirements.txt`).
+- Deterministic runs: fixed seeds (`SEED = 42` default) and
+  `set_seed()`; the demo also records the seed in its JSON output.
+- Datasets, model weights, `.env`, and `mlruns/` are never committed
+  (`.gitignore`); the only committed generated files are the demo artifacts in
+  `docs/results/` and `docs/figures/`.
+- Defensive research only: public feature datasets, no live malware, no
+  weaponized tooling (see [`threat_model_v0.1.md`](threat_model_v0.1.md)).
+
+## Where future components fit
+
+| Planned work | Location | Module README |
+|---|---|---|
+| EMBER / CIC-IDS-2017 download, preprocessing | `src/data/` | [`src/data/README.md`](../src/data/README.md) |
+| Baseline detectors | `src/models/` | [`src/models/README.md`](../src/models/README.md) |
+| FGSM/PGD/CW wrappers over ART | `src/attacks/` | [`src/attacks/README.md`](../src/attacks/README.md) |
+| Adversarial training, distillation, ensembles, sanitization, detector | `src/defenses/` | [`src/defenses/README.md`](../src/defenses/README.md) |
+| Metrics and plots | `src/evaluation/` | [`src/evaluation/README.md`](../src/evaluation/README.md) |
+| REST endpoints (/predict, /attack, /defend) | `api/` | [`api/README.md`](../api/README.md) |
+| Real dashboard | `dashboard/` | [`dashboard/README.md`](../dashboard/README.md) |
+
+Non-obvious choices are logged in [`DECISIONS.md`](DECISIONS.md); sprint
+reports record what was actually run and measured.

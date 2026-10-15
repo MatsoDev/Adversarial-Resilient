@@ -1,5 +1,9 @@
 # PR: sprint1/foundations → main
 
+> Historical snapshot of the merged Sprint 1 pull request (PR #1), kept for
+> the project record. The living sprint report is
+> [`sprint1_report.md`](sprint1_report.md).
+
 ## What
 Sprint 1 foundations: repo skeleton, pinned CPU env (torch 2.4.1, ART 1.18.1,
 numpy 1.26.4, setuptools 75.8.0), `src/config` + `set_seed` + BaselineMLP/SmallCNN,

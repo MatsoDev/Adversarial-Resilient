@@ -33,6 +33,51 @@
   `docs/results` + `docs/figures`; Sprint 2 should redirect synthetic to temp.
   Restored real outputs by re-running `--fast` after tests.
 
+## Post-merge maintenance (2026-10-15, Linux, Python 3.11.16)
+
+Branch `chore/repository-structure-cleanup` (main is protected; nothing pushed
+to it directly). Scope: repository navigation/documentation, hygiene fixes,
+and one Makefile fix (`clean`); no changes to application code or CI behavior.
+
+- **Documentation system added.** `docs/README.md` is now the documentation
+  index; `docs/architecture.md` documents components/dependency rules/data
+  flows; `docs/project-structure.md` is the "where does this belong" reference;
+  `AGENTS.md` is the short navigation map for AI coding agents. The root README
+  links to them. Rationale: future contributors and agents previously had to
+  reverse-engineer the structure; there was no index and no agent instructions.
+- **Dead `[tool.black]` config removed from `pyproject.toml`.** Black is not in
+  any requirements file nor in pre-commit; `ruff format` (pre-commit hook) is
+  the configured formatter. The section was misleading configuration only.
+- **`scripts/art_quickstart.py` formatted with `ruff format`.** It was the only
+  file that failed `ruff format --check` — the pre-commit `ruff-format` hook
+  would have reformatted it on the next local commit. Purely line-wrapping
+  changes; logic untouched.
+- **Project plan converted to Markdown (`docs/project_plan.md`); HTML removed.**
+  The HTML export rendered as raw source on GitHub and mixed the content with
+  embedded CSS; every other doc is Markdown. Conversion used pandoc and was
+  verified token-by-token against the original (the only added tokens are the
+  header note pointing at the tracker and the ordinals pandoc emits for `<ol>`
+  lists). The original export remains in git history (commit `c8a9d0a` added
+  `docs/project_plan.html`) if the exact file is ever needed.
+- **`docs/PR_sprint1.md` labeled as a historical snapshot.** Kept for the
+  sprint record (the merged PR body also exists on GitHub); a header note
+  now points readers to `sprint1_report.md` as the living report.
+- **Living tracker added (`docs/progress.md`).** Division of labor: the plan
+  holds scope and schedule (rare, deliberate edits), `progress.md` holds
+  sprint/milestone status and the current checklist (updated constantly), and
+  `sprintN_report.md` files remain the evidence of record. This keeps one
+  authoritative place per question (what / now / what happened) instead of
+  re-editing the plan or the README on every status change.
+- **`make clean` keeps committed demo artifacts.** It used to delete
+  `docs/results/art_quickstart_results.json` and `docs/figures/art_*` along
+  with the caches, leaving a dirty working tree for no benefit — those files
+  are committed reference outputs that `make demo` regenerates anyway. Clean
+  removes only caches and `mlruns/` now.
+- **Generated JSON ends with a newline.** `scripts/art_quickstart.py` now
+  writes a trailing newline after `json.dump`, so `make demo` output matches
+  the pre-commit `end-of-file-fixer` instead of leaving a one-byte diff in
+  the committed artifact (found by running `pre-commit run --all-files`).
+
 ## Pre-merge audit (2026-10-15, Linux, Python 3.11.16)
 
 - **Demo/test outputs are caller-supplied.** `run_demo(args, output_dir=...)`

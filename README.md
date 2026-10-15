@@ -18,19 +18,35 @@ Works today:
 - `Dockerfile` and `docker-compose.yml` for api, dashboard, and mlflow services
   (the image is built in CI; the compose stack was smoke-tested on Linux).
 
-Next:
-
-- Real datasets (EMBER for malware, CIC-IDS-2017 for network traffic).
-- Baseline detectors and their clean-accuracy benchmarks.
-- FGSM/PGD/CW attacks against the real detectors.
-- Defenses (adversarial training, distillation, ensembles, sanitization, detector).
-- A real dashboard with robustness charts.
+Next: real datasets (EMBER for malware, CIC-IDS-2017 for network traffic),
+baseline detectors, FGSM/PGD/CW attacks, defenses, and the full dashboard.
+Sprint-by-sprint status is tracked in
+[`docs/progress.md`](docs/progress.md); scope and schedule are in
+[`docs/project_plan.md`](docs/project_plan.md).
 
 Honestly not verified: the CleverHans cross-check was only tested as a graceful
 skip (library not installed). Docker is covered differently: the image builds
 in CI on every push, and the compose stack (api, dashboard, mlflow) was
 smoke-tested on Linux — see the troubleshooting section for why CleverHans is
 optional.
+
+## Documentation
+
+Start with the documentation index: [`docs/README.md`](docs/README.md).
+Highlights:
+
+- [`docs/architecture.md`](docs/architecture.md) — components, dependency
+  rules, and data flows.
+- [`docs/project-structure.md`](docs/project-structure.md) — directory
+  responsibilities and where new code belongs.
+- [`docs/progress.md`](docs/progress.md) — where we are now: sprint and
+  milestone status (living tracker; baseline is
+  [`docs/project_plan.md`](docs/project_plan.md)).
+- [`AGENTS.md`](AGENTS.md) — quick navigation map for AI coding agents.
+- [`CONTRIBUTING.md`](CONTRIBUTING.md) — branching, commit style, PR rules.
+- [`docs/DECISIONS.md`](docs/DECISIONS.md) — non-obvious technical decisions.
+- [`docs/threat_model_v0.1.md`](docs/threat_model_v0.1.md) — security scope
+  and attacker model.
 
 ## Prerequisites
 
@@ -215,15 +231,17 @@ http://localhost:8501, and http://localhost:5000. Stop with `Ctrl+C`, then
 api/            FastAPI service (/health today)
 dashboard/      Streamlit app (early page today)
 data/           raw/, processed/, adversarial/ runtime data (gitignored, .gitkeep only)
-docs/           threat model, reading list, literature templates, decisions, reports
-docs/figures/   demo plots (generated)
-docs/results/   demo JSON report (generated)
+docs/           documentation (index at docs/README.md), threat model, decisions, reports
+docs/figures/   demo plots (generated, committed on purpose)
+docs/results/   demo JSON report (generated, committed on purpose)
 models/         trained weights (gitignored, .gitkeep only)
 notebooks/      exploratory notebooks (later)
 scripts/        art_quickstart.py demo
 src/            config.py paths/seeds, utils/, data/, models/, attacks/, defenses/, evaluation/
-tests/          seed, config, and smoke tests
+tests/          seed, config, API, and smoke tests
 ```
+
+Full reference: [`docs/project-structure.md`](docs/project-structure.md).
 
 ## Working with Git
 

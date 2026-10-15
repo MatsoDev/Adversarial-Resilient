@@ -37,11 +37,17 @@ logger = logging.getLogger(__name__)
 def parse_args(argv=None) -> argparse.Namespace:
     p = argparse.ArgumentParser(description="ART FGSM/PGD/CW quickstart on MNIST")
     p.add_argument("--fast", action="store_true", help="Use subset so it finishes in ~2 min")
-    p.add_argument("--synthetic", action="store_true", help="Tiny random data, no download (for tests)")
-    p.add_argument("--epochs", type=int, default=None, help="Training epochs (default 2 fast, 3 full)")
+    p.add_argument(
+        "--synthetic", action="store_true", help="Tiny random data, no download (for tests)"
+    )
+    p.add_argument(
+        "--epochs", type=int, default=None, help="Training epochs (default 2 fast, 3 full)"
+    )
     p.add_argument("--eps", type=float, default=0.3, help="Main epsilon for FGSM/PGD")
     p.add_argument("--seed", type=int, default=42)
-    p.add_argument("--cleverhans", action="store_true", help="Also run CleverHans FGSM/PGD cross-check")
+    p.add_argument(
+        "--cleverhans", action="store_true", help="Also run CleverHans FGSM/PGD cross-check"
+    )
     p.add_argument("--cw-samples", type=int, default=None, help="Override CW eval sample count")
     return p.parse_args(argv)
 
@@ -88,7 +94,11 @@ def load_mnist(fast: bool, synthetic: bool):
     x_test = x_test[:, None, :, :].astype(np.float32)
     import torch as _t  # local alias to avoid confusion
 
-    y_test = test_ds.targets.numpy() if hasattr(test_ds.targets, "numpy") else _t.as_tensor(test_ds.targets).numpy()  # type: ignore[attr-defined]
+    y_test = (
+        test_ds.targets.numpy()
+        if hasattr(test_ds.targets, "numpy")
+        else _t.as_tensor(test_ds.targets).numpy()
+    )  # type: ignore[attr-defined]
     return train_loader, test_loader, x_test, y_test
 
 
@@ -112,7 +122,9 @@ def train_model(model, train_loader, test_loader, epochs: int, device: str = "cp
             loss_sum += loss.item() * len(xb)
             total += len(xb)
             correct += (out.argmax(1) == yb).sum().item()
-        logger.info("epoch %d/%d loss=%.4f acc=%.4f", epoch + 1, epochs, loss_sum / total, correct / total)
+        logger.info(
+            "epoch %d/%d loss=%.4f acc=%.4f", epoch + 1, epochs, loss_sum / total, correct / total
+        )
     # Clean test accuracy
     model.eval()
     correct = total = 0
@@ -180,7 +192,9 @@ def run_demo(args: argparse.Namespace, output_dir: Path | None = None) -> dict:
 
     fast = args.fast or args.synthetic
     epochs = args.epochs if args.epochs is not None else (2 if fast else 3)
-    train_loader, test_loader, x_test_all, y_test_all = load_mnist(fast=fast, synthetic=args.synthetic)
+    train_loader, test_loader, x_test_all, y_test_all = load_mnist(
+        fast=fast, synthetic=args.synthetic
+    )
 
     # Eval subsets: keep CW small (slow). FGSM/PGD use up to 1000 samples.
     if args.synthetic:
@@ -201,7 +215,12 @@ def run_demo(args: argparse.Namespace, output_dir: Path | None = None) -> dict:
 
     from art.attacks.evasion import CarliniL2Method, FastGradientMethod, ProjectedGradientDescent
 
-    results: dict = {"clean_accuracy": clean_acc, "seed": args.seed, "epochs": epochs, "attacks": {}}
+    results: dict = {
+        "clean_accuracy": clean_acc,
+        "seed": args.seed,
+        "epochs": epochs,
+        "attacks": {},
+    }
 
     # --- FGSM ---
     x_fgsm = x_test_all[:n_fgsm]
@@ -211,14 +230,24 @@ def run_demo(args: argparse.Namespace, output_dir: Path | None = None) -> dict:
     pred_fgsm = classifier.predict(x_adv_fgsm).argmax(axis=1)
     r_fgsm = eval_attack(y_fgsm, pred_fgsm, x_fgsm, x_adv_fgsm, args.eps)
     r_fgsm.update({"method": "FGSM", "params": {"eps": args.eps}, "n_samples": n_fgsm})
-    r_fgsm["clean_accuracy_subset"] = float((classifier.predict(x_fgsm).argmax(axis=1) == y_fgsm).mean())
+    r_fgsm["clean_accuracy_subset"] = float(
+        (classifier.predict(x_fgsm).argmax(axis=1) == y_fgsm).mean()
+    )
     results["attacks"]["fgsm"] = r_fgsm
-    logger.info("FGSM eps=%.3f clean=%.4f adv=%.4f asr=%.4f", args.eps, r_fgsm["clean_accuracy_subset"], r_fgsm["adv_accuracy"], r_fgsm["attack_success_rate"])
+    logger.info(
+        "FGSM eps=%.3f clean=%.4f adv=%.4f asr=%.4f",
+        args.eps,
+        r_fgsm["clean_accuracy_subset"],
+        r_fgsm["adv_accuracy"],
+        r_fgsm["attack_success_rate"],
+    )
 
     # --- PGD ---
     x_pgd = x_test_all[:n_pgd]
     y_pgd = y_test_all[:n_pgd]
-    pgd = ProjectedGradientDescent(estimator=classifier, eps=args.eps, eps_step=0.1, max_iter=10 if fast else 20)
+    pgd = ProjectedGradientDescent(
+        estimator=classifier, eps=args.eps, eps_step=0.1, max_iter=10 if fast else 20
+    )
     x_adv_pgd = pgd.generate(x=x_pgd)
     pred_pgd = classifier.predict(x_adv_pgd).argmax(axis=1)
     r_pgd = eval_attack(y_pgd, pred_pgd, x_pgd, x_adv_pgd, args.eps)
@@ -229,23 +258,44 @@ def run_demo(args: argparse.Namespace, output_dir: Path | None = None) -> dict:
             "n_samples": n_pgd,
         }
     )
-    r_pgd["clean_accuracy_subset"] = float((classifier.predict(x_pgd).argmax(axis=1) == y_pgd).mean())
+    r_pgd["clean_accuracy_subset"] = float(
+        (classifier.predict(x_pgd).argmax(axis=1) == y_pgd).mean()
+    )
     results["attacks"]["pgd"] = r_pgd
-    logger.info("PGD eps=%.3f clean=%.4f adv=%.4f asr=%.4f", args.eps, r_pgd["clean_accuracy_subset"], r_pgd["adv_accuracy"], r_pgd["attack_success_rate"])
+    logger.info(
+        "PGD eps=%.3f clean=%.4f adv=%.4f asr=%.4f",
+        args.eps,
+        r_pgd["clean_accuracy_subset"],
+        r_pgd["adv_accuracy"],
+        r_pgd["attack_success_rate"],
+    )
 
     # --- CW L2 (slow: tiny subset) ---
     x_cw = x_test_all[:n_cw]
     y_cw = y_test_all[:n_cw]
     try:
-        cw = CarliniL2Method(classifier=classifier, confidence=0.0, max_iter=10 if fast else 20, verbose=False)
+        cw = CarliniL2Method(
+            classifier=classifier, confidence=0.0, max_iter=10 if fast else 20, verbose=False
+        )
         x_adv_cw = cw.generate(x=x_cw)
         pred_cw = classifier.predict(x_adv_cw).argmax(axis=1)
         r_cw = eval_attack(y_cw, pred_cw, x_cw, x_adv_cw, eps=0.0)
         r_cw.update(
-            {"method": "CW-L2", "params": {"confidence": 0.0, "max_iter": 10 if fast else 20}, "n_samples": n_cw}
+            {
+                "method": "CW-L2",
+                "params": {"confidence": 0.0, "max_iter": 10 if fast else 20},
+                "n_samples": n_cw,
+            }
         )
-        r_cw["clean_accuracy_subset"] = float((classifier.predict(x_cw).argmax(axis=1) == y_cw).mean())
-        logger.info("CW-L2 clean=%.4f adv=%.4f asr=%.4f", r_cw["clean_accuracy_subset"], r_cw["adv_accuracy"], r_cw["attack_success_rate"])
+        r_cw["clean_accuracy_subset"] = float(
+            (classifier.predict(x_cw).argmax(axis=1) == y_cw).mean()
+        )
+        logger.info(
+            "CW-L2 clean=%.4f adv=%.4f asr=%.4f",
+            r_cw["clean_accuracy_subset"],
+            r_cw["adv_accuracy"],
+            r_cw["attack_success_rate"],
+        )
     except Exception as e:  # CW can OOM/fail on some setups; record and continue
         logger.warning("CW-L2 failed: %s", e)
         r_cw = {"method": "CW-L2", "failed": True, "error": str(e), "n_samples": n_cw}
@@ -274,6 +324,7 @@ def run_demo(args: argparse.Namespace, output_dir: Path | None = None) -> dict:
     figures_dir.mkdir(parents=True, exist_ok=True)
     with open(results_dir / "art_quickstart_results.json", "w") as f:
         json.dump(results, f, indent=2)
+        f.write("\n")
     logger.info("wrote %s", results_dir / "art_quickstart_results.json")
 
     save_figures(x_fgsm, x_adv_fgsm, x_adv_pgd, y_fgsm, pred_fgsm, table, figures_dir)
