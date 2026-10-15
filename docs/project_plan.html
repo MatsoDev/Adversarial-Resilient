@@ -1,0 +1,412 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}</style><style>:root{color-scheme:light dark;--md-bg:#fff;--md-text:rgba(0,0,0,.8);--md-muted:rgba(0,0,0,.6);--md-fill:rgba(0,0,0,.04);--md-fill-strong:rgba(0,0,0,.06);--md-rule:rgba(0,0,0,.1);--md-rule-strong:rgba(0,0,0,.16);--md-link:hsl(210 100% 45%)}@media (prefers-color-scheme:dark){:root:where(:not([data-theme="light"])){--md-bg:#0d0d0d;--md-text:rgba(255,255,255,.85);--md-muted:rgba(255,255,255,.6);--md-fill:rgba(255,255,255,.06);--md-fill-strong:rgba(255,255,255,.09);--md-rule:rgba(255,255,255,.14);--md-rule-strong:rgba(255,255,255,.22);--md-link:hsl(210 100% 72%)}}:root[data-theme="dark"]{color-scheme:dark;--md-bg:#0d0d0d;--md-text:rgba(255,255,255,.85);--md-muted:rgba(255,255,255,.6);--md-fill:rgba(255,255,255,.06);--md-fill-strong:rgba(255,255,255,.09);--md-rule:rgba(255,255,255,.14);--md-rule-strong:rgba(255,255,255,.22);--md-link:hsl(210 100% 72%)}:root[data-theme="light"]{color-scheme:light}@media print{:root,:root[data-theme="dark"]{color-scheme:light;--md-bg:#fff;--md-text:rgba(0,0,0,.8);--md-muted:rgba(0,0,0,.6);--md-fill:rgba(0,0,0,.04);--md-fill-strong:rgba(0,0,0,.06);--md-rule:rgba(0,0,0,.1);--md-rule-strong:rgba(0,0,0,.16);--md-link:hsl(210 100% 45%)}}body{background:var(--md-bg);color:var(--md-text);max-width:720px;margin:0 auto;padding:32px;display:flex;flex-direction:column;gap:10px;font:14px/1.55 -apple-system,BlinkMacSystemFont,'SF Pro','Segoe UI',sans-serif;overflow-wrap:break-word}body>:first-child{margin-top:0}h1,h2,h3,h4,h5,h6{margin:6px 0 0;line-height:1.25;font-weight:600;text-wrap:balance}h1{font-size:1.35em}h2{font-size:1.15em;color:var(--md-muted)}h3,h4,h5,h6{font-size:1em}p,ul,ol,blockquote,table,pre,hr{margin:0}strong{font-weight:600}a{color:var(--md-link);text-decoration:none}a:hover{text-decoration:underline}ul,ol{display:flex;flex-direction:column;gap:6px;padding-left:22px}ul{list-style:disc}ol{list-style:decimal}:is(li,td,th)>*+:is(p,ul,ol,blockquote){margin-top:6px}blockquote{display:flex;flex-direction:column;gap:10px;border-left:2px solid var(--md-rule);padding-left:10px;color:var(--md-muted)}:not(pre)>code{background:var(--md-fill);padding:1px 3px;border-radius:4px;font:.92em 'SF Mono',ui-monospace,Menlo,Consolas,monospace}a>code{background:none;color:inherit}pre{background:var(--md-fill);padding:10px 12px;border-radius:6px;overflow-x:auto;font:12px/1.5 'SF Mono',ui-monospace,Menlo,Consolas,monospace;margin-block:4px}pre code{background:none;padding:0;font:inherit}table{width:100%;border-collapse:separate;border-spacing:2px;font:inherit}th,td{padding:6px 8px;border-radius:3px;text-align:left;vertical-align:top}th{background:var(--md-fill-strong);font-weight:600}td{background:var(--md-fill)}:is(th,td) :not(pre)>code{background:transparent}hr{border:0;border-top:1px solid var(--md-rule-strong);margin-block:10px}img{max-width:100%;height:auto;border-radius:4px}</style>
+</head><body>
+<h1>Adversarial-Resilient Security Models — Full Project Plan</h1>
+<p><strong>Graduation Project 2026–2027 · Pharos University in Alexandria · 9 members</strong></p>
+<table>
+<thead>
+<tr>
+<th>Semester</th>
+<th>Focus</th>
+<th>Brief phase</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Semester 1</strong></td>
+<td>Research, data, baseline model, attacks, Phase 1 report</td>
+<td>Phase 1: Build &amp; Attack</td>
+</tr>
+<tr>
+<td><strong>Semester 2</strong></td>
+<td>Defenses, backend, dashboard, final evaluation, thesis, defense/demo</td>
+<td>Phase 2: Defend &amp; Harden + Product</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2>0. Decisions to lock in Week 1</h2>
+<table>
+<thead>
+<tr>
+<th>Decision</th>
+<th>Recommendation</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Primary domain</td>
+<td><strong>Malware detection (EMBER)</strong></td>
+<td>Pre-extracted features, 1M samples, easiest to attack with ART</td>
+</tr>
+<tr>
+<td>Secondary domain</td>
+<td><strong>Network IDS (CICIDS2017)</strong></td>
+<td>Only if Semester 1 finishes on time; otherwise a stretch goal</td>
+</tr>
+<tr>
+<td>Framework</td>
+<td><strong>PyTorch</strong> (+ IBM ART wrapper), CleverHans for cross-checking</td>
+<td>Flexible gradients; ART supports it well</td>
+</tr>
+<tr>
+<td>Repo</td>
+<td>One GitHub monorepo: <code>data/ models/ attacks/ defenses/ api/ dashboard/ docs/</code></td>
+<td>Avoids integration pain later</td>
+</tr>
+<tr>
+<td>Experiment tracking</td>
+<td>MLflow or Weights &amp; Biases</td>
+<td>Every number in the report must be reproducible</td>
+</tr>
+<tr>
+<td>Data/model versioning</td>
+<td>DVC or Git LFS</td>
+<td>Adversarial dataset must be versioned (brief requirement)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Do not start with both domains.</strong> One domain done deeply beats two done shallowly. Add the second only after the full attack→defense loop works on the first.</p>
+<h3>Team structure</h3>
+<table>
+<thead>
+<tr>
+<th>Role</th>
+<th>People</th>
+<th>Main ownership</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AI Engineer (AI)</td>
+<td>1</td>
+<td>Models, attacks, defenses</td>
+</tr>
+<tr>
+<td>Data Scientist (DS)</td>
+<td>1</td>
+<td>Preprocessing, feature engineering, metrics, statistics, plots; <strong>acts as second ML engineer</strong> (takes distillation + detector so AI isn't a bottleneck)</td>
+</tr>
+<tr>
+<td>Computer Science (CS)</td>
+<td>2</td>
+<td>FastAPI, dashboard, Docker, DB, CI pipeline</td>
+</tr>
+<tr>
+<td>Security (SS)</td>
+<td>5</td>
+<td>Split into 3 sub-teams (below)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Security sub-teams (5 people)</strong></p>
+<ul>
+<li><strong>SS-A (2): Malware</strong> — EMBER/CIC-MalMem, PE structure, problem-space attack analysis</li>
+<li><strong>SS-B (2): Network</strong> — CICIDS2017/NSL-KDD, Wireshark/Zeek/Suricata, PCAP pipeline</li>
+<li><strong>SS-C (1): Threat analysis &amp; documentation lead</strong> — MITRE ATLAS / OWASP ML mapping, threat model, security sections of every report</li>
+</ul>
+<p><strong>Cross-team sync:</strong> weekly 30 min AI + Security (as the brief recommends) + a 20-min full-team stand-up. Sprint length: 2 weeks. Each sprint ends with a demo of something that runs.</p>
+<hr>
+<h1>SEMESTER 1 — Build &amp; Attack (≈16 weeks)</h1>
+<p><strong>Goal:</strong> a trained baseline (~95–97%), a working attack suite (FGSM, PGD, CW), a measured accuracy drop, and a versioned adversarial dataset.</p>
+<h2>Sprint 1 · Weeks 1–2 — Foundations</h2>
+<p><strong>All</strong></p>
+<ul>
+<li>Kick-off, role assignment, repo + environment setup (Python 3.10+, <code>requirements.txt</code>, Docker dev image)</li>
+<li>Everyone reads: Goodfellow (FGSM), Madry (PGD), Carlini &amp; Wagner (CW), the ART docs, and one paper on adversarial malware (e.g., MalConv attacks / Grosse et al.)</li>
+</ul>
+<p><strong>Per role</strong></p>
+<ul>
+<li><strong>AI/DS:</strong> run the ART quickstart on MNIST to confirm FGSM/PGD/CW work in your environment</li>
+<li><strong>SS-A/B:</strong> each sub-team writes a 3-page literature note</li>
+<li><strong>SS-C:</strong> draft the <strong>threat model</strong> (attacker goals, knowledge: white-box vs black-box, capability, constraints)</li>
+<li><strong>CS:</strong> project skeleton, CI (lint + tests), Docker Compose with placeholder services</li>
+</ul>
+<p><strong>Deliverables:</strong> repo live, threat model v0.1, literature notes, working ART demo.</p>
+<h2>Sprint 2 · Weeks 3–4 — Data</h2>
+<ul>
+<li><strong>SS-A:</strong> download EMBER (v2), verify checksums, document the 2381-dim feature layout; fetch CIC-MalMem as optional supplement</li>
+<li><strong>SS-B:</strong> download CICIDS2017 (+ NSL-KDD for a quick baseline), document attack classes</li>
+<li><strong>DS:</strong> exploratory data analysis (class balance, missing values, duplicates, feature distributions), write the preprocessing pipeline (cleaning, normalization, train/val/test split — <strong>time-based split for EMBER</strong>, stratified for CICIDS)</li>
+<li><strong>CS:</strong> set up data storage/versioning, a reusable <code>DataLoader</code> module</li>
+<li><strong>SS-C:</strong> data card for each dataset (source, license, known biases)</li>
+</ul>
+<p><strong>Deliverables:</strong> cleaned, versioned datasets; EDA report; <code>preprocess.py</code> that reproduces everything from raw data.</p>
+<h2>Sprint 3 · Weeks 5–6 — Classical baselines + first neural model</h2>
+<ul>
+<li><strong>DS:</strong> Random Forest / Logistic Regression / SVM baselines with Scikit-learn (these give a sanity floor and a comparison point)</li>
+<li><strong>AI:</strong> MLP baseline in PyTorch on EMBER features (e.g., 2381→1024→512→128→1, dropout, batch norm); log to MLflow</li>
+<li><strong>SS-A/B:</strong> define <em>which feature changes are realistic</em> (e.g., EMBER: section count/size, appended bytes, imports; network: timing, packet size, header fields). Produce a <strong>feasibility table of modifiable vs. non-modifiable features</strong></li>
+<li><strong>CS:</strong> start FastAPI skeleton (<code>/health</code>, <code>/predict</code> stub returning dummy output)</li>
+</ul>
+<p><strong>Deliverables:</strong> classical + MLP baselines with metrics; feature-feasibility table.</p>
+<h2>Sprint 4 · Weeks 7–8 — Tune and freeze the baseline</h2>
+<ul>
+<li><strong>AI + DS:</strong> hyperparameter search (learning rate, depth, dropout, batch size), try a 1D-CNN variant, calibrate probabilities</li>
+<li>Full evaluation: Accuracy, Precision, Recall, F1, ROC-AUC, <strong>confusion matrix</strong>, plus false-positive rate at fixed true-positive rate (security teams care about this)</li>
+<li><strong>Freeze <code>baseline_v1</code></strong> (weights, config, seed, metrics). All attacks target this exact model</li>
+<li><strong>SS-C:</strong> write the baseline section of the report</li>
+</ul>
+<p><strong>Deliverables:</strong> <code>baseline_v1</code> at ~95–97% accuracy, evaluation report, <strong>Milestone M1</strong>.</p>
+<blockquote>
+<p><strong>Checkpoint (end of Week 8):</strong> if baseline &lt; 93%, fix it now. Do not start attacking a weak model.</p>
+</blockquote>
+<h2>Sprint 5 · Weeks 9–10 — Attack implementation</h2>
+<ul>
+<li><strong>AI:</strong> wrap the model in ART <code>PyTorchClassifier</code>; implement <strong>FGSM</strong>, then <strong>PGD</strong> (vary ε, step size, iterations), then <strong>CW (L2)</strong></li>
+<li><strong>DS:</strong> attack-evaluation harness: accuracy vs ε curves, attack success rate, mean perturbation size (L0/L2/L∞)</li>
+<li><strong>AI (second implementation):</strong> reproduce each attack in <strong>CleverHans</strong> and compare results to ART (brief calls for cross-validation)</li>
+<li><strong>SS-A/B:</strong> constrain attacks with the feasibility table (mask non-modifiable features; clip to valid ranges; keep integer features integral)</li>
+</ul>
+<p><strong>Deliverables:</strong> attack module <code>attacks/</code>, first accuracy-under-attack numbers.</p>
+<h2>Sprint 6 · Weeks 11–12 — Realistic attacks + black-box</h2>
+<ul>
+<li><strong>Feature-space vs. problem-space:</strong> with EMBER features, a perturbation might not correspond to a valid, still-malicious executable. Security team documents this gap honestly and, where feasible, demonstrates a <strong>problem-space</strong> example (e.g., appending bytes/adding a section in a benign test PE in an isolated lab) to validate that a feature-space change is realizable</li>
+<li><strong>Black-box attacks:</strong> transfer attack (craft on a surrogate model, test on the target) and, if time permits, ART's HopSkipJump / ZOO</li>
+<li><strong>Network side (if secondary domain is active):</strong> train an IDS baseline on CICIDS2017 and run constrained attacks</li>
+<li><strong>SS-C:</strong> map each attack to <strong>MITRE ATLAS</strong> techniques and the <strong>OWASP ML Top 10</strong></li>
+</ul>
+<p><strong>Deliverables:</strong> white-box and black-box results table; realism analysis; ATLAS/OWASP mapping.</p>
+<blockquote>
+<p><strong>Safety rule:</strong> all malware handling happens in an isolated VM with no network. Use public feature datasets as the default; never distribute weaponized samples. Keep the project's outputs at the level of models, metrics and perturbation statistics.</p>
+</blockquote>
+<h2>Sprint 7 · Weeks 13–14 — Adversarial dataset + analysis</h2>
+<ul>
+<li><strong>AI + DS:</strong> generate the <strong>adversarial dataset</strong> at several ε levels, labeled by attack type (FGSM / PGD / CW), with metadata (ε, norm, source model, seed); version it with DVC; write a dataset card</li>
+<li><strong>DS:</strong> generate all Phase 1 plots: accuracy-vs-ε per attack, before/after confusion matrices, perturbation histograms</li>
+<li><strong>SS-A/B:</strong> interpret findings: which features were abused most, why the model failed</li>
+<li><strong>CS:</strong> <code>/predict</code> now serves <code>baseline_v1</code>; basic upload page (Streamlit or React skeleton)</li>
+</ul>
+<p><strong>Deliverables:</strong> versioned adversarial dataset, plot set, interpretation notes.</p>
+<h2>Sprint 8 · Weeks 15–16 — Phase 1 wrap-up and defense planning</h2>
+<ul>
+<li>Compile <strong>Phase 1 Performance Report</strong> (baseline vs FGSM vs PGD vs CW, confusion matrices, graphs)</li>
+<li>Internal review, then supervisor presentation (<strong>Milestone M2</strong>)</li>
+<li><strong>Phase 2 design workshop:</strong> decide defense order, hyper-parameters, evaluation protocol (below), and who owns each defense</li>
+<li>Buffer for catching up on delays</li>
+</ul>
+<p><strong>Semester 1 exit criteria (must all be true):</strong></p>
+<ul>
+<li><input disabled="" type="checkbox"> <code>baseline_v1</code> frozen and reproducible</li>
+<li><input disabled="" type="checkbox"> FGSM, PGD, CW working in ART and cross-checked in CleverHans</li>
+<li><input disabled="" type="checkbox"> Documented accuracy drop (target region: ~97% → ~54%; report whatever you actually measure)</li>
+<li><input disabled="" type="checkbox"> Versioned adversarial dataset with data card</li>
+<li><input disabled="" type="checkbox"> Phase 1 report + threat model v1.0 + ATLAS/OWASP mapping</li>
+<li><input disabled="" type="checkbox"> FastAPI serving the baseline, repo + Docker working</li>
+</ul>
+<p><strong>Semester 1 contingency:</strong> if behind, drop the network IDS and black-box extras. Never drop the baseline, the three attacks, or the dataset.</p>
+<hr>
+<h1>SEMESTER 2 — Defend, Harden, Deploy (≈16 weeks)</h1>
+<p><strong>Goal:</strong> stack defenses, re-attack honestly, ship the dashboard, write the thesis, defend.</p>
+<h2>Evaluation protocol (decide in Sprint 9, then never change)</h2>
+<p>To avoid fooling yourselves:</p>
+<ol>
+<li>Same test set, same ε values, same attacks as Phase 1</li>
+<li><strong>Adaptive attacks:</strong> after hardening, re-run attacks against the <em>new</em> model (and against the full pipeline), not only against the old one. Defenses like distillation and input sanitization are known to look strong against non-adaptive attacks because of gradient masking</li>
+<li>Hold out attack types for validation (e.g., train adversarially on FGSM/PGD, test on CW and on a black-box attack) to measure generalization</li>
+<li>Report clean accuracy too. A defense that wrecks clean accuracy or raises false positives is not a win</li>
+<li>Report the per-defense contribution (ablation)</li>
+</ol>
+<h2>Sprint 9 · Weeks 1–2 — Adversarial training</h2>
+<ul>
+<li><strong>AI:</strong> adversarial training using the Phase 1 adversarial dataset <strong>plus on-the-fly PGD</strong> (Madry-style), mixing clean and adversarial batches</li>
+<li><strong>DS:</strong> tune the clean/adversarial ratio and ε schedule; track clean accuracy drop</li>
+<li><strong>CS:</strong> extend the pipeline so one command runs: train → attack → evaluate → plot</li>
+<li><strong>SS:</strong> review whether the new adversarial examples are still realistic under the feasibility table</li>
+</ul>
+<p><strong>Deliverable:</strong> <code>hardened_v1</code> (adversarial training only) with before/after numbers.</p>
+<h2>Sprint 10 · Weeks 3–4 — Ensemble + distillation</h2>
+<ul>
+<li><strong>AI:</strong> ensemble of <strong>3 diverse models</strong> (e.g., MLP, 1D-CNN, gradient-boosted/Random Forest or differently-seeded/architected networks), majority vote. Diversity matters, so vary architecture and training data subsets</li>
+<li><strong>DS:</strong> <strong>defensive distillation</strong> (teacher → student with high temperature, then T=1 at inference); evaluate against CW specifically</li>
+<li>Evaluate transferability inside the ensemble: do adversarial samples crafted on one member fool the others?</li>
+</ul>
+<p><strong>Deliverable:</strong> ensemble and distilled models with results; <strong>Milestone M3 (mid-defense check)</strong>.</p>
+<h2>Sprint 11 · Weeks 5–6 — Input sanitization + adversarial detector</h2>
+<ul>
+<li><strong>DS:</strong> input sanitization (feature clipping to valid ranges, outlier/anomaly filtering, feature squeezing/quantization, optional autoencoder-based denoising)</li>
+<li><strong>AI:</strong> <strong>adversarial detector</strong>, a binary classifier (clean vs adversarial) trained on clean + adversarial samples; evaluate detection rate, false alarms, and what happens against unseen attacks</li>
+<li><strong>SS-A/B:</strong> craft validation attacks <strong>against the defenses</strong> (e.g., attacker who knows the sanitizer); document where the defenses fail</li>
+</ul>
+<p><strong>Deliverable:</strong> sanitizer and detector modules with standalone metrics.</p>
+<h2>Sprint 12 · Weeks 7–8 — Stack, tune, re-attack</h2>
+<ul>
+<li>Assemble the full pipeline: <strong>Sanitizer → Detector → Classifier → Ensemble vote → Result engine</strong></li>
+<li>Run the complete attack suite (FGSM, PGD, CW, transfer, adaptive) against the pipeline</li>
+<li>Ablation table: each defense alone and in combination</li>
+<li>Target: ~91%+ under attack (report the real number; if below target, iterate within Sprint 13)</li>
+</ul>
+<p><strong>Deliverable:</strong> <strong>Comparison Report v1</strong> (before attack / after attack / after defense, per-defense contribution, confusion matrices), <strong>Milestone M4</strong>.</p>
+<blockquote>
+<p><strong>Checkpoint (end of Week 8):</strong> if robust accuracy is far below target, narrow the scope (one domain, fewer defenses done well) rather than adding more.</p>
+</blockquote>
+<h2>Sprint 13 · Weeks 9–10 — Backend + dashboard (parallel with tuning)</h2>
+<p><em>CS team has been preparing since Semester 1; this is the integration sprint.</em></p>
+<ul>
+<li><strong>CS:</strong> FastAPI endpoints: <code>/upload</code>, <code>/predict</code>, <code>/detect</code>, <code>/report</code>, <code>/history</code>; file validation (size/type limits, sandboxed parsing, no execution of uploaded files)</li>
+<li><strong>CS:</strong> database schema (uploads, predictions, confidence, adversarial flag, timestamps, model version) for the audit log</li>
+<li><strong>CS:</strong> dashboard (Streamlit for speed, React only if time allows): file upload, classification (Malware / Benign / Suspicious), confidence score, adversarial alert, before/after charts, report export (PDF/CSV), audit log view</li>
+<li><strong>AI/DS:</strong> export final models (TorchScript/ONNX), expose a clean inference interface, optimize latency</li>
+<li><strong>SS:</strong> write the test cases for the API and security-test the app itself (file-upload handling, input validation, auth)</li>
+</ul>
+<p><strong>Deliverable:</strong> end-to-end system running locally.</p>
+<h2>Sprint 14 · Weeks 11–12 — Containerization, automation, testing</h2>
+<ul>
+<li><strong>CS:</strong> Docker Compose (api, dashboard, db, model service); one-command start; CI pipeline that runs attack-and-defense tests on a small sample on every merge</li>
+<li><strong>All:</strong> end-to-end test with 20+ files/PCAPs including known-adversarial samples; fix bugs</li>
+<li><strong>SS:</strong> final <strong>threat analysis</strong> (what the system defends, what it doesn't, residual risks, ATLAS/OWASP alignment)</li>
+<li>Optional if time allows: network IDS extension (CICIDS2017 PCAP upload through Wireshark/Zeek/Suricata pipeline)</li>
+</ul>
+<p><strong>Deliverable:</strong> reproducible deployment, test report. <strong>Milestone M5: feature freeze at end of Week 12.</strong></p>
+<h2>Sprint 15 · Weeks 13–14 — Thesis, slides, demo</h2>
+<ul>
+<li><strong>Thesis chapters (suggested owners):</strong>
+<ol>
+<li>Introduction &amp; motivation — SS-C</li>
+<li>Background &amp; related work — SS-A/B</li>
+<li>Methodology &amp; datasets — DS</li>
+<li>Attacks &amp; Phase 1 results — AI</li>
+<li>Defenses &amp; Phase 2 results — AI + DS</li>
+<li>System design &amp; implementation — CS</li>
+<li>Threat analysis, limitations, ethics — SS-C</li>
+<li>Conclusion &amp; future work — all</li>
+</ol>
+</li>
+<li>Slides (≈20) and a scripted <strong>10-minute live demo</strong>: upload clean malware → detected; upload adversarial version → baseline fooled → hardened system flags it</li>
+<li>Record a <strong>backup demo video</strong> in case of live-demo failure</li>
+</ul>
+<p><strong>Deliverables:</strong> full thesis draft, slides, demo script and video.</p>
+<h2>Sprint 16 · Weeks 15–16 — Polish, rehearse, defend</h2>
+<ul>
+<li>Supervisor review and fixes, final figures, proofreading</li>
+<li>2 full dress rehearsals with Q&amp;A (assign question topics per member)</li>
+<li>Archive the final repo: tagged release, README, how-to-reproduce, model cards, dataset cards</li>
+</ul>
+<p><strong>Semester 2 exit criteria:</strong></p>
+<ul>
+<li><input disabled="" type="checkbox"> Full hardened pipeline (adversarial training, distillation, ensemble ×3, sanitization, detector)</li>
+<li><input disabled="" type="checkbox"> Re-attack results with adaptive attacks and per-defense ablation</li>
+<li><input disabled="" type="checkbox"> Dashboard + FastAPI + DB + Docker, one-command deployment</li>
+<li><input disabled="" type="checkbox"> Comparison report, threat analysis, thesis, slides, demo + backup video</li>
+</ul>
+<hr>
+<h2>Milestone summary</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>When</th>
+<th>Milestone</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>M0</td>
+<td>S1 W2</td>
+<td>Repo, environment, threat model v0.1</td>
+</tr>
+<tr>
+<td>M1</td>
+<td>S1 W8</td>
+<td><code>baseline_v1</code> frozen</td>
+</tr>
+<tr>
+<td>M2</td>
+<td>S1 W16</td>
+<td>Phase 1 report + adversarial dataset</td>
+</tr>
+<tr>
+<td>M3</td>
+<td>S2 W4</td>
+<td>Adversarial training + ensemble + distillation</td>
+</tr>
+<tr>
+<td>M4</td>
+<td>S2 W8</td>
+<td>Full defense stack + Comparison Report v1</td>
+</tr>
+<tr>
+<td>M5</td>
+<td>S2 W12</td>
+<td>Feature freeze, system deployed in Docker</td>
+</tr>
+<tr>
+<td>M6</td>
+<td>S2 W14</td>
+<td>Thesis draft + demo ready</td>
+</tr>
+<tr>
+<td>M7</td>
+<td>S2 W16</td>
+<td>Final defense</td>
+</tr>
+</tbody>
+</table>
+<h2>Risks and mitigations</h2>
+<table>
+<thead>
+<tr>
+<th>Risk</th>
+<th>Likelihood</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Baseline underperforms or EMBER is heavy on laptops</td>
+<td>Medium</td>
+<td>Use a subset for dev, full set for final runs; Google Colab / Kaggle GPU; start early</td>
+</tr>
+<tr>
+<td>Adversarial examples aren't realizable as valid malware</td>
+<td>High</td>
+<td>Feasibility table, constrained attacks, a problem-space validation example, and honest reporting</td>
+</tr>
+<tr>
+<td>Robust accuracy misses 91%</td>
+<td>Medium</td>
+<td>Report real numbers with ablation; the research value is in the analysis, not hitting a number</td>
+</tr>
+<tr>
+<td>Defenses look strong only because of gradient masking</td>
+<td>High</td>
+<td>Adaptive attacks and black-box evaluation (Sprint 12)</td>
+</tr>
+<tr>
+<td>AI engineer bottleneck</td>
+<td>High</td>
+<td>DS co-owns distillation, sanitization and detector; CS owns pipeline automation</td>
+</tr>
+<tr>
+<td>Adversarial samples incompatible with retraining pipeline</td>
+<td>Medium</td>
+<td>Weekly AI–Security sync; fixed sample schema (<code>.npz</code> + metadata JSON) from Sprint 7</td>
+</tr>
+<tr>
+<td>CS team idle in Semester 1</td>
+<td>Medium</td>
+<td>Give them data loaders, MLflow/DVC setup, API skeleton, CI, so Semester 2 integration is fast</td>
+</tr>
+<tr>
+<td>Live demo fails</td>
+<td>Low</td>
+<td>Backup video, Docker image tested on a second machine</td>
+</tr>
+<tr>
+<td>Unsafe malware handling</td>
+<td>Low</td>
+<td>Isolated VM, feature-level datasets, no distribution of weaponized files</td>
+</tr>
+</tbody>
+</table>
+<h2>Key metrics to report (every stage)</h2>
+<p>Accuracy, Precision, Recall, F1, ROC-AUC, FPR at fixed TPR, confusion matrix, attack success rate, perturbation norms (L0/L2/L∞), robust accuracy vs ε, detector detection rate / false alarms, inference latency.</p>
+<h2>Rules of working</h2>
+<ul>
+<li>One owner per task, written on the board; every task has a &quot;done&quot; definition</li>
+<li>Every experiment: fixed seed, config in Git, results in MLflow</li>
+<li>Nothing is &quot;finished&quot; until it's merged, documented, and reproducible by another member</li>
+<li>Update the report as you go; don't leave writing for the end</li>
+</ul>
+
+</body></html>

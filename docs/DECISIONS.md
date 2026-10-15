@@ -52,9 +52,14 @@ fixes; no behavior changes to code or workflows.
   file that failed `ruff format --check` — the pre-commit `ruff-format` hook
   would have reformatted it on the next local commit. Purely line-wrapping
   changes; logic untouched.
-- **`Project-Plan.html` (untracked) intentionally left alone.** It is a
-  pre-existing, uncommitted copy of the official project plan; it is not
-  referenced by the repository and was not added, modified, or removed.
+- **Official project plan committed as `docs/project_plan.html`.** The plan
+  was previously an untracked `Project-Plan.html` at the repo root; sprint
+  docs cite it as the authoritative scope/schedule reference, so it is now
+  versioned (lower_snake_case path, HTML kept verbatim to preserve the
+  export) and linked from `docs/README.md`.
+- **`docs/PR_sprint1.md` labeled as a historical snapshot.** Kept for the
+  sprint record (the merged PR body also exists on GitHub); a header note
+  now points readers to `sprint1_report.md` as the living report.
 
 ## Pre-merge audit (2026-10-15, Linux, Python 3.11.16)
 
