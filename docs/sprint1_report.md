@@ -73,12 +73,47 @@ CI canonical Python is 3.11 (see `ci.yml`); pins verified on 3.12.1 here.
   `ossci-datasets` automatically (observed in logs, no action needed).
 - `--fast` took ~4–5 min here (not <2 min) due to PGD×1000 + CW×20 + 6-eps grid
   on CPU. Acceptable for `make demo`; use `--synthetic` for <60s smoke.
-- Smoke test overwrites `docs/results/*.json` + figures with synthetic data;
-  re-ran `--fast` afterwards to restore real outputs.
+- Smoke test overwrote `docs/results/*.json` + figures with synthetic data
+  (fixed in the pre-merge audit: outputs now go to a caller-supplied dir;
+  tests use pytest `tmp_path`).
 
 ## Suggested Sprint 2 tasks
 1. EMBER + CIC-IDS-2017 download + SHA verify + license notes (`src/data/`).
 2. EDA notebooks (class balance, feature stats, missing values).
 3. Preprocessing pipeline (scaling, splits, `processed/` + tests).
 4. Tabular baselines (LightGBM/MLP) + clean metrics before attacks.
-5. Fix smoke-test artifact overwrite (write synthetic to temp dir).
+5. ~~Fix smoke-test artifact overwrite (write synthetic to temp dir).~~
+   (Done in the pre-merge audit; see addendum.)
+
+## Pre-merge audit addendum (2026-10-15, Linux, Python 3.11.16)
+
+Re-audited Sprint 1 against the project plan before merging PR #1; fixes on
+the same branch, no history rewrite.
+
+Fixes:
+- Reproduced the smoke-test artifact overwrite (`git status` showed modified
+  `docs/results` + `docs/figures` after `pytest`). `run_demo()` now takes an
+  `output_dir`; the smoke test writes to `tmp_path` and asserts the outputs.
+  Post-fix, `pytest` leaves the working tree clean.
+- Added `tests/test_api_health.py` (function + route registration), so CI now
+  actually tests the Sprint 1 API placeholder.
+- Added `.dockerignore` and `COPY dashboard/ dashboard/` in the Dockerfile:
+  the image is self-contained and local build contexts stay small.
+- Drafted the missing literature notes (`docs/literature/anderson_2018_ember.md`,
+  `sharafaldin_2018_cicids2017.md`), corrected the Grosse et al. title in
+  `reading_list.md`, added the CICIDS2017 critique (Engelen et al., 2021).
+- README: dropped the pre-merge `git checkout` step, documented
+  `cp .env.example .env`, updated test count and Docker status.
+
+Verification (this machine):
+- `ruff check src scripts tests api dashboard` → All checks passed!
+- `pytest` → 6 passed; working tree clean afterwards.
+- Real MNIST `--fast` run (output to a temp dir) reproduced the committed
+  results: clean 0.9192, FGSM adv 0.070, PGD adv 0.040, CW adv 0.250; eps
+  table within ~0.02 of the committed run. CleverHans still skips gracefully
+  (`No module named 'cleverhans'`).
+- Live `uvicorn` → `/health` = `{"status":"ok"}`.
+- `docker build` → success; `docker compose up` (api, dashboard, mlflow) →
+  all healthy (`/health` ok, dashboard HTTP 200, MLflow HTTP 200);
+  `docker compose down` clean. This is the first actual run of the compose
+  stack (the dev machine used for Sprint 1 had no Docker daemon).

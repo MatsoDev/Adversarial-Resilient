@@ -15,7 +15,8 @@ Works today:
 - Test suite (`pytest`) and lint (`ruff`).
 - FastAPI service with `GET /health` returning `{"status": "ok"}`.
 - Streamlit dashboard page (early placeholder that can ping the API).
-- `Dockerfile` and `docker-compose.yml` for api, dashboard, and mlflow services.
+- `Dockerfile` and `docker-compose.yml` for api, dashboard, and mlflow services
+  (the image is built in CI; the compose stack was smoke-tested on Linux).
 
 Next:
 
@@ -25,10 +26,11 @@ Next:
 - Defenses (adversarial training, distillation, ensembles, sanitization, detector).
 - A real dashboard with robustness charts.
 
-Honestly not verified: Docker images were never built or run here (no Docker
-daemon on this machine), and the CleverHans cross-check was only tested as a
-graceful skip (library not installed). See the troubleshooting section for why
-CleverHans is optional.
+Honestly not verified: the CleverHans cross-check was only tested as a graceful
+skip (library not installed). Docker is covered differently: the image builds
+in CI on every push, and the compose stack (api, dashboard, mlflow) was
+smoke-tested on Linux — see the troubleshooting section for why CleverHans is
+optional.
 
 ## Prerequisites
 
@@ -54,15 +56,11 @@ git --version
 ```powershell
 git clone https://github.com/MatsoDev/Adversarial-Resilient.git
 cd Adversarial-Resilient
-git checkout sprint1/foundations
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
 pip install -r requirements.txt -r requirements-dev.txt
 ```
-
-(The `git checkout` line is needed until the open pull request is merged;
-after that, `main` will contain everything.)
 
 If activation is blocked with an "execution of scripts is disabled" error, run
 this once, then retry activation:
@@ -76,7 +74,6 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 ```bash
 git clone https://github.com/MatsoDev/Adversarial-Resilient.git
 cd Adversarial-Resilient
-git checkout sprint1/foundations
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
@@ -108,12 +105,12 @@ python -m pytest
 Expected output (takes about 40 seconds, uses tiny synthetic data):
 
 ```text
-4 passed in ...
+6 passed in ...
 ```
 
-Note: the test suite runs the demo pipeline on synthetic data and overwrites
-`docs/results/art_quickstart_results.json` and `docs/figures/`. Running the
-real demo below restores the real outputs.
+The smoke test runs the demo pipeline on synthetic data in a pytest temporary
+directory, so the committed results in `docs/results/` and `docs/figures/` are
+never overwritten.
 
 ## Run the ART demo
 
@@ -184,14 +181,18 @@ streamlit run dashboard/app.py
 Open http://localhost:8501 — expect the placeholder page with a button that
 calls the API `/health`.
 
-With Docker (not tested here — there was no Docker daemon on this machine):
+With Docker (the image builds in CI on every push; the stack below was
+smoke-tested on Linux):
 
 ```bash
+cp .env.example .env
 docker compose up --build
 ```
 
 Ports come from `.env` (defaults: api 8000, dashboard 8501, mlflow 5000).
-Stop with `Ctrl+C`, then `docker compose down`.
+Once the containers are up, check http://127.0.0.1:8000/health,
+http://localhost:8501, and http://localhost:5000. Stop with `Ctrl+C`, then
+`docker compose down`.
 
 ## Troubleshooting
 
@@ -203,6 +204,7 @@ Stop with `Ctrl+C`, then `docker compose down`.
 | torch download is very slow or fails | The CPU wheel is about 200 MB. Check disk space and connection, then rerun the same `pip install` command; pip resumes. |
 | PowerShell refuses to activate the venv | Run `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser`, then activate again. |
 | `python -m uvicorn ...` says address already in use | Port 8000 is taken. Use another port, e.g. `--port 8001`, and open that URL instead. Same for Streamlit (`--server.port 8502`). |
+| `docker compose up` fails with `env file ... not found` | Run `cp .env.example .env` first; compose reads it for ports and settings. |
 | MNIST download shows `HTTP Error 404` for `yann.lecun.com` | Expected: torchvision automatically retries its mirror and continues. No action needed. |
 | `--cleverhans` prints `CleverHans not available, skipping` | Expected: CleverHans lives in the separate `requirements-cleverhans.txt` because version 4.0.0 conflicts with the ART/torch stack. Only install it in an isolated env if you need the cross-check. |
 | `git clone` fails on Windows with filename-too-long errors | Enable long paths once: `git config --system core.longpaths true` (needs an elevated prompt), then clone again. |

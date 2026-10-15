@@ -32,3 +32,23 @@
 - **Smoke test overwrites demo artifacts.** `--synthetic` writes to the same
   `docs/results` + `docs/figures`; Sprint 2 should redirect synthetic to temp.
   Restored real outputs by re-running `--fast` after tests.
+
+## Pre-merge audit (2026-10-15, Linux, Python 3.11.16)
+
+- **Demo/test outputs are caller-supplied.** `run_demo(args, output_dir=...)`
+  now writes results/figures/mlruns under `output_dir`; the smoke test uses
+  pytest `tmp_path`. Fixes the Sprint 1 known issue where `pytest` overwrote
+  the committed `docs/results` + `docs/figures` artifacts (reproduced before
+  the fix, clean `git status` after).
+- **Dashboard copied into the Docker image + `.dockerignore` added.** Compose
+  mounts `./dashboard` at runtime, but the image is now self-contained; the
+  ignore file keeps local builds small (`.venv`, data, docs, mlruns excluded
+  from the context). No behavior change for CI.
+- **API smoke test added.** `tests/test_api_health.py` covers `/health`
+  (function + route registration) without adding `httpx`/TestClient deps.
+- **Sprint 1 literature notes drafted.** `docs/literature/anderson_2018_ember.md`
+  and `docs/literature/sharafaldin_2018_cicids2017.md` (templates were the only
+  literature artifacts committed before). Numbers verified against the papers;
+  marked draft for SS-A/SS-B review. Also corrected the Grosse et al. title in
+  `reading_list.md` and added the CICIDS2017 data-quality critique (Engelen et
+  al., 2021).
