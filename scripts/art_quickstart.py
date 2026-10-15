@@ -324,6 +324,7 @@ def run_demo(args: argparse.Namespace, output_dir: Path | None = None) -> dict:
     figures_dir.mkdir(parents=True, exist_ok=True)
     with open(results_dir / "art_quickstart_results.json", "w") as f:
         json.dump(results, f, indent=2)
+        f.write("\n")
     logger.info("wrote %s", results_dir / "art_quickstart_results.json")
 
     save_figures(x_fgsm, x_adv_fgsm, x_adv_pgd, y_fgsm, pred_fgsm, table, figures_dir)

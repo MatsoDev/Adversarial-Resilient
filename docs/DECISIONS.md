@@ -65,6 +65,10 @@ and one Makefile fix (`clean`); no changes to application code or CI behavior.
   with the caches, leaving a dirty working tree for no benefit — those files
   are committed reference outputs that `make demo` regenerates anyway. Clean
   removes only caches and `mlruns/` now.
+- **Generated JSON ends with a newline.** `scripts/art_quickstart.py` now
+  writes a trailing newline after `json.dump`, so `make demo` output matches
+  the pre-commit `end-of-file-fixer` instead of leaving a one-byte diff in
+  the committed artifact (found by running `pre-commit run --all-files`).
 
 ## Pre-merge audit (2026-10-15, Linux, Python 3.11.16)
 
