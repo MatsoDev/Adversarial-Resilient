@@ -36,8 +36,8 @@
 ## Post-merge maintenance (2026-10-15, Linux, Python 3.11.16)
 
 Branch `chore/repository-structure-cleanup` (main is protected; nothing pushed
-to it directly). Scope: repository navigation/documentation and small hygiene
-fixes; no behavior changes to code or workflows.
+to it directly). Scope: repository navigation/documentation, hygiene fixes,
+and one Makefile fix (`clean`); no changes to application code or CI behavior.
 
 - **Documentation system added.** `docs/README.md` is now the documentation
   index; `docs/architecture.md` documents components/dependency rules/data
@@ -60,6 +60,11 @@ fixes; no behavior changes to code or workflows.
 - **`docs/PR_sprint1.md` labeled as a historical snapshot.** Kept for the
   sprint record (the merged PR body also exists on GitHub); a header note
   now points readers to `sprint1_report.md` as the living report.
+- **`make clean` keeps committed demo artifacts.** It used to delete
+  `docs/results/art_quickstart_results.json` and `docs/figures/art_*` along
+  with the caches, leaving a dirty working tree for no benefit — those files
+  are committed reference outputs that `make demo` regenerates anyway. Clean
+  removes only caches and `mlruns/` now.
 
 ## Pre-merge audit (2026-10-15, Linux, Python 3.11.16)
 

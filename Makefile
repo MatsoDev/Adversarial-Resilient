@@ -25,4 +25,4 @@ docker-up:
 	docker compose up --build
 
 clean:
-	rm -rf __pycache__ .pytest_cache .ruff_cache mlruns docs/results/art_quickstart_results.json docs/figures/art_*
+	rm -rf __pycache__ .pytest_cache .ruff_cache mlruns
