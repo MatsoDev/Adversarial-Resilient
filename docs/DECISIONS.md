@@ -62,6 +62,12 @@ and one Makefile fix (`clean`); no changes to application code or CI behavior.
 - **`docs/PR_sprint1.md` labeled as a historical snapshot.** Kept for the
   sprint record (the merged PR body also exists on GitHub); a header note
   now points readers to `sprint1_report.md` as the living report.
+- **Living tracker added (`docs/progress.md`).** Division of labor: the plan
+  holds scope and schedule (rare, deliberate edits), `progress.md` holds
+  sprint/milestone status and the current checklist (updated constantly), and
+  `sprintN_report.md` files remain the evidence of record. This keeps one
+  authoritative place per question (what / now / what happened) instead of
+  re-editing the plan or the README on every status change.
 - **`make clean` keeps committed demo artifacts.** It used to delete
   `docs/results/art_quickstart_results.json` and `docs/figures/art_*` along
   with the caches, leaving a dirty working tree for no benefit — those files

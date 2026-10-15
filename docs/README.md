@@ -10,6 +10,7 @@ and how to get it running; this page is the map to everything else.
 | [`../README.md`](../README.md) | Project overview, setup, verification, ART demo, API/dashboard, troubleshooting |
 | [`../AGENTS.md`](../AGENTS.md) | Short navigation map for AI coding agents and new contributors |
 | [`../CONTRIBUTING.md`](../CONTRIBUTING.md) | Branching, commit style, PR checklist, code style |
+| [`progress.md`](progress.md) | Where are we now: sprint/milestone status, current checklist |
 
 ## Architecture and structure
 

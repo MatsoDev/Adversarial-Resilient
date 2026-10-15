@@ -51,6 +51,7 @@ Adversarial-Resilient/
 │   ├── project-structure.md     # this file
 │   ├── threat_model_v0.1.md     # security scope and attacker model
 │   ├── project_plan.md          # canonical scope/schedule baseline
+│   ├── progress.md              # living sprint/milestone tracker
 │   ├── DECISIONS.md             # log of non-obvious decisions
 │   ├── reading_list.md          # papers and why they matter
 │   ├── sprint1_report.md        # Sprint 1 report (history)

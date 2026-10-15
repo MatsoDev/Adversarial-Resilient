@@ -16,6 +16,9 @@ attacks, and defenses land in later sprints.
    responsibilities, "where do I put ...?", conventions.
 5. [`docs/DECISIONS.md`](docs/DECISIONS.md) — why non-obvious choices were
    made; check before re-litigating them.
+6. [`docs/project_plan.md`](docs/project_plan.md) — scope/schedule baseline;
+   [`docs/progress.md`](docs/progress.md) — current sprint status and
+   checklist. Update `progress.md` when status changes, not the plan.
 
 ## Commands (run from the repo root)
 

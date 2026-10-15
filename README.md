@@ -18,13 +18,11 @@ Works today:
 - `Dockerfile` and `docker-compose.yml` for api, dashboard, and mlflow services
   (the image is built in CI; the compose stack was smoke-tested on Linux).
 
-Next:
-
-- Real datasets (EMBER for malware, CIC-IDS-2017 for network traffic).
-- Baseline detectors and their clean-accuracy benchmarks.
-- FGSM/PGD/CW attacks against the real detectors.
-- Defenses (adversarial training, distillation, ensembles, sanitization, detector).
-- A real dashboard with robustness charts.
+Next: real datasets (EMBER for malware, CIC-IDS-2017 for network traffic),
+baseline detectors, FGSM/PGD/CW attacks, defenses, and the full dashboard.
+Sprint-by-sprint status is tracked in
+[`docs/progress.md`](docs/progress.md); scope and schedule are in
+[`docs/project_plan.md`](docs/project_plan.md).
 
 Honestly not verified: the CleverHans cross-check was only tested as a graceful
 skip (library not installed). Docker is covered differently: the image builds
@@ -41,6 +39,9 @@ Highlights:
   rules, and data flows.
 - [`docs/project-structure.md`](docs/project-structure.md) — directory
   responsibilities and where new code belongs.
+- [`docs/progress.md`](docs/progress.md) — where we are now: sprint and
+  milestone status (living tracker; baseline is
+  [`docs/project_plan.md`](docs/project_plan.md)).
 - [`AGENTS.md`](AGENTS.md) — quick navigation map for AI coding agents.
 - [`CONTRIBUTING.md`](CONTRIBUTING.md) — branching, commit style, PR rules.
 - [`docs/DECISIONS.md`](docs/DECISIONS.md) — non-obvious technical decisions.
