@@ -12,7 +12,12 @@
    Why: the exact `PyTorchClassifier` + `FastGradientMethod`/`ProjectedGradientDescent`/`CarliniL2Method` API we use.
 5. **EMBER: An Open Dataset for Training Static PE Malware Machine Learning Models** — Anderson & Roth (2018).
    Why: our primary dataset; read for features, splits, and baseline LightGBM results.
-6. **Adversarial Examples for Malware Classification** — Grosse et al. (2017).
-   Why: first feature-space malware evasion; motivates functionality-preserving constraints.
+6. **Adversarial Examples for Malware Detection** — Grosse et al., ESORICS 2017.
+   Why: first feature-space (Android/DREBIN) malware evasion; motivates
+   functionality-preserving constraints. (Title corrected in the pre-merge
+   audit; the earlier title here was wrong.)
 7. **Distillation as a Defense to Adversarial Perturbations against Deep Neural Networks** — Papernot et al. (2016).
    Why: defensive distillation; Sprint 4 defense candidate (read with skepticism — later broken by C&W).
+8. **Troubleshooting an Intrusion Detection Dataset: the CICIDS2017 Case Study** — Engelen et al. (2021).
+   Why: documents labeling errors/duplicates in CICIDS2017; read before
+   trusting any network-track numbers (Sprint 2).
