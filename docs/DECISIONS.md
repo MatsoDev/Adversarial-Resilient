@@ -1,4 +1,8 @@
-# Decisions log (Sprint 1)
+# Decisions log
+
+Entries record choices that are not obvious from the code, grouped by sprint
+and date. Sprint reports and manifests remain the evidence for what was run;
+this log explains why.
 
 - **Python 3.11 canonical (CI), 3.10–3.12 tolerated.** Spec asked 3.10/3.11; this
   machine has 3.12.1, so pins were chosen to work on 3.11 (CI) and verified on

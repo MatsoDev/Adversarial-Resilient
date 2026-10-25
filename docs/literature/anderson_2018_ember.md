@@ -21,10 +21,11 @@
 
 ## 3. Method
 
-- EMBER: raw features per PE file in eight groups (parsed header/section/
+- EMBER: raw features per PE file in nine groups (parsed header/section/
   import/export fields plus format-agnostic byte histogram, byte-entropy
   histogram, and string statistics). Vectorized with the feature-hashing
-  trick into ~2.4K model features (paper: 2351 dims). Baseline = LightGBM
+  trick into ~2.4K model features (2351 dims in the 2017 paper; 2381 in the
+  v2 release used here). Baseline = LightGBM
   GBDT with default settings (100 trees, 31 leaves); compared with MalConv
   (raw-byte CNN). The repo ships feature extraction so new samples can be
   appended.

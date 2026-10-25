@@ -170,6 +170,6 @@ comparing attack/defense numbers.
   <https://doi.org/10.1109/SPW53761.2021.00009>.
 - Liu et al. (2022), *Error Prevalence in NIDS datasets: A Case Study on
   CIC-IDS-2017 and CSE-CIC-IDS-2018*:
-  <https://doi.org/10.1007/978-3-031-31108-6_2>.
+  <https://doi.org/10.1109/CNS56114.2022.9947235>.
 - Gebru et al. (2018), *Datasheets for Datasets*:
   <https://arxiv.org/abs/1803.09010> (structure used for this card).

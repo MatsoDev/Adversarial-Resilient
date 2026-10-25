@@ -9,7 +9,7 @@
 - I. Sharafaldin, A. Habibi Lashkari, A. A. Ghorbani. "Toward Generating a
   New Intrusion Detection Dataset and Intrusion Traffic Characterization."
   ICISSP 2018, pp. 108–116. (introduces CICIDS2017)
-- T. Engelen, H. Bahşi, P. Burghouwt. "Troubleshooting an Intrusion Detection
+- G. Engelen, V. Rimmer, W. Joosen. "Troubleshooting an Intrusion Detection
   Dataset: the CICIDS2017 Case Study." IEEE Security and Privacy Workshops
   (SPW), 2021. (data-quality critique)
 

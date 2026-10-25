@@ -61,9 +61,9 @@ docker compose up --build
 ```
 
 - Compose requires `.env` because both services declare `env_file: .env`.
-- The three variables in the template affect host-port mapping only. Inside
-  the containers the API always listens on 8000, the dashboard on 8501, and
-  MLflow on 5000.
+- The three variables in the template are used for host-port mapping only;
+  the Python apps do not read them. Inside the containers the API always
+  listens on 8000, the dashboard on 8501, and MLflow on 5000.
 - `.env` is gitignored. Never commit it or put real credentials in it.
 - If you add a new variable, document it here and add a safe placeholder to
   `.env.example`; do not hard-code paths or secrets in application code.
@@ -110,5 +110,6 @@ RUN_REAL_DATA_TESTS=1 python -m pytest tests/test_data_real_optional.py -q
 ```
 
 The commands above assume the virtual environment is active. For equivalent
-Make targets and troubleshooting see [`development.md`](development.md); for
-the complete data CLI flags see [`data/README.md`](data/README.md).
+Make targets and troubleshooting see [`development.md`](development.md), for
+the test layout and optional checks see [`testing.md`](testing.md), and for the
+complete data CLI flags see [`data/README.md`](data/README.md).

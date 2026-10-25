@@ -17,7 +17,7 @@
    functionality-preserving constraints. (Title corrected in the pre-merge
    audit; the earlier title here was wrong.)
 7. **Distillation as a Defense to Adversarial Perturbations against Deep Neural Networks** — Papernot et al. (2016).
-   Why: defensive distillation; Sprint 4 defense candidate (read with skepticism — later broken by C&W).
+   Why: defensive distillation; Sprint 10 defense candidate (read with skepticism — later broken by C&W).
 8. **Troubleshooting an Intrusion Detection Dataset: the CICIDS2017 Case Study** — Engelen et al. (2021).
    Why: documents labeling errors/duplicates in CICIDS2017; read before
    trusting any network-track numbers (Sprint 2).

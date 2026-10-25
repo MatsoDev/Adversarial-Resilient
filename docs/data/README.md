@@ -145,8 +145,9 @@ Per dataset directory under `data/processed/<dataset>/`:
 - `manifest.json` — source hashes/sizes, counts, splits, choices, artifact
   hashes, seed, timestamp, and code revision.
 
-Full-run manifests are also published to `docs/data/manifests/`; large arrays
-stay under gitignored `data/processed/`.
+Full-run manifests from the default processed directories are also published
+to `docs/data/manifests/`; large arrays stay under gitignored
+`data/processed/`.
 
 ## Loading processed data
 

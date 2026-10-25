@@ -84,9 +84,12 @@ One-off and demo scripts that wire the library together. `scripts/` may import
 
 ### `api/` — FastAPI service
 
-[`api/main.py`](../api/main.py) exposes `GET /health` (used by compose and CI)
-and `GET /`. Semester 2 adds the real `/predict`, `/attack`, and `/defend`
-endpoints. The Docker image (`Dockerfile`) runs this app with uvicorn.
+[`api/main.py`](../api/main.py) exposes `GET /health` (used by the dashboard's
+API check and `tests/test_api_health.py`) and `GET /`. FastAPI also serves
+`/docs`, `/redoc`, and `/openapi.json`. Compose does not define a healthcheck
+for the service. Semester 2 adds the real `/predict`, `/attack`, and `/defend`
+endpoints. The Docker image (`Dockerfile`) runs this app with uvicorn. The
+endpoint contract is documented in [`api/README.md`](../api/README.md).
 
 ### `dashboard/` — Streamlit UI
 
@@ -144,7 +147,7 @@ torchvision MNIST --> data/raw/MNIST/ --> SmallCNN (train) --> ART PyTorchClassi
 **Data pipeline (`make data` / `make eda`):**
 
 ```text
-~/Documents/EMBER-Dataset, ~/Documents/CIC-IDS-Dataset (read in place)
+resolved EMBER/CICIDS source (CLI > env var > data/raw/ > ~/Documents; read in place)
     --> src/data/ember.py / cicids2017.py (validate, clean, vectorise, split)
     --> data/processed/{ember2018,cicids2017}/ (gitignored .npy + metadata + scalers)
     --> docs/data/manifests/*.json (committed compact manifests)

@@ -1,7 +1,7 @@
 # Sprint 2 report — Data pipeline
 
-**Date:** 2026-10-25 · **Branch:** working tree (not committed) · **Python:**
-3.11.16 · **Machine:** Linux, 12 CPU cores, 14 GB RAM (CPU-only)
+**Date:** 2026-10-25 · **Branch:** `sprint2/data-pipeline` (merged as PR #3) ·
+**Python:** 3.11.16 · **Machine:** Linux, 12 CPU cores, 14 GB RAM (CPU-only)
 
 This report records what was actually run and verified. Generated numbers are
 also reproducible from the committed manifests and EDA JSON; do not edit the
@@ -211,7 +211,8 @@ exit code 0, about 22 seconds (warm page cache).
   random. Documented as a limitation for deployment-style claims.
 - **Official EMBER tarball hash:** not checked because only the extracted files
   exist locally. Per-file SHA-256 values are recorded in the manifest instead.
-- **Full CI run on GitHub:** not triggered here; local `ruff` and `pytest` pass.
+- **Full CI run on GitHub:** not verified in this local report; CI runs `make
+  lint` and `make test` on push and pull request.
 - **DVC/Git LFS:** deliberately not added (not installed, no remote); manifests
   provide per-file and per-artifact versioning instead.
 

@@ -21,7 +21,7 @@ Clean acc/F1, adv acc, ASR, eps/budget, constraint handling (valid flows?).
 Feature-space vs problem-space gap? Real-time constraints?
 
 ## 7. Relevance to our project
-Which sprint/phase? (Sprint 2 EDA, Sprint 3 attacks, Sprint 4 hardening)
+Which sprint/phase? (Sprint 2 data/EDA, Sprint 5 attacks, Sprint 9+ hardening)
 
 ## 8. Open questions
 For the security team / supervisors.
