@@ -1,1 +1,1 @@
-"""Defenses (Sprint 4+: adversarial training, distillation, ensembles, sanitization, detector)."""
+"""Defenses (Sprint 9+: adversarial training, distillation, ensembles, sanitization, detector)."""

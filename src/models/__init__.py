@@ -1,4 +1,4 @@
-"""Model architectures. Sprint 1: baseline MLP skeleton only (no training yet)."""
+"""Model architectures: tabular baseline skeleton plus the MNIST demo CNN."""
 
 from src.models.baseline_mlp import BaselineMLP, SmallCNN
 

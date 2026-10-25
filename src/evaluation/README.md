@@ -1,6 +1,13 @@
-# src/evaluation — placeholder (filled Sprint 2)
+# src/evaluation — metrics and plots (Sprint 5+)
 
-Planned: `metrics.py` (`clean_acc`, `adv_acc`, `attack_success_rate`,
-`l2/linf` perturbation stats), `plots.py` (accuracy-vs-epsilon, grids).
+Placeholder package: no evaluation logic is implemented yet, only the module
+boundary and this plan.
 
-Sprint 1 template logic lives in `scripts/art_quickstart.py`.
+Planned:
+
+- Sprint 5: `metrics.py` (`clean_acc`, `adv_acc`, `attack_success_rate`,
+  perturbation norms) and the first accuracy-vs-epsilon harness.
+- Sprint 7: `plots.py` (attack curves, confusion matrices, perturbation
+  histograms) and report-ready analysis helpers.
+
+Sprint 1 reference logic lives in `scripts/art_quickstart.py`.

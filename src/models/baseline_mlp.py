@@ -1,7 +1,8 @@
 """Baseline classifiers (MNIST demo + future EMBER tabular baseline).
 
-Kept deliberately small so students can read them in one sitting.
-Training happens in Sprint 2+; Sprint 1 demo uses SmallCNN on MNIST.
+Kept deliberately small so students can read them in one sitting. Real
+training pipelines arrive with the Sprint 3 baselines; the Sprint 1 demo
+trains SmallCNN on MNIST.
 """
 
 from __future__ import annotations
