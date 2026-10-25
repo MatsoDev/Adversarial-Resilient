@@ -10,7 +10,6 @@ labels, infinities/NaNs, and exact duplicate rows.
 from __future__ import annotations
 
 import logging
-import os
 import re
 import shutil
 from collections import Counter
@@ -24,6 +23,7 @@ import pandas as pd
 from src.data.preprocessing import (
     artifact_record,
     atomic_save_npy,
+    atomic_write_dataframe,
     code_revision,
     compute_scaler_stats,
     load_json,
@@ -288,14 +288,6 @@ def _split_class_counts(
             "test": int(np.sum(mask & (split == 2))),
         }
     return {"binary": binary_counts, "multiclass": multiclass_counts}
-
-
-def _write_csv_atomic(frame: pd.DataFrame, path: Path, columns: Sequence[str]) -> None:
-    tmp = path.with_name(path.name + ".tmp")
-    frame.loc[:, list(columns)].to_csv(tmp, index=False, lineterminator="\n")
-    with open(tmp, "rb+") as handle:
-        os.fsync(handle.fileno())
-    os.replace(tmp, path)
 
 
 def _source_file_info(
@@ -589,10 +581,10 @@ def run_cicids_preprocessing(
         metadata["label_binary"] = payload["y_binary"]
         metadata["label_multiclass"] = payload["y_multiclass"]
         metadata["split"] = split_name
-        _write_csv_atomic(
+        atomic_write_dataframe(
             metadata,
             output / f"{split_name}_metadata.csv",
-            [
+            columns=[
                 "source_file",
                 "source_row",
                 "label",

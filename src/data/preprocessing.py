@@ -10,7 +10,10 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import shutil
 import subprocess
+import tempfile
+from collections.abc import Sequence
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -46,34 +49,66 @@ def sha256_bytes(data: bytes) -> str:
 
 def code_revision() -> str | None:
     """Best-effort git revision of the working tree, or None outside git."""
+    git_executable = shutil.which("git")
+    if git_executable is None:
+        return None
     try:
         result = subprocess.run(
-            ["git", "rev-parse", "HEAD"],
+            [git_executable, "rev-parse", "HEAD"],  # nosec B603
             cwd=ROOT,
             capture_output=True,
             text=True,
             check=False,
+            timeout=5,
         )
-    except OSError:
+    except (OSError, subprocess.TimeoutExpired):
         return None
     revision = result.stdout.strip()
     return revision if result.returncode == 0 and revision else None
 
 
+def _make_temp_sibling(path: Path) -> tuple[int, Path]:
+    """Create an unpredictable temporary file next to ``path``."""
+    descriptor, name = tempfile.mkstemp(prefix=f".{path.name}.", suffix=".tmp", dir=path.parent)
+    return descriptor, Path(name)
+
+
 def atomic_write_bytes(path: str | Path, data: bytes) -> None:
-    """Write bytes to a sibling .tmp file, then atomically replace the target."""
+    """Write bytes to a sibling temporary file, then atomically replace the target."""
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    tmp = path.with_name(path.name + ".tmp")
-    with open(tmp, "wb") as handle:
-        handle.write(data)
-        handle.flush()
-        os.fsync(handle.fileno())
-    os.replace(tmp, path)
+    descriptor, tmp = _make_temp_sibling(path)
+    try:
+        with os.fdopen(descriptor, "wb") as handle:
+            handle.write(data)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(tmp, path)
+    except BaseException:
+        tmp.unlink(missing_ok=True)
+        raise
 
 
 def atomic_write_text(path: str | Path, text: str) -> None:
     atomic_write_bytes(path, text.encode("utf-8"))
+
+
+def atomic_write_dataframe(
+    frame: pd.DataFrame, path: str | Path, *, columns: Sequence[str]
+) -> None:
+    """Write selected DataFrame columns atomically."""
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    descriptor, tmp = _make_temp_sibling(path)
+    try:
+        with os.fdopen(descriptor, "w", encoding="utf-8", newline="") as handle:
+            frame.loc[:, list(columns)].to_csv(handle, index=False, lineterminator="\n")
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(tmp, path)
+    except BaseException:
+        tmp.unlink(missing_ok=True)
+        raise
 
 
 def write_json_atomic(path: str | Path, payload: Any) -> None:
@@ -100,15 +135,19 @@ def load_json(path: str | Path) -> Any:
 
 
 def atomic_save_npy(path: str | Path, array: np.ndarray) -> None:
-    """Save a numpy array atomically (write .tmp, fsync, os.replace)."""
+    """Save a numpy array atomically (temp file, fsync, os.replace)."""
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    tmp = path.with_name(path.name + ".tmp")
-    with open(tmp, "wb") as handle:
-        np.save(handle, array, allow_pickle=False)
-        handle.flush()
-        os.fsync(handle.fileno())
-    os.replace(tmp, path)
+    descriptor, tmp = _make_temp_sibling(path)
+    try:
+        with os.fdopen(descriptor, "wb") as handle:
+            np.save(handle, array, allow_pickle=False)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(tmp, path)
+    except BaseException:
+        tmp.unlink(missing_ok=True)
+        raise
 
 
 def open_atomic_memmap(
@@ -121,8 +160,13 @@ def open_atomic_memmap(
     """
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    tmp = path.with_name(path.name + ".tmp")
-    memmap = np.lib.format.open_memmap(tmp, mode="w+", dtype=dtype, shape=shape)
+    descriptor, tmp = _make_temp_sibling(path)
+    os.close(descriptor)
+    try:
+        memmap = np.lib.format.open_memmap(tmp, mode="w+", dtype=dtype, shape=shape)
+    except BaseException:
+        tmp.unlink(missing_ok=True)
+        raise
     return memmap, tmp
 
 
@@ -394,6 +438,27 @@ def artifact_record(
     return record
 
 
+def _resolve_manifest_artifact(root: Path, relative: object) -> Path | None:
+    """Resolve an artifact path only if it stays under ``root``.
+
+    Manifests are data files and may be copied or shared independently of the
+    processed arrays. Reject absolute paths, ``..`` escapes, NUL bytes, and
+    symlinks that resolve outside the manifest root.
+    """
+    if not isinstance(relative, str) or not relative or "\x00" in relative:
+        return None
+    candidate = Path(relative)
+    if candidate.is_absolute():
+        return None
+    root_resolved = root.resolve()
+    try:
+        resolved = (root_resolved / candidate).resolve()
+        resolved.relative_to(root_resolved)
+    except (OSError, RuntimeError, ValueError):
+        return None
+    return resolved
+
+
 def verify_manifest_artifacts(manifest: dict[str, Any], root: str | Path) -> list[str]:
     """Check every artifact in a manifest; return a list of human-readable errors."""
     root = Path(root)
@@ -402,18 +467,29 @@ def verify_manifest_artifacts(manifest: dict[str, Any], root: str | Path) -> lis
     if not isinstance(artifacts, dict) or not artifacts:
         return ["manifest has no artifacts"]
     for name, record in sorted(artifacts.items()):
+        if not isinstance(record, dict):
+            errors.append(f"{name}: artifact record is not an object")
+            continue
         relative = record.get("file")
         if not relative:
             errors.append(f"{name}: missing 'file' in manifest")
             continue
-        path = root / relative
-        if not path.is_file():
-            errors.append(f"{name}: missing file {relative}")
+        path = _resolve_manifest_artifact(root, relative)
+        if path is None:
+            errors.append(f"{name}: artifact path escapes the manifest root: {relative}")
             continue
-        size = path.stat().st_size
-        if "size_bytes" in record and size != int(record["size_bytes"]):
-            errors.append(f"{name}: size mismatch (expected {record['size_bytes']}, found {size})")
-        expected_hash = record.get("sha256")
-        if expected_hash and sha256_file(path) != expected_hash:
-            errors.append(f"{name}: sha256 mismatch for {relative}")
+        try:
+            if not path.is_file():
+                errors.append(f"{name}: missing file {relative}")
+                continue
+            size = path.stat().st_size
+            if "size_bytes" in record and size != int(record["size_bytes"]):
+                errors.append(
+                    f"{name}: size mismatch (expected {record['size_bytes']}, found {size})"
+                )
+            expected_hash = record.get("sha256")
+            if expected_hash and sha256_file(path) != expected_hash:
+                errors.append(f"{name}: sha256 mismatch for {relative}")
+        except (OSError, TypeError, ValueError) as error:
+            errors.append(f"{name}: could not read {relative}: {error}")
     return errors

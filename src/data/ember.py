@@ -34,6 +34,7 @@ from tqdm import tqdm
 from src.data.preprocessing import (
     artifact_record,
     atomic_save_npy,
+    atomic_write_dataframe,
     code_revision,
     compute_scaler_stats,
     finalize_atomic_memmap,
@@ -678,15 +679,6 @@ def _assign_target_rows(frame: pd.DataFrame, split_name: str, code: int) -> pd.D
     return frame
 
 
-def _write_csv_atomic(frame: pd.DataFrame, path: Path, columns: Sequence[str]) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    tmp = path.with_name(path.name + ".tmp")
-    frame.loc[:, list(columns)].to_csv(tmp, index=False, lineterminator="\n")
-    with open(tmp, "rb+") as handle:
-        os.fsync(handle.fileno())
-    os.replace(tmp, path)
-
-
 def _split_metadata_for_json(frame: pd.DataFrame) -> dict[str, Any]:
     counts = frame["label"].value_counts().sort_index()
     return {
@@ -932,7 +924,9 @@ def run_ember_preprocessing(
         "split",
     ]
     for split_name, frame in (("train", train_frame), ("val", val_frame), ("test", test_frame)):
-        _write_csv_atomic(frame, output / f"{split_name}_metadata.csv", metadata_columns)
+        atomic_write_dataframe(
+            frame, output / f"{split_name}_metadata.csv", columns=metadata_columns
+        )
 
     scaler_files: list[Path] = []
     if scaler:
