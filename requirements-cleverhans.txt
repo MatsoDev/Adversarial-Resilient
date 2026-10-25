@@ -11,4 +11,4 @@
 #   pip install -r requirements-cleverhans.txt
 cleverhans==4.0.0
 tensorflow==2.15.0
-numpy==1.26.4
+numpy==2.5.4
