@@ -1,8 +1,9 @@
 """Check that relative Markdown links point at files that exist.
 
-The documentation index and cross-links are part of the repository's
-navigation contract, so a stale link should fail CI like a broken import.
-External URLs and in-page anchors are intentionally not fetched or validated.
+The root docs, documentation tree, and component READMEs are part of the
+repository's navigation contract, so a stale link should fail CI like a broken
+import. External URLs and in-page anchors are intentionally not fetched or
+validated.
 """
 
 from __future__ import annotations
@@ -16,8 +17,19 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 DOCS = ROOT / "docs"
 
+COMPONENT_READMES = [
+    ROOT / "api/README.md",
+    ROOT / "dashboard/README.md",
+    *sorted((ROOT / "src").glob("*/README.md")),
+]
 MARKDOWN_FILES = sorted(
-    [ROOT / "README.md", ROOT / "AGENTS.md", ROOT / "CONTRIBUTING.md", *DOCS.rglob("*.md")]
+    {
+        ROOT / "README.md",
+        ROOT / "AGENTS.md",
+        ROOT / "CONTRIBUTING.md",
+        *DOCS.rglob("*.md"),
+        *COMPONENT_READMES,
+    }
 )
 
 FENCED_CODE = re.compile(r"```.*?```", re.DOTALL)
