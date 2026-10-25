@@ -1,32 +1,70 @@
+# Published ports bind to 127.0.0.1 by default. MLflow and the placeholder
+# dashboard have no authentication; use a TLS reverse proxy with auth before
+# setting BIND_ADDR=0.0.0.0.
 services:
   api:
     build: .
-    command: uvicorn api.main:app --host 0.0.0.0 --port 8000
+    command: uvicorn api.main:app --host 0.0.0.0 --port 8000 --no-server-header
     ports:
-      - "${API_PORT:-8000}:8000"
+      - "${BIND_ADDR:-127.0.0.1}:${API_PORT:-8000}:8000"
     env_file:
       - .env
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    pids_limit: 512
     volumes:
       - ./mlruns:/app/mlruns
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3)"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
 
   dashboard:
     build: .
     command: streamlit run dashboard/app.py --server.port 8501 --server.address 0.0.0.0
     ports:
-      - "${DASHBOARD_PORT:-8501}:8501"
+      - "${BIND_ADDR:-127.0.0.1}:${DASHBOARD_PORT:-8501}:8501"
     environment:
       - API_URL=http://api:8000
     env_file:
       - .env
     depends_on:
       - api
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    pids_limit: 512
     volumes:
-      - ./dashboard:/app/dashboard
+      - ./dashboard:/app/dashboard:ro
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8501/_stcore/health', timeout=3)"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
 
   mlflow:
-    image: ghcr.io/mlflow/mlflow:v2.15.1
+    image: ghcr.io/mlflow/mlflow:v3.17.2@sha256:2cc40b3208991940d824d04f339833a0b69507569012aa5ec545690608602fc0
     command: mlflow server --host 0.0.0.0 --port 5000 --backend-store-uri /mlflow/mlruns
     ports:
-      - "${MLFLOW_PORT:-5000}:5000"
+      - "${BIND_ADDR:-127.0.0.1}:${MLFLOW_PORT:-5000}:5000"
+    environment:
+      - MLFLOW_ALLOW_FILE_STORE=true
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 512
     volumes:
       - ./mlruns:/mlflow/mlruns
