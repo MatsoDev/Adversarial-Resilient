@@ -50,9 +50,9 @@
 - EMBER LightGBM baseline: **ROC AUC > 0.9991**; ~93% detection at <0.1% FPR
   and >98% at <1% FPR. MalConv: ROC AUC 0.9982 (97.3% at <1% FPR). Paper
   reports ~20h vectorization + 3h training on a 2015 laptop.
-- Later independent benchmarks (2026) report GBDTs around 0.97–0.99 AUC even
-  after tuning on EMBER 2018, i.e. the harder set lowers the ceiling — expect
-  our baseline to look weaker than the 2017 headline numbers.
+- The 2017 headline numbers do not transfer directly to EMBER 2018: expect a
+  lower ceiling on the harder set, and measure it on our own pinned split
+  rather than quoting the 2017 figures.
 - Grosse et al.: gradient-based feature additions substantially degrade a
   neural malware detector while (per the authors) retaining functionality;
   the paper also discusses transferability across models. (Exact evasion
