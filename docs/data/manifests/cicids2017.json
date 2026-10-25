@@ -1,0 +1,561 @@
+{
+  "artifacts": {
+    "feature_names": {
+      "file": "feature_names.json",
+      "sha256": "fb54e6b82dbf77212f483a706a5b78f0dd8f5cc5f0cbe02a56ca81f43bcf6658",
+      "size_bytes": 1672
+    },
+    "label_mapping": {
+      "file": "label_mapping.json",
+      "sha256": "fd4b3843a7938c777b364d84effe5dcc59a9d47ae29f67881e33b9e0e0d3744f",
+      "size_bytes": 987
+    },
+    "scaler": {
+      "file": "scaler.json",
+      "sha256": "7e6c950c94a86c06030d78db5c5968d43e82eb7a5d72e24956397b86f1b5528b",
+      "size_bytes": 128
+    },
+    "scaler_mean": {
+      "file": "scaler_mean.npy",
+      "sha256": "b5bbfba37358b733ad3c29a7ba511a0afe48cb81b3ea7d56d9b5dfac4ab0bb0e",
+      "size_bytes": 744
+    },
+    "scaler_scale": {
+      "file": "scaler_scale.npy",
+      "sha256": "81ef000e931cccf2c9a362f11b1024c25cbc5522cd42c2bdcb3cdd46f64ba322",
+      "size_bytes": 744
+    },
+    "test_X": {
+      "dtype": "float32",
+      "file": "test_X.npy",
+      "sha256": "48e4c0720874301c3cb8835447931b1b411c5d6747635aeefb0bfc5c00c3823c",
+      "shape": [
+        374590,
+        77
+      ],
+      "size_bytes": 115373848
+    },
+    "test_metadata": {
+      "file": "test_metadata.csv",
+      "sha256": "b0ca35d74f465b51dd237aa99041bdbbc5c221cb1fd8f0db4e28fa25e5915f99",
+      "size_bytes": 24681064
+    },
+    "test_y_binary": {
+      "dtype": "int8",
+      "file": "test_y_binary.npy",
+      "sha256": "313925fa482b8639f843c97dd4e95897e818c9cab4edbd5c5d5ea8b5e7f1c3f5",
+      "shape": [
+        374590
+      ],
+      "size_bytes": 374718
+    },
+    "test_y_multiclass": {
+      "dtype": "int16",
+      "file": "test_y_multiclass.npy",
+      "sha256": "27e486b4b365b74f4e03d11c893ccf4a6d95e500aabe3c7a22966c6eefdec5d1",
+      "shape": [
+        374590
+      ],
+      "size_bytes": 749308
+    },
+    "train_X": {
+      "dtype": "float32",
+      "file": "train_X.npy",
+      "sha256": "2dd07d5acc07990e64e8a2f0a2bd3d58115f64f118f4b10fc69e32480f29540a",
+      "shape": [
+        1748083,
+        77
+      ],
+      "size_bytes": 538409692
+    },
+    "train_metadata": {
+      "file": "train_metadata.csv",
+      "sha256": "d34a59c873c690380517580aa4833a3ce97a3c4f454412f7f7fa074d79f9698c",
+      "size_bytes": 116946691
+    },
+    "train_y_binary": {
+      "dtype": "int8",
+      "file": "train_y_binary.npy",
+      "sha256": "5e6df8fad74472735565e2c7a79a72acd85efbada9a42e64eb30cc6eb98ff7be",
+      "shape": [
+        1748083
+      ],
+      "size_bytes": 1748211
+    },
+    "train_y_multiclass": {
+      "dtype": "int16",
+      "file": "train_y_multiclass.npy",
+      "sha256": "7a12b12f0443dfd0285ee88daf3cbbfae80d63bb462fa2971b91fdd1ba791bdc",
+      "shape": [
+        1748083
+      ],
+      "size_bytes": 3496294
+    },
+    "val_X": {
+      "dtype": "float32",
+      "file": "val_X.npy",
+      "sha256": "f73556c5ce99e472e6efab0d80b6056edc9f36ae47014405581ae0bde1bdbfbd",
+      "shape": [
+        374589,
+        77
+      ],
+      "size_bytes": 115373540
+    },
+    "val_metadata": {
+      "file": "val_metadata.csv",
+      "sha256": "86265f94d7faf70cf83b7f7dcc09f436b7d6f599626f903ae74a52f0482d3836",
+      "size_bytes": 24311734
+    },
+    "val_y_binary": {
+      "dtype": "int8",
+      "file": "val_y_binary.npy",
+      "sha256": "c7c3133d5c75863358f793aebd509d25692c13dea51966357c6369d4bafe4823",
+      "shape": [
+        374589
+      ],
+      "size_bytes": 374717
+    },
+    "val_y_multiclass": {
+      "dtype": "int16",
+      "file": "val_y_multiclass.npy",
+      "sha256": "ae8e0d72048ed0d0179747583a462093a9c1921beb696aca221f2d38dbb52a54",
+      "shape": [
+        374589
+      ],
+      "size_bytes": 749306
+    }
+  },
+  "cleaning": {
+    "coercion": "non-numeric feature values coerced to NaN before dropping",
+    "column_names": "stripped leading/trailing whitespace",
+    "drop_fraction": 0.001013,
+    "drop_threshold": 0.01,
+    "duplicate_column": {
+      "dropped": "Fwd Header Length.1",
+      "identical_to": "Fwd Header Length",
+      "mismatches": 0,
+      "rows_checked": 2830743
+    },
+    "duplicate_key_precision": "float32 (stored feature precision)",
+    "duplicate_rows": {
+      "cross_file": 126818,
+      "total_dropped": 330614,
+      "within_file": 203796
+    },
+    "encoding": {
+      "Friday-WorkingHours-Afternoon-DDos.pcap_ISCX.csv": "utf-8",
+      "Friday-WorkingHours-Afternoon-PortScan.pcap_ISCX.csv": "utf-8",
+      "Friday-WorkingHours-Morning.pcap_ISCX.csv": "utf-8",
+      "Monday-WorkingHours.pcap_ISCX.csv": "utf-8",
+      "Thursday-WorkingHours-Afternoon-Infilteration.pcap_ISCX.csv": "utf-8",
+      "Thursday-WorkingHours-Morning-WebAttacks.pcap_ISCX.csv": "utf-8",
+      "Tuesday-WorkingHours.pcap_ISCX.csv": "utf-8",
+      "Wednesday-workingHours.pcap_ISCX.csv": "utf-8"
+    },
+    "feature_dim": 77,
+    "feature_names_file": "feature_names.json",
+    "inf_counts_per_column": {
+      "Flow Bytes/s": 1509,
+      "Flow Packets/s": 2867
+    },
+    "inf_values": 4376,
+    "label_conflicts_for_identical_rows": 5228,
+    "nan_counts_after_inf_replacement": {
+      "Flow Bytes/s": 2867,
+      "Flow Packets/s": 2867
+    },
+    "nan_counts_before_inf_replacement": {
+      "Flow Bytes/s": 1358
+    },
+    "nan_values_after_inf_replacement": 5734,
+    "nan_values_before_inf_replacement": 1358,
+    "rows_after_invalid_drop": 2827876,
+    "rows_dropped_invalid": 2867
+  },
+  "code_revision": "3be770e955d7034b606f0df0a368d1314e07b7b3",
+  "dataset": "cicids2017",
+  "dataset_version": "CIC-IDS-2017 original UNB/CIC CSV release (8 files)",
+  "generated_at": "2026-10-25T19:42:41+00:00",
+  "labels": {
+    "binary": {
+      "ATTACK": 1,
+      "BENIGN": 0
+    },
+    "multiclass": {
+      "BENIGN": 0,
+      "Bot": 1,
+      "DDoS": 2,
+      "DoS GoldenEye": 3,
+      "DoS Hulk": 4,
+      "DoS Slowhttptest": 5,
+      "DoS slowloris": 6,
+      "FTP-Patator": 7,
+      "Heartbleed": 8,
+      "Infiltration": 9,
+      "PortScan": 10,
+      "SSH-Patator": 11,
+      "Web Attack - Brute Force": 12,
+      "Web Attack - SQL Injection": 13,
+      "Web Attack - XSS": 14
+    },
+    "multiclass_names": {
+      "0": "BENIGN",
+      "1": "Bot",
+      "10": "PortScan",
+      "11": "SSH-Patator",
+      "12": "Web Attack - Brute Force",
+      "13": "Web Attack - SQL Injection",
+      "14": "Web Attack - XSS",
+      "2": "DDoS",
+      "3": "DoS GoldenEye",
+      "4": "DoS Hulk",
+      "5": "DoS Slowhttptest",
+      "6": "DoS slowloris",
+      "7": "FTP-Patator",
+      "8": "Heartbleed",
+      "9": "Infiltration"
+    },
+    "overall_counts": {
+      "BENIGN": 2072166,
+      "Bot": 1948,
+      "DDoS": 128011,
+      "DoS GoldenEye": 10282,
+      "DoS Hulk": 172784,
+      "DoS Slowhttptest": 5228,
+      "DoS slowloris": 5373,
+      "FTP-Patator": 5931,
+      "Heartbleed": 11,
+      "Infiltration": 36,
+      "PortScan": 90130,
+      "SSH-Patator": 3219,
+      "Web Attack - Brute Force": 1470,
+      "Web Attack - SQL Injection": 21,
+      "Web Attack - XSS": 652
+    }
+  },
+  "notes": [
+    "rare multiclass attacks may be absent from val/test; splits are stratified on the binary target only",
+    "no resampling or class weighting is applied in Sprint 2",
+    "random splits on CICIDS can overstate performance; duplicate rows are removed before splitting at the stored float32 precision",
+    "rows that differ only beyond float32 precision are indistinguishable to the model and are collapsed by deduplication",
+    "subset=true artifacts use a deterministic stratified sample of cleaned rows",
+    "5228 identical feature rows had conflicting labels; the first occurrence was kept and the conflict count is reported"
+  ],
+  "preprocessing": {
+    "raw_numeric_features": true,
+    "scaler": "mean/population-std, zero-variance columns use scale=1",
+    "scaler_fit_split": "train",
+    "shortcut_features_kept": [
+      "Destination Port",
+      "Flow Duration",
+      "Flow Bytes/s",
+      "Flow Packets/s",
+      "Init_Win_bytes_forward",
+      "Init_Win_bytes_backward"
+    ]
+  },
+  "sampling": {
+    "max_samples": null,
+    "rows_after_dedup": 2497262,
+    "rows_used": 2497262,
+    "used_binary_counts": {
+      "ATTACK": 425096,
+      "BENIGN": 2072166
+    }
+  },
+  "seed": 42,
+  "source": {
+    "binary_counts": {
+      "ATTACK": 557646,
+      "BENIGN": 2273097
+    },
+    "files": [
+      {
+        "duplicates_cross_file": 0,
+        "duplicates_dropped": 26908,
+        "duplicates_within_file": 26908,
+        "encoding": "utf-8",
+        "expected_rows": 529918,
+        "label_conflicts": 0,
+        "label_counts": {
+          "BENIGN": 529918
+        },
+        "name": "Monday-WorkingHours.pcap_ISCX.csv",
+        "rows": 529918,
+        "rows_dropped_invalid": 437,
+        "sha256": "852c4beb34eda186f32561fa79df7a0747e92e1a6535b01270820dd9ffe17f34",
+        "size_bytes": 176927918
+      },
+      {
+        "duplicates_cross_file": 13162,
+        "duplicates_dropped": 31511,
+        "duplicates_within_file": 18349,
+        "encoding": "utf-8",
+        "expected_rows": 445909,
+        "label_conflicts": 0,
+        "label_counts": {
+          "BENIGN": 432074,
+          "FTP-Patator": 7938,
+          "SSH-Patator": 5897
+        },
+        "name": "Tuesday-WorkingHours.pcap_ISCX.csv",
+        "rows": 445909,
+        "rows_dropped_invalid": 264,
+        "sha256": "52b8692ae8c7d2ed04671fe2b98335693c0a92c7ab157d8c8b534d6523080851",
+        "size_bytes": 135078995
+      },
+      {
+        "duplicates_cross_file": 36767,
+        "duplicates_dropped": 97310,
+        "duplicates_within_file": 60543,
+        "encoding": "utf-8",
+        "expected_rows": 692703,
+        "label_conflicts": 4094,
+        "label_counts": {
+          "BENIGN": 440031,
+          "DoS GoldenEye": 10293,
+          "DoS Hulk": 231073,
+          "DoS Slowhttptest": 5499,
+          "DoS slowloris": 5796,
+          "Heartbleed": 11
+        },
+        "name": "Wednesday-workingHours.pcap_ISCX.csv",
+        "rows": 692703,
+        "rows_dropped_invalid": 1297,
+        "sha256": "893c27dc968bf7a8adef1689f90be55ca4a4dc3088fb63d6ff247ac56856df2a",
+        "size_bytes": 225166395
+      },
+      {
+        "duplicates_cross_file": 15232,
+        "duplicates_dropped": 16134,
+        "duplicates_within_file": 902,
+        "encoding": "utf-8",
+        "expected_rows": 170366,
+        "label_conflicts": 7,
+        "label_counts": {
+          "BENIGN": 168186,
+          "Web Attack - Brute Force": 1507,
+          "Web Attack - SQL Injection": 21,
+          "Web Attack - XSS": 652
+        },
+        "name": "Thursday-WorkingHours-Morning-WebAttacks.pcap_ISCX.csv",
+        "rows": 170366,
+        "rows_dropped_invalid": 135,
+        "sha256": "d67066211fb1689c78406f1506f4c44704ecb92088353d5c96d96d6474eb819d",
+        "size_bytes": 52023263
+      },
+      {
+        "duplicates_cross_file": 21261,
+        "duplicates_dropped": 48347,
+        "duplicates_within_file": 27086,
+        "encoding": "utf-8",
+        "expected_rows": 288602,
+        "label_conflicts": 52,
+        "label_counts": {
+          "BENIGN": 288566,
+          "Infiltration": 36
+        },
+        "name": "Thursday-WorkingHours-Afternoon-Infilteration.pcap_ISCX.csv",
+        "rows": 288602,
+        "rows_dropped_invalid": 207,
+        "sha256": "6bcda3857c2504676034e3ea57762d38393cc734cb377a726bd5cb153961b1b5",
+        "size_bytes": 83102436
+      },
+      {
+        "duplicates_cross_file": 18458,
+        "duplicates_dropped": 19560,
+        "duplicates_within_file": 1102,
+        "encoding": "utf-8",
+        "expected_rows": 191033,
+        "label_conflicts": 8,
+        "label_counts": {
+          "BENIGN": 189067,
+          "Bot": 1966
+        },
+        "name": "Friday-WorkingHours-Morning.pcap_ISCX.csv",
+        "rows": 191033,
+        "rows_dropped_invalid": 122,
+        "sha256": "53a41c24d570ea83b7ac55b2e94df94e7a8216aeb80a2af0246b6bc8bb543000",
+        "size_bytes": 58316725
+      },
+      {
+        "duplicates_cross_file": 7447,
+        "duplicates_dropped": 8214,
+        "duplicates_within_file": 767,
+        "encoding": "utf-8",
+        "expected_rows": 225745,
+        "label_conflicts": 9,
+        "label_counts": {
+          "BENIGN": 97718,
+          "DDoS": 128027
+        },
+        "name": "Friday-WorkingHours-Afternoon-DDos.pcap_ISCX.csv",
+        "rows": 225745,
+        "rows_dropped_invalid": 34,
+        "sha256": "6ff1580f5f81c0ae28a26f7631721018577f5f7c5e0feac28b795fcfe7b411ee",
+        "size_bytes": 77123859
+      },
+      {
+        "duplicates_cross_file": 14491,
+        "duplicates_dropped": 82630,
+        "duplicates_within_file": 68139,
+        "encoding": "utf-8",
+        "expected_rows": 286467,
+        "label_conflicts": 1058,
+        "label_counts": {
+          "BENIGN": 127537,
+          "PortScan": 158930
+        },
+        "name": "Friday-WorkingHours-Afternoon-PortScan.pcap_ISCX.csv",
+        "rows": 286467,
+        "rows_dropped_invalid": 371,
+        "sha256": "ca1824c51bfbb7b3c72290a11be04366ba8815878c6a1cc5c44cb1cee269e99b",
+        "size_bytes": 76906168
+      }
+    ],
+    "total_label_counts": {
+      "BENIGN": 2273097,
+      "Bot": 1966,
+      "DDoS": 128027,
+      "DoS GoldenEye": 10293,
+      "DoS Hulk": 231073,
+      "DoS Slowhttptest": 5499,
+      "DoS slowloris": 5796,
+      "FTP-Patator": 7938,
+      "Heartbleed": 11,
+      "Infiltration": 36,
+      "PortScan": 158930,
+      "SSH-Patator": 5897,
+      "Web Attack - Brute Force": 1507,
+      "Web Attack - SQL Injection": 21,
+      "Web Attack - XSS": 652
+    },
+    "total_rows": 2830743
+  },
+  "source_resolution": "CLI --source > CICIDS_DATA_DIR > data/raw/CIC-IDS-Dataset > ~/Documents/CIC-IDS-Dataset",
+  "split_strategy": {
+    "class_weights": null,
+    "deduplicated_before_split": true,
+    "fractions": {
+      "test": 0.15,
+      "train": 0.7,
+      "val": 0.15
+    },
+    "resampling": null,
+    "seed": 42,
+    "type": "stratified_on_binary_target"
+  },
+  "splits": {
+    "class_counts": {
+      "binary": {
+        "0": {
+          "test": 310825,
+          "train": 1450516,
+          "val": 310825
+        },
+        "1": {
+          "test": 63765,
+          "train": 297567,
+          "val": 63764
+        }
+      },
+      "multiclass": {
+        "0": {
+          "test": 310825,
+          "train": 1450516,
+          "val": 310825
+        },
+        "1": {
+          "test": 284,
+          "train": 1386,
+          "val": 278
+        },
+        "10": {
+          "test": 13543,
+          "train": 63006,
+          "val": 13581
+        },
+        "11": {
+          "test": 507,
+          "train": 2262,
+          "val": 450
+        },
+        "12": {
+          "test": 201,
+          "train": 1048,
+          "val": 221
+        },
+        "13": {
+          "test": 6,
+          "train": 13,
+          "val": 2
+        },
+        "14": {
+          "test": 99,
+          "train": 456,
+          "val": 97
+        },
+        "2": {
+          "test": 19024,
+          "train": 89743,
+          "val": 19244
+        },
+        "3": {
+          "test": 1600,
+          "train": 7120,
+          "val": 1562
+        },
+        "4": {
+          "test": 26042,
+          "train": 120853,
+          "val": 25889
+        },
+        "5": {
+          "test": 775,
+          "train": 3649,
+          "val": 804
+        },
+        "6": {
+          "test": 779,
+          "train": 3832,
+          "val": 762
+        },
+        "7": {
+          "test": 898,
+          "train": 4165,
+          "val": 868
+        },
+        "8": {
+          "test": 1,
+          "train": 10,
+          "val": 0
+        },
+        "9": {
+          "test": 6,
+          "train": 24,
+          "val": 6
+        }
+      }
+    },
+    "multiclass_absent_from_split": {
+      "test": [],
+      "train": [],
+      "val": [
+        "Heartbleed"
+      ]
+    },
+    "test": {
+      "fraction": 0.15,
+      "rows": 374590
+    },
+    "train": {
+      "fraction": 0.7,
+      "rows": 1748083
+    },
+    "val": {
+      "fraction": 0.15,
+      "rows": 374589
+    }
+  },
+  "subset": false
+}

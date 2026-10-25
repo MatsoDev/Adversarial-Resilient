@@ -1,0 +1,332 @@
+{
+  "artifacts": {
+    "feature_names": {
+      "file": "feature_names.json",
+      "sha256": "2776432ba73c53078886c62beacd9453607a8b004fff5c80318e548919e591a1",
+      "size_bytes": 43137
+    },
+    "label_mapping": {
+      "file": "label_mapping.json",
+      "sha256": "5a58424e79b1bead7750f434cc9410911d0c7add9c690c7d9a23ea7d04f8e983",
+      "size_bytes": 186
+    },
+    "scaler": {
+      "file": "scaler.json",
+      "sha256": "00e7b61b4aa18c6308b48559c79a979314f76ca95e6882201993b81f0d71ee1f",
+      "size_bytes": 128
+    },
+    "scaler_mean": {
+      "file": "scaler_mean.npy",
+      "sha256": "9bd287cdfc79e7e37eaf80b749614294ab1c40a945d41ceeb46696efc1760a16",
+      "size_bytes": 19176
+    },
+    "scaler_scale": {
+      "file": "scaler_scale.npy",
+      "sha256": "f3680f3ab66c0a44d0743632e4b5971140ef9f2877456948dbb9ecb2f37caf29",
+      "size_bytes": 19176
+    },
+    "test_X": {
+      "dtype": "float32",
+      "file": "test_X.npy",
+      "sha256": "c4c32a12e5e702a52ac583e994b3daa3585abae97428d97bfbd8d78e6994f3fd",
+      "shape": [
+        200000,
+        2381
+      ],
+      "size_bytes": 1904800128
+    },
+    "test_metadata": {
+      "file": "test_metadata.csv",
+      "sha256": "42b5d1fab16ac1454f780591ed30c34d17d69086a70de0b7d5c298ea15e4bf7e",
+      "size_bytes": 21288943
+    },
+    "test_y": {
+      "dtype": "int8",
+      "file": "test_y.npy",
+      "sha256": "5bd7d799cf64785874a475c43d19d6245d889c34c4ccc54070f44350c5d7ff99",
+      "shape": [
+        200000
+      ],
+      "size_bytes": 200128
+    },
+    "train_X": {
+      "dtype": "float32",
+      "file": "train_X.npy",
+      "sha256": "b9c1da3ae4d64e7fbaf86d2a925e97a3378df86e3ecf7c67362b05a9f46a4e8f",
+      "shape": [
+        510000,
+        2381
+      ],
+      "size_bytes": 4857240128
+    },
+    "train_metadata": {
+      "file": "train_metadata.csv",
+      "sha256": "e914e54784ecf62b97d8af414c0dcf74a575b7e1551290d9f55a7396d394dc45",
+      "size_bytes": 56156856
+    },
+    "train_y": {
+      "dtype": "int8",
+      "file": "train_y.npy",
+      "sha256": "c2b61916e5513ac5508945d40c383c27272aa6661ccc51eb29943c2eb12b7428",
+      "shape": [
+        510000
+      ],
+      "size_bytes": 510128
+    },
+    "val_X": {
+      "dtype": "float32",
+      "file": "val_X.npy",
+      "sha256": "124e6beea68c938ce4bbcb60712acdfaf37da59b2eb0a4dba38b410a726b5d31",
+      "shape": [
+        90000,
+        2381
+      ],
+      "size_bytes": 857160128
+    },
+    "val_metadata": {
+      "file": "val_metadata.csv",
+      "sha256": "7ccd3ec4b4700c763e323d2629343795f386d60f4d233936452d41254ac35560",
+      "size_bytes": 9795278
+    },
+    "val_y": {
+      "dtype": "int8",
+      "file": "val_y.npy",
+      "sha256": "77cc68e3a62cab8c06788af2b7ba6c7a2a50f914e192f54ff6cfb4b8b16a75fe",
+      "shape": [
+        90000
+      ],
+      "size_bytes": 90128
+    }
+  },
+  "code_revision": "3be770e955d7034b606f0df0a368d1314e07b7b3",
+  "dataset": "ember2018",
+  "dataset_version": "EMBER2018 feature version 2 (2381 dimensions)",
+  "duplicates": {
+    "cross_split_sha256": 0,
+    "duplicate_sha256_groups_in_supervised_train": 0,
+    "duplicate_sha256_rows_in_supervised_train": 0,
+    "removed_train_or_val_rows_duplicating_test": 0
+  },
+  "generated_at": "2026-10-25T19:39:43+00:00",
+  "notes": [
+    "label=-1 rows are counted but excluded from supervised train/val and arrays",
+    "processed arrays are gitignored; only this manifest is committed",
+    "no resampling or class weighting is applied in Sprint 2"
+  ],
+  "preprocessing": {
+    "byteentropy_normalization": "sum to 1 (zero vector if sum is 0)",
+    "feature_dim": 2381,
+    "feature_groups": {
+      "byteentropy": {
+        "dim": 256,
+        "start": 256,
+        "stop": 512
+      },
+      "datadirectories": {
+        "dim": 30,
+        "start": 2351,
+        "stop": 2381
+      },
+      "exports": {
+        "dim": 128,
+        "start": 2223,
+        "stop": 2351
+      },
+      "general": {
+        "dim": 10,
+        "start": 616,
+        "stop": 626
+      },
+      "header": {
+        "dim": 62,
+        "start": 626,
+        "stop": 688
+      },
+      "histogram": {
+        "dim": 256,
+        "start": 0,
+        "stop": 256
+      },
+      "imports": {
+        "dim": 1280,
+        "start": 943,
+        "stop": 2223
+      },
+      "section": {
+        "dim": 255,
+        "start": 688,
+        "stop": 943
+      },
+      "strings": {
+        "dim": 104,
+        "start": 512,
+        "stop": 616
+      }
+    },
+    "hasher": "sklearn.feature_extraction.FeatureHasher (official n_features/input_type)",
+    "histogram_normalization": "sum to 1 (zero vector if sum is 0)",
+    "scaler_fit_split": "train",
+    "test_handling": "official test file preserved and never used for tuning",
+    "validation_fraction": 0.15,
+    "vectorizer": "clean-room EMBER v2 implementation (src/data/ember.py)"
+  },
+  "sampling": {
+    "labeled_train_selected": 600000,
+    "max_samples": null,
+    "test_selected": 200000
+  },
+  "seed": 42,
+  "source": {
+    "files": [
+      {
+        "label_counts": {
+          "0": 50000
+        },
+        "name": "train_features_0.jsonl",
+        "partition": "train",
+        "rows": 50000,
+        "sha256": "c2b11558db11e5c0983c49bf6a94bc93ff086b2254182728ec7257773205f3d1",
+        "size_bytes": 566173907
+      },
+      {
+        "label_counts": {
+          "-1": 42107,
+          "0": 52338,
+          "1": 63713
+        },
+        "name": "train_features_1.jsonl",
+        "partition": "train",
+        "rows": 158158,
+        "sha256": "dd9b55d8282e1698610971bd132d570f5b4dbba9da7946d3108efefe1c3a7ca0",
+        "size_bytes": 1659892947
+      },
+      {
+        "label_counts": {
+          "-1": 34284,
+          "0": 46563,
+          "1": 47044
+        },
+        "name": "train_features_2.jsonl",
+        "partition": "train",
+        "rows": 127891,
+        "sha256": "d7d8155f4f22167c5dad83d37c65a03d1aaf286f44803f99a81493ba8ce990a7",
+        "size_bytes": 1299496021
+      },
+      {
+        "label_counts": {
+          "-1": 34882,
+          "0": 47004,
+          "1": 47309
+        },
+        "name": "train_features_3.jsonl",
+        "partition": "train",
+        "rows": 129195,
+        "sha256": "097a64704c500e6c665c725d87677de370e30da05cfe7d803d4a2af42885a032",
+        "size_bytes": 1376529640
+      },
+      {
+        "label_counts": {
+          "-1": 35336,
+          "0": 48433,
+          "1": 48413
+        },
+        "name": "train_features_4.jsonl",
+        "partition": "train",
+        "rows": 132182,
+        "sha256": "c701a968b741b030b65e5fed2b68becb8f851d48df2c9eb9305a03b628c7cba4",
+        "size_bytes": 1322709891
+      },
+      {
+        "label_counts": {
+          "-1": 53391,
+          "0": 55662,
+          "1": 93521
+        },
+        "name": "train_features_5.jsonl",
+        "partition": "train",
+        "rows": 202574,
+        "sha256": "f51fb4a02c3a92d0cbd6a5cf0fc38f51c5029135d1927f5c631d592f93e98bff",
+        "size_bytes": 1851893150
+      },
+      {
+        "label_counts": {
+          "0": 100000,
+          "1": 100000
+        },
+        "name": "test_features.jsonl",
+        "partition": "test",
+        "rows": 200000,
+        "sha256": "8225d87aa4d2ec1c65583dc415c9058a126be9dc0e9292f59b779106f0da6ac9",
+        "size_bytes": 1869447260
+      }
+    ],
+    "test_label_counts": {
+      "0": 100000,
+      "1": 100000
+    },
+    "test_rows": 200000,
+    "train_label_counts": {
+      "-1": 200000,
+      "0": 300000,
+      "1": 300000
+    },
+    "train_rows": 800000
+  },
+  "source_resolution": "CLI --source > EMBER_DATA_DIR > data/raw/EMBER-Dataset > ~/Documents/EMBER-Dataset",
+  "split_strategy": {
+    "actual_val_fraction": 0.15,
+    "actual_val_rows": 90000,
+    "class_counts": {
+      "0": {
+        "total": 300000,
+        "train": 267626,
+        "val": 32374
+      },
+      "1": {
+        "total": 300000,
+        "train": 242374,
+        "val": 57626
+      }
+    },
+    "duplicate_sha256_groups": 0,
+    "duplicate_sha256_rows": 0,
+    "label_conflicts": 0,
+    "max_train_time": "2018-09",
+    "max_val_time": "2018-10",
+    "min_train_time": "2006-12",
+    "min_val_time": "2018-09",
+    "strategy": "global_time",
+    "target_val_rows": 90000,
+    "val_fraction_requested": 0.15
+  },
+  "splits": {
+    "test": {
+      "label_counts": {
+        "0": 100000,
+        "1": 100000
+      },
+      "max_appeared": "2018-12",
+      "min_appeared": "2018-11",
+      "rows": 200000
+    },
+    "train": {
+      "label_counts": {
+        "0": 267626,
+        "1": 242374
+      },
+      "max_appeared": "2018-09",
+      "min_appeared": "2006-12",
+      "rows": 510000
+    },
+    "val": {
+      "label_counts": {
+        "0": 32374,
+        "1": 57626
+      },
+      "max_appeared": "2018-10",
+      "min_appeared": "2018-09",
+      "rows": 90000
+    }
+  },
+  "subset": false
+}
