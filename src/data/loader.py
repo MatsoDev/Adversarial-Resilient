@@ -24,7 +24,13 @@ CICIDS_TARGETS = ("binary", "multiclass")
 
 @dataclass
 class ProcessedDataset:
-    """A cleaned split returned by :func:`load_ember` / :func:`load_cicids2017`."""
+    """A cleaned split returned by :func:`load_ember` / :func:`load_cicids2017`.
+
+    ``X`` is a float32 feature matrix, ``y`` holds integer targets, and
+    ``metadata`` is the optional per-row metadata CSV. ``target`` and
+    ``label_mapping`` describe the label space (EMBER is always binary; CICIDS
+    is binary or multiclass). ``len(dataset)`` returns the number of rows.
+    """
 
     X: np.ndarray
     y: np.ndarray
@@ -118,6 +124,18 @@ def load_ember(
         Directory written by ``scripts/preprocess.py --dataset ember``.
     standardize:
         Apply the saved train-only mean/scale statistics when True.
+
+    Returns
+    -------
+    ProcessedDataset
+        The requested split with the binary target and metadata when present.
+
+    Raises
+    ------
+    FileNotFoundError
+        If an expected array, metadata, or scaler artifact is missing.
+    ValueError
+        If the split name, array shapes, or scaler dimensions are invalid.
     """
     _validate_split(split)
     root = Path(root).expanduser()
@@ -167,8 +185,31 @@ def load_cicids2017(
 ) -> ProcessedDataset:
     """Load one processed CIC-IDS-2017 split.
 
-    ``target`` is ``"binary"`` (BENIGN=0, attack=1) or ``"multiclass"`` (the
-    sorted label-to-integer mapping is returned in ``label_mapping``).
+    Parameters
+    ----------
+    split:
+        ``"train"``, ``"val"`` or ``"test"``.
+    target:
+        ``"binary"`` (BENIGN=0, attack=1) or ``"multiclass"`` (the sorted
+        label-to-integer mapping is returned in ``label_mapping``).
+    root:
+        Directory written by ``scripts/preprocess.py --dataset cicids2017``.
+    standardize:
+        Apply the saved train-only mean/scale statistics when True.
+
+    Returns
+    -------
+    ProcessedDataset
+        The requested split with the selected target and metadata when
+        present.
+
+    Raises
+    ------
+    FileNotFoundError
+        If an expected array, metadata, or scaler artifact is missing.
+    ValueError
+        If the split/target name, array shapes, or scaler dimensions are
+        invalid.
     """
     _validate_split(split)
     if target not in CICIDS_TARGETS:

@@ -1,7 +1,8 @@
 # Data guide — EMBER2018 and CIC-IDS-2017
 
 How to locate, preprocess, inspect, and load the project datasets. Development
-setup and service commands live in [`../development.md`](../development.md).
+setup and service commands live in [`../development.md`](../development.md);
+environment variables are summarized in [`../configuration.md`](../configuration.md).
 
 Raw datasets are **read in place** from outside the repository and are never
 committed. Processed arrays and scalers also stay out of Git
@@ -26,6 +27,24 @@ CLI --source
 
 No download is performed by the pipeline. Do not copy the datasets into the
 repository; if you symlink them under `data/raw/`, they remain ignored.
+
+## Obtaining the raw data
+
+The pipeline expects the official releases, not a re-cleaned Kaggle copy:
+
+- **EMBER2018 v2** — obtain the feature release from
+  <https://ember.elastic.co/> and keep `train_features_0.jsonl` …
+  `train_features_5.jsonl` and `test_features.jsonl` together. The optional
+  pretrained model file is not used in Sprint 2. See the
+  [EMBER data card](../data_cards/ember2018.md) for license and composition.
+- **CIC-IDS-2017** — obtain the original eight CSVs from UNB/CIC
+  (<https://www.unb.ca/cic/datasets/ids-2017.html>, `MachineLearningCSV.zip`).
+  The validator checks the exact filenames, row counts, and SHA-256 values
+  recorded in [`manifests/cicids2017.json`](manifests/cicids2017.json); see the
+  [CICIDS data card](../data_cards/cicids2017.md).
+
+Neither dataset is redistributed here. Point `--source` or the environment
+variables at the extracted directory; the pipeline reads files in place.
 
 ## Commands
 
@@ -59,9 +78,50 @@ python scripts/eda_datasets.py --dataset all --max-samples 5000 \
 # or: make eda
 ```
 
-Useful `preprocess.py` flags: `--seed` (default 42), `--max-samples`/`--limit`,
-`--force`, `--verify-only`, `--jobs` (EMBER vectorisation only), `--no-scale`,
-and `--skip-source-check` (synthetic/test sources only).
+### `scripts/preprocess.py` options
+
+| Option | Default | Behavior |
+|---|---|---|
+| `--dataset {ember,cicids2017,all}` | Required | Dataset to process |
+| `--source PATH` | Resolution order | Raw source for a single dataset; rejected with `--dataset all` |
+| `--ember-source PATH` / `--cicids-source PATH` | Resolution order | Per-dataset sources for `--dataset all` |
+| `--output-dir PATH` | `data/processed/<dataset>` | Processed artifact directory; rejected with `--dataset all` |
+| `--seed N` | `42` | Sampling and split seed; recorded in the manifest |
+| `--max-samples N` / `--limit N` | All rows | Deterministic subset; marks the manifest `subset: true` |
+| `--force` | Off | Override source hash/count mismatches and the 1% invalid-row threshold |
+| `--verify-only` | Off | Re-hash artifacts against `manifest.json`; does not read the raw source |
+| `--jobs N` | Up to 4 | Worker processes for EMBER scan/vectorisation; CICIDS dedup is single-process and logs that `--jobs` is ignored |
+| `--no-scale` | Off | Do not write `scaler_mean.npy` / `scaler_scale.npy` |
+| `--skip-source-check` | Off | Accept non-official/synthetic sources; intended for tests only |
+
+`--max-samples` has dataset-specific behavior: EMBER samples the labeled train
+partition and the official test partition separately before vectorisation,
+while CICIDS samples cleaned, deduplicated rows before the 70/15/15 split.
+
+Exit codes: `0` success, `1` verification or pipeline failure, `2` an
+ambiguous argument combination (for example `--dataset all --source ...`).
+A full-run manifest is published to `docs/data/manifests/` only when the output
+directory is the default `data/processed/<dataset>` and the run is not a
+subset; custom or subset runs keep `manifest.json` inside their output
+directory.
+
+### `scripts/eda_datasets.py` options
+
+| Option | Default | Behavior |
+|---|---|---|
+| `--dataset {ember,cicids2017,all}` | Required | Dataset(s) to scan |
+| `--source PATH` | Resolution order | Raw source for a single dataset; rejected with `--dataset all` |
+| `--ember-source PATH` / `--cicids-source PATH` | Resolution order | Per-dataset sources for `--dataset all` |
+| `--output-dir PATH` | `docs/` | Writes `<dir>/results/data_eda.json`, `<dir>/figures/`, and `<dir>/data/eda_report.md` |
+| `--seed N` | `42` | Sampling seed |
+| `--max-samples N` | `5000` | Cap for feature-distribution summaries; EMBER additionally caps its sample at 20,000 rows, CICIDS uses a systematic stride sample |
+| `--jobs N` | Up to 4 | Worker processes for the EMBER metadata scan |
+| `--no-processed` | Off | Do not read processed manifests under `data/processed/` |
+| `--ember-processed-dir PATH` / `--cicids-processed-dir PATH` | Default processed dirs | Custom processed directories for manifest enrichment |
+
+EDA always scans the raw source for counts and cleaning statistics; processed
+manifests are used only to add split summaries when available. Exit codes are
+`0` success and `2` for invalid arguments; processing errors are raised.
 
 ## Expected runtime and outputs
 
@@ -91,15 +151,21 @@ stay under gitignored `data/processed/`.
 ## Loading processed data
 
 ```python
-from src.data import load_ember, load_cicids2017
+from src.data import load_cicids2017, load_ember
 
-X_train, y_train = load_ember("train").X, load_ember("train").y
+ember_train = load_ember("train")
+X_train, y_train = ember_train.X, ember_train.y
 cicids_val = load_cicids2017("val", target="binary", standardize=True)
 ```
 
-`load_ember` / `load_cicids2017` raise a clear error if artifacts are missing
-and never download data. See [`../../src/data/README.md`](../../src/data/README.md)
-for the full loader API (`ProcessedDataset`, target options, outputs).
+`load_ember` always returns the binary target (`0` benign, `1` malicious).
+CICIDS supports
+`target="binary"` or `target="multiclass"`; the returned `label_mapping`
+documents the class order. `load_ember` / `load_cicids2017` raise
+`FileNotFoundError` with the preprocessing command when artifacts are missing,
+and never download data. See
+[`../../src/data/README.md`](../../src/data/README.md) for the full loader API
+(`ProcessedDataset` fields, standardisation, and target options).
 
 ## Committed data documentation
 
