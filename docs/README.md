@@ -19,6 +19,17 @@ and how to get it running; this page is the map to everything else.
 | [`architecture.md`](architecture.md) | Components, entry points, dependency rules, data flows, constraints |
 | [`project-structure.md`](project-structure.md) | Directory responsibilities, where new code/tests/docs belong, conventions |
 
+## Data (Sprint 2)
+
+| Document | What it covers |
+|---|---|
+| [`data/ember_feature_layout.md`](data/ember_feature_layout.md) | EMBER2018 v2 2381-dim group offsets and processing semantics |
+| [`data/eda_report.md`](data/eda_report.md) | Generated EDA report for both datasets (do not hand-edit) |
+| [`data/manifests/ember2018.json`](data/manifests/ember2018.json) | Full-run EMBER manifest: sources, counts, splits, artifact hashes |
+| [`data/manifests/cicids2017.json`](data/manifests/cicids2017.json) | Full-run CICIDS manifest: cleaning, dedup, splits, artifact hashes |
+| [`data_cards/ember2018.md`](data_cards/ember2018.md) | EMBER datasheet: composition, license, biases, safety |
+| [`data_cards/cicids2017.md`](data_cards/cicids2017.md) | CICIDS datasheet: composition, license, known flaws, safety |
+
 ## Security research
 
 | Document | What it covers |
@@ -34,6 +45,7 @@ and how to get it running; this page is the map to everything else.
 | [`project_plan.md`](project_plan.md) | Canonical project plan: scope, sprints, milestones, risks (baseline) |
 | [`DECISIONS.md`](DECISIONS.md) | Log of non-obvious technical decisions, sprint by sprint |
 | [`sprint1_report.md`](sprint1_report.md) | Sprint 1 report: what was done, run, measured, not verified |
+| [`sprint2_report.md`](sprint2_report.md) | Sprint 2 report: data pipeline commands, counts, EDA, limitations |
 | [`PR_sprint1.md`](PR_sprint1.md) | Snapshot of the Sprint 1 pull request description (historical) |
 
 ## Generated artifacts (do not edit by hand)
