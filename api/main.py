@@ -20,4 +20,5 @@ def health() -> dict[str, str]:
 
 @app.get("/")
 def root() -> dict[str, str]:
+    """Return a short service message; use /health for the liveness probe."""
     return {"message": "Adversarial-Resilient API placeholder (Sprint 1). See /health."}
