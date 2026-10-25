@@ -2,22 +2,26 @@
 
 Adversarial-Resilient Security Models: ML malware/network detectors attacked
 with adversarial examples (FGSM/PGD/CW) and hardened with defenses. Current
-state (Sprint 2): pinned CPU environment, ART demo on MNIST, FastAPI
+state (Sprint 2 complete): pinned CPU environment, ART demo on MNIST, FastAPI
 `/health`, Streamlit placeholder, Docker stack, CI, plus cleaned/versioned
 EMBER2018 + CIC-IDS-2017 datasets, reusable loaders, EDA, and manifests.
 Baselines, attacks, and defenses land in later sprints.
 
 ## Read first
 
-1. [`README.md`](README.md) — setup, verification, demo, troubleshooting.
+1. [`README.md`](README.md) — overview, status, quick start.
 2. [`docs/README.md`](docs/README.md) — documentation index.
-3. [`docs/architecture.md`](docs/architecture.md) — components, dependency
-   rules, data flows, constraints.
+3. [`docs/development.md`](docs/development.md) — setup, verification, demo,
+   services, troubleshooting.
 4. [`docs/project-structure.md`](docs/project-structure.md) — directory
    responsibilities, "where do I put ...?", conventions.
-5. [`docs/DECISIONS.md`](docs/DECISIONS.md) — why non-obvious choices were
+5. [`docs/architecture.md`](docs/architecture.md) — components, dependency
+   rules, data flows, constraints.
+6. [`docs/data/README.md`](docs/data/README.md) — dataset locations,
+   preprocessing/EDA commands, loaders.
+7. [`docs/DECISIONS.md`](docs/DECISIONS.md) — why non-obvious choices were
    made; check before re-litigating them.
-6. [`docs/project_plan.md`](docs/project_plan.md) — scope/schedule baseline;
+8. [`docs/project_plan.md`](docs/project_plan.md) — scope/schedule baseline;
    [`docs/progress.md`](docs/progress.md) — current sprint status and
    checklist. Update `progress.md` when status changes, not the plan.
 
@@ -25,8 +29,10 @@ Baselines, attacks, and defenses land in later sprints.
 
 ```bash
 make setup              # create .venv, install deps, install pre-commit hooks
-make lint               # ruff check src scripts tests api dashboard
-make test               # pytest (26 tests, ~46 s; data tests use synthetic fixtures)
+make lint               # ruff check + ruff format --check (mirrors CI)
+make test               # pytest (synthetic fixtures; no datasets needed)
+make check              # lint + test
+make format             # rewrite files with ruff format
 make demo               # scripts/art_quickstart.py --fast (real MNIST, minutes)
 python scripts/art_quickstart.py --synthetic   # fast demo pipeline check
 make data               # full EMBER + CICIDS preprocessing (needs local raw data)
@@ -34,12 +40,13 @@ make data-smoke         # deterministic 2000-row subset into /tmp
 make eda                # regenerate docs/results/data_eda.json + figures/report
 python scripts/preprocess.py --dataset all --verify-only
 python -m uvicorn api.main:app --port 8000     # API
-streamlit run dashboard/app.py                 # dashboard
+streamlit run dashboard/app.py                 # dashboard (API_URL default localhost)
 docker compose up --build                      # api + dashboard + mlflow (.env first)
 ```
 
-CI (`.github/workflows/ci.yml`) runs `ruff check` and `pytest` on Python 3.11
-plus `docker build`; keep both green.
+CI (`.github/workflows/ci.yml`) runs `make lint`, `make test` on Python 3.11,
+plus `docker build`; keep all green. `make lint` includes formatting, so run it
+before every commit.
 
 ## Architectural rules (do not violate)
 
@@ -51,6 +58,9 @@ plus `docker build`; keep both green.
 - **New reusable code** → `src/<concern>/` (`data`, `models`, `attacks`,
   `defenses`, `evaluation`, `utils`). **New runnable demos** → `scripts/`.
   **New tests** → `tests/test_<area>.py` (flat), use `tmp_path` for outputs.
+- **Docs** → `docs/`; link new documents from `docs/README.md`. Relative
+  Markdown links are checked by `tests/test_docs_links.py`, so update links
+  when moving files.
 - Stay within the sprint scope: do not implement speculative abstractions in
   placeholder packages.
 
@@ -75,8 +85,9 @@ plus `docker build`; keep both green.
 - **Data:** raw datasets are read in place (CLI `--source` > `EMBER_DATA_DIR` /
   `CICIDS_DATA_DIR` > `data/raw/<name>` > `~/Documents/<name>`); never copy or
   commit them. Versioning is manifest-based (SHA-256/counts/config), not
-  DVC/LFS. See [`docs/data/ember_feature_layout.md`](docs/data/ember_feature_layout.md)
-  and [`docs/data_cards/`](docs/data_cards/).
+  DVC/LFS. See [`docs/data/README.md`](docs/data/README.md),
+  [`docs/data/ember_feature_layout.md`](docs/data/ember_feature_layout.md), and
+  [`docs/data_cards/`](docs/data_cards/).
 - **Safety:** defensive research only — no live malware, no weaponized
   tooling, public feature datasets only (see
   [`docs/threat_model_v0.1.md`](docs/threat_model_v0.1.md)).
