@@ -1,40 +1,41 @@
 # Architecture overview
 
-This document describes how the repository is actually built today (Sprint 1
+This document describes how the repository is actually built today (Sprint 2
 state) and the rules that keep it coherent as the project grows.
 
 ## What the system is
 
 Machine-learning detectors for malware (EMBER) and network intrusion
 (CIC-IDS-2017) that are attacked with adversarial examples (FGSM, PGD,
-Carlini-Wagner) and later hardened with defenses. The current code proves the
-attack tooling works end to end on an MNIST demo; the security-relevant
-datasets, baselines, attacks, and defenses are implemented in later sprints
-(see the module READMEs under [`../src/`](../src/)).
+Carlini-Wagner) and later hardened with defenses. Sprint 1 proved the attack
+tooling works end to end on an MNIST demo; Sprint 2 adds the cleaned, versioned
+EMBER2018 and CIC-IDS-2017 datasets, reusable loaders, EDA, and manifests.
+Baselines, attacks on real data, and defenses land in later sprints (see the
+module READMEs under [`../src/`](../src/)).
 
 ## Components
 
 ```text
-                     +-----------------------------+
-                     |  scripts/art_quickstart.py  |
-                     |  (end-to-end ART demo)      |
-                     +--------------+--------------+
-                                    | imports
-                                    v
-  +-----------+   +-------------------------------------------+
-  | api/      |   |  src/  (shared library, importable as     |
-  | FastAPI   |-->|  `src.*`)                                 |
-  | /health   |   |  config.py  utils/seed  models/           |
+  +-------------------------------+   +-------------------------------+
+  | scripts/art_quickstart.py     |   | scripts/preprocess.py         |
+  | (ART demo on MNIST)           |   | scripts/eda_datasets.py       |
+  +---------------+---------------+   +---------------+---------------+
+                  | imports                           | imports
+                  v                                   v
+  +-----------+   +-------------------------------------------+   +----------------+
+  | api/      |   |  src/  (shared library, importable as     |   | data/processed |
+  | FastAPI   |-->|  `src.*`)                                 |-->| (gitignored)   |
+  | /health   |   |  config.py  utils/seed  models/           |   +----------------+
   +-----------+   |  data/ attacks/ defenses/ evaluation/     |
-        ^         |  (later-sprint placeholder packages)      |
-        |         +-------------------------------------------+
-        | calls /health
-  +-----------+      +-------------------+   +------------------+
-  | dashboard/|      | docs/results +    |   | mlruns/          |
-  | Streamlit |      | docs/figures      |   | MLflow tracking  |
-  +-----------+      | (committed demo   |   | (gitignored)     |
-                     |  artifacts)       |   +------------------+
-                     +-------------------+
+        ^         |                                           |
+        | calls   +-------------------------------------------+
+  +-----------+                 | manifests / EDA
+  | dashboard/|                 v
+  | Streamlit |      +---------------------------+   +------------------+
+  +-----------+      | docs/data/manifests/      |   | mlruns/          |
+                     | docs/data/eda_report.md   |   | MLflow tracking  |
+                     | docs/figures/data_*.png   |   | (gitignored)     |
+                     +---------------------------+   +------------------+
 ```
 
 ### `src/` — shared library
@@ -53,9 +54,13 @@ the other way around.
 - [`src/models/baseline_mlp.py`](../src/models/baseline_mlp.py) —
   `BaselineMLP` (tabular baseline skeleton) and `SmallCNN` (the MNIST demo
   model).
-- `src/data/`, `src/attacks/`, `src/defenses/`, `src/evaluation/` — placeholder
-  packages whose READMEs describe the planned contents (dataset loaders,
-  attack wrappers, defenses, metrics/plots). They contain no logic yet.
+- [`src/data/`](../src/data/README.md) — Sprint 2 data layer:
+  `ember.py` (clean-room EMBER v2 vectoriser, metadata scan, time split),
+  `cicids2017.py` (cleaning, canonical labels, dedup, stratified split),
+  `preprocessing.py` (atomic writes, hashing/manifests, scalers, split
+  utilities), and `loader.py` (`load_ember` / `load_cicids2017`).
+- `src/attacks/`, `src/defenses/`, `src/evaluation/` — placeholder packages
+  whose READMEs describe the planned contents; they contain no logic yet.
 
 ### `scripts/` — runnable entry points
 
@@ -69,6 +74,12 @@ One-off and demo scripts that wire the library together. `scripts/` may import
   the two figures, and MLflow data. `--synthetic` runs on random data for
   tests, and `run_demo(args, output_dir=...)` redirects all outputs (the smoke
   test uses pytest's `tmp_path` so committed artifacts are never overwritten).
+- [`scripts/preprocess.py`](../scripts/preprocess.py) — one-command
+  reproducible EMBER/CICIDS preprocessing, `--verify-only` manifest checks,
+  deterministic subsets, and `--dataset all`.
+- [`scripts/eda_datasets.py`](../scripts/eda_datasets.py) — EDA JSON, compact
+  PNG figures, and a generated Markdown report; `--output-dir` keeps tests out
+  of `docs/`.
 
 ### `api/` — FastAPI service
 
@@ -127,6 +138,18 @@ torchvision MNIST --> data/raw/MNIST/ --> SmallCNN (train) --> ART PyTorchClassi
         --> mlruns/ (MLflow file store)
 ```
 
+**Data pipeline (`make data` / `make eda`):**
+
+```text
+~/Documents/EMBER-Dataset, ~/Documents/CIC-IDS-Dataset (read in place)
+    --> src/data/ember.py / cicids2017.py (validate, clean, vectorise, split)
+    --> data/processed/{ember2018,cicids2017}/ (gitignored .npy + metadata + scalers)
+    --> docs/data/manifests/*.json (committed compact manifests)
+    --> scripts/eda_datasets.py --> docs/results/data_eda.json
+                                  docs/figures/data_*.png
+                                  docs/data/eda_report.md
+```
+
 **API + dashboard:**
 
 ```text
@@ -140,9 +163,12 @@ Streamlit (dashboard/) --HTTP GET /health--> FastAPI (api/) --> {"status": "ok"}
   (`requirements.txt`).
 - Deterministic runs: fixed seeds (`SEED = 42` default) and
   `set_seed()`; the demo also records the seed in its JSON output.
-- Datasets, model weights, `.env`, and `mlruns/` are never committed
-  (`.gitignore`); the only committed generated files are the demo artifacts in
-  `docs/results/` and `docs/figures/`.
+- Raw datasets, processed arrays, scalers, model weights, `.env`, and `mlruns/`
+  are never committed (`.gitignore`). Committed generated artifacts are the
+  Sprint 1 demo files in `docs/results/` + `docs/figures/`, the compact data
+  manifests in `docs/data/manifests/`, and the generated EDA report/figures.
+- Data versioning is manifest-based (SHA-256 + sizes + counts + config + seed);
+  DVC/Git LFS are deliberately not used in Sprint 2 (see `DECISIONS.md`).
 - Defensive research only: public feature datasets, no live malware, no
   weaponized tooling (see [`threat_model_v0.1.md`](threat_model_v0.1.md)).
 
@@ -150,7 +176,7 @@ Streamlit (dashboard/) --HTTP GET /health--> FastAPI (api/) --> {"status": "ok"}
 
 | Planned work | Location | Module README |
 |---|---|---|
-| EMBER / CIC-IDS-2017 download, preprocessing | `src/data/` | [`src/data/README.md`](../src/data/README.md) |
+| EMBER / CIC-IDS-2017 loaders, preprocessing, splits | `src/data/` | [`src/data/README.md`](../src/data/README.md) |
 | Baseline detectors | `src/models/` | [`src/models/README.md`](../src/models/README.md) |
 | FGSM/PGD/CW wrappers over ART | `src/attacks/` | [`src/attacks/README.md`](../src/attacks/README.md) |
 | Adversarial training, distillation, ensembles, sanitization, detector | `src/defenses/` | [`src/defenses/README.md`](../src/defenses/README.md) |

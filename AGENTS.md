@@ -2,9 +2,10 @@
 
 Adversarial-Resilient Security Models: ML malware/network detectors attacked
 with adversarial examples (FGSM/PGD/CW) and hardened with defenses. Current
-state (Sprint 1): pinned CPU environment, ART demo on MNIST, FastAPI
-`/health`, Streamlit placeholder, Docker stack, CI. Real datasets, baselines,
-attacks, and defenses land in later sprints.
+state (Sprint 2): pinned CPU environment, ART demo on MNIST, FastAPI
+`/health`, Streamlit placeholder, Docker stack, CI, plus cleaned/versioned
+EMBER2018 + CIC-IDS-2017 datasets, reusable loaders, EDA, and manifests.
+Baselines, attacks, and defenses land in later sprints.
 
 ## Read first
 
@@ -25,9 +26,13 @@ attacks, and defenses land in later sprints.
 ```bash
 make setup              # create .venv, install deps, install pre-commit hooks
 make lint               # ruff check src scripts tests api dashboard
-make test               # pytest (6 tests, ~40 s; smoke test is synthetic)
+make test               # pytest (26 tests, ~46 s; data tests use synthetic fixtures)
 make demo               # scripts/art_quickstart.py --fast (real MNIST, minutes)
 python scripts/art_quickstart.py --synthetic   # fast demo pipeline check
+make data               # full EMBER + CICIDS preprocessing (needs local raw data)
+make data-smoke         # deterministic 2000-row subset into /tmp
+make eda                # regenerate docs/results/data_eda.json + figures/report
+python scripts/preprocess.py --dataset all --verify-only
 python -m uvicorn api.main:app --port 8000     # API
 streamlit run dashboard/app.py                 # dashboard
 docker compose up --build                      # api + dashboard + mlflow (.env first)
@@ -56,13 +61,22 @@ plus `docker build`; keep both green.
   `git status` before committing.
 - **Generated files — never hand-edit:** `docs/results/art_quickstart_results.json`
   and `docs/figures/art_*.png` are produced by `scripts/art_quickstart.py`
-  (`make demo`), then intentionally committed. Regenerate, don't edit.
+  (`make demo`). `docs/results/data_eda.json`, `docs/figures/data_*.png`,
+  `docs/data/eda_report.md`, and `docs/data/manifests/*.json` are produced by
+  `scripts/eda_datasets.py` / full `scripts/preprocess.py` runs. All are
+  intentionally committed; regenerate, don't edit.
 - **Tests must not write into `docs/`**: pass `output_dir` to
-  `run_demo()` (see `tests/test_art_quickstart_smoke.py`).
+  `run_demo()`, `--output-dir` to the data CLIs, and use synthetic fixtures.
+  Real-data tests are skipped unless `RUN_REAL_DATA_TESTS=1`.
 - **Style:** ruff (`line-length = 100`), `ruff format`, logging instead of
   print in library code; Windows/Linux/macOS compatible paths.
 - **Git:** Conventional Commits; branch naming and PR rules in
   [`CONTRIBUTING.md`](CONTRIBUTING.md). Never push to `main` directly.
+- **Data:** raw datasets are read in place (CLI `--source` > `EMBER_DATA_DIR` /
+  `CICIDS_DATA_DIR` > `data/raw/<name>` > `~/Documents/<name>`); never copy or
+  commit them. Versioning is manifest-based (SHA-256/counts/config), not
+  DVC/LFS. See [`docs/data/ember_feature_layout.md`](docs/data/ember_feature_layout.md)
+  and [`docs/data_cards/`](docs/data_cards/).
 - **Safety:** defensive research only — no live malware, no weaponized
   tooling, public feature datasets only (see
   [`docs/threat_model_v0.1.md`](docs/threat_model_v0.1.md)).

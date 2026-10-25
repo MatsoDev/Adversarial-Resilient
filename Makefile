@@ -1,4 +1,4 @@
-.PHONY: setup lint test demo docker-build docker-up clean
+.PHONY: setup lint test demo data data-smoke eda docker-build docker-up clean
 
 PY ?= python
 VENV ?= .venv
@@ -17,6 +17,16 @@ test:
 
 demo:
 	$(VENV)/Scripts/python scripts/art_quickstart.py --fast || $(VENV)/bin/python scripts/art_quickstart.py --fast || python scripts/art_quickstart.py --fast
+
+data:
+	$(VENV)/Scripts/python scripts/preprocess.py --dataset all || $(VENV)/bin/python scripts/preprocess.py --dataset all || python scripts/preprocess.py --dataset all
+
+data-smoke:
+	$(VENV)/Scripts/python scripts/preprocess.py --dataset ember --max-samples 2000 --output-dir /tmp/adversarial-resilient-smoke/ember --force --jobs 1 || $(VENV)/bin/python scripts/preprocess.py --dataset ember --max-samples 2000 --output-dir /tmp/adversarial-resilient-smoke/ember --force --jobs 1 || python scripts/preprocess.py --dataset ember --max-samples 2000 --output-dir /tmp/adversarial-resilient-smoke/ember --force --jobs 1
+	$(VENV)/Scripts/python scripts/preprocess.py --dataset cicids2017 --max-samples 2000 --output-dir /tmp/adversarial-resilient-smoke/cicids2017 --force || $(VENV)/bin/python scripts/preprocess.py --dataset cicids2017 --max-samples 2000 --output-dir /tmp/adversarial-resilient-smoke/cicids2017 --force || python scripts/preprocess.py --dataset cicids2017 --max-samples 2000 --output-dir /tmp/adversarial-resilient-smoke/cicids2017 --force
+
+eda:
+	$(VENV)/Scripts/python scripts/eda_datasets.py --dataset all || $(VENV)/bin/python scripts/eda_datasets.py --dataset all || python scripts/eda_datasets.py --dataset all
 
 docker-build:
 	docker build -t adversarial-resilient:dev .

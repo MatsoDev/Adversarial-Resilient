@@ -4,7 +4,7 @@ Living status of the project against [`project_plan.md`](project_plan.md).
 Update this file as work lands (at least at each sprint boundary); keep it
 short. Evidence of record stays in the sprint reports, PRs, and MLflow runs.
 
-**Last updated:** 2026-10-16 · **Current sprint:** Sprint 2 — Data
+**Last updated:** 2026-10-25 · **Current sprint:** Sprint 2 complete · next: Sprint 3 — Classical baselines
 
 ## Milestones
 
@@ -24,7 +24,7 @@ short. Evidence of record stays in the sprint reports, PRs, and MLflow runs.
 | Sprint | Weeks  | Focus                                   | Status      | Evidence |
 |--------|--------|-----------------------------------------|-------------|----------|
 | S1     | 1–2    | Foundations                             | Done        | [`sprint1_report.md`](sprint1_report.md), PR #1 |
-| S2     | 3–4    | Data (EMBER v2, CICIDS2017, EDA, preprocessing) | In progress | — |
+| S2     | 3–4    | Data (EMBER v2, CICIDS2017, EDA, preprocessing) | Done (required); optional datasets skipped | [`sprint2_report.md`](sprint2_report.md), [`data/manifests/`](data/manifests/) |
 | S3     | 5–6    | Classical baselines + first neural model | Not started | — |
 | S4     | 7–8    | Tune and freeze the baseline (M1)       | Not started | — |
 | S5     | 9–10   | Attack implementation (FGSM/PGD/CW)     | Not started | — |
@@ -40,18 +40,33 @@ short. Evidence of record stays in the sprint reports, PRs, and MLflow runs.
 | S15    | S2 13–14 | Thesis, slides, demo (M6)             | Not started | — |
 | S16    | S2 15–16 | Polish, rehearse, defend (M7)         | Not started | — |
 
-## Sprint 2 — Data (current)
+## Sprint 2 — Data (done, required scope)
 
 Goal (from the plan): cleaned, versioned datasets; EDA report; preprocessing
 that reproduces everything from raw data.
 
-- [ ] EMBER (v2) download + checksum verification; 2381-dim feature layout documented (SS-A)
-- [ ] CICIDS2017 (+ NSL-KDD quick baseline) download + checksums; attack classes documented (SS-B)
-- [ ] CIC-MalMem fetched as optional supplement (SS-A)
-- [ ] EDA: class balance, missing values, duplicates, feature distributions (DS)
-- [ ] Preprocessing pipeline: cleaning, normalization; time-based split for EMBER, stratified for CICIDS (DS)
-- [ ] Data storage/versioning + reusable `DataLoader` module (CS)
-- [ ] Data card per dataset: source, license, known biases (SS-C)
+- [x] EMBER2018 v2 local files verified (SHA-256 + counts); 2381-dim layout
+  documented in [`data/ember_feature_layout.md`](data/ember_feature_layout.md)
+  and [`data_cards/ember2018.md`](data_cards/ember2018.md). Full manifest:
+  [`data/manifests/ember2018.json`](data/manifests/ember2018.json).
+- [x] CICIDS2017 original eight CSVs verified (SHA-256 + 2,830,743 rows); attack
+  classes documented in [`data_cards/cicids2017.md`](data_cards/cicids2017.md).
+  Full manifest: [`data/manifests/cicids2017.json`](data/manifests/cicids2017.json).
+- [ ] **CIC-MalMem**: not present locally; skipped as optional supplement (not faked).
+- [ ] **NSL-KDD**: not downloaded; skipped as optional stretch (not faked).
+- [x] EDA generated from real data: [`data/eda_report.md`](data/eda_report.md),
+  [`results/data_eda.json`](results/data_eda.json), `figures/data_*.png`.
+- [x] Preprocessing pipeline (`scripts/preprocess.py`): cleaning, float32
+  normalization stats, time-based EMBER val split, CICIDS stratified 70/15/15.
+  Full runs completed; manifest hashing/verify-only pass.
+- [x] Manifest-based versioning + reusable loaders (`src/data/loader.py`,
+  `load_ember` / `load_cicids2017`); DVC/LFS deliberately deferred (see
+  [`DECISIONS.md`](DECISIONS.md)).
+- [x] Data cards for both datasets: source, composition, license, known biases,
+  ethical/safety notes.
+
+Evidence: [`sprint2_report.md`](sprint2_report.md) (commands, actual counts,
+known issues, skipped items).
 
 ## How to update this file
 

@@ -17,9 +17,12 @@ Works today:
 - Streamlit dashboard page (early placeholder that can ping the API).
 - `Dockerfile` and `docker-compose.yml` for api, dashboard, and mlflow services
   (the image is built in CI; the compose stack was smoke-tested on Linux).
+- Cleaned/versioned EMBER2018 v2 and CIC-IDS-2017 datasets with manifest-based
+  versioning, reusable loaders, EDA, data cards, and a reproducible
+  `scripts/preprocess.py` pipeline.
 
-Next: real datasets (EMBER for malware, CIC-IDS-2017 for network traffic),
-baseline detectors, FGSM/PGD/CW attacks, defenses, and the full dashboard.
+Next: baseline detectors, FGSM/PGD/CW attacks on the real datasets, defenses,
+and the full dashboard.
 Sprint-by-sprint status is tracked in
 [`docs/progress.md`](docs/progress.md); scope and schedule are in
 [`docs/project_plan.md`](docs/project_plan.md).
@@ -53,8 +56,10 @@ Highlights:
 - Git.
 - Python 3.10 or 3.11. Tested with Python 3.12.1 on Windows and Python 3.11 in
   CI; the pins in `requirements.txt` support 3.10–3.12.
-- About 3 GB free disk (PyTorch CPU wheel plus dependencies and the MNIST
-  download).
+- About 3 GB free disk for the Python environment and MNIST demo. Full
+  preprocessing additionally needs roughly 8 GB for EMBER processed arrays and
+  1 GB for CICIDS (stored under gitignored `data/processed/`); the pipeline
+  checks for headroom before a full run.
 - Internet access for the first install and the MNIST download.
 - Docker (optional, only for the container option).
 
@@ -118,15 +123,17 @@ All checks passed!
 python -m pytest
 ```
 
-Expected output (takes about 40 seconds, uses tiny synthetic data):
+Expected output (takes about 45 seconds; data/ART tests use tiny synthetic
+fixtures, and real-data checks are skipped by default):
 
 ```text
-6 passed in ...
+26 passed, 2 skipped in ...
 ```
 
-The smoke test runs the demo pipeline on synthetic data in a pytest temporary
-directory, so the committed results in `docs/results/` and `docs/figures/` are
-never overwritten.
+Tests write to pytest temporary directories, so the committed results in
+`docs/results/`, `docs/figures/`, and `docs/data/` are never overwritten. Set
+`RUN_REAL_DATA_TESTS=1` to enable the optional local-dataset availability
+checks.
 
 ## Run the ART demo
 
@@ -224,6 +231,9 @@ http://localhost:8501, and http://localhost:5000. Stop with `Ctrl+C`, then
 | MNIST download shows `HTTP Error 404` for `yann.lecun.com` | Expected: torchvision automatically retries its mirror and continues. No action needed. |
 | `--cleverhans` prints `CleverHans not available, skipping` | Expected: CleverHans lives in the separate `requirements-cleverhans.txt` because version 4.0.0 conflicts with the ART/torch stack. Only install it in an isolated env if you need the cross-check. |
 | `git clone` fails on Windows with filename-too-long errors | Enable long paths once: `git config --system core.longpaths true` (needs an elevated prompt), then clone again. |
+| `scripts/preprocess.py` says the source directory is missing | Set `EMBER_DATA_DIR` / `CICIDS_DATA_DIR`, pass `--source`, or place the dataset under `data/raw/` or `~/Documents/`. The pipeline never downloads data. |
+| EMBER preprocessing is killed or runs out of disk | Full arrays need ~10 GB. Use `--max-samples` for smoke work or free space under `data/processed/`; the pipeline preallocates `.npy.tmp` files and only publishes them after success. |
+| CICIDS duplicate/NaN counts differ from an older notebook | This pipeline reads the original eight CSVs, deduplicates at saved float32 precision, and reports raw-float64 counts too. See the data card and Sprint 2 report rather than assuming a Kaggle-cleaned copy. |
 
 ## Project structure
 
@@ -231,14 +241,15 @@ http://localhost:8501, and http://localhost:5000. Stop with `Ctrl+C`, then
 api/            FastAPI service (/health today)
 dashboard/      Streamlit app (early page today)
 data/           raw/, processed/, adversarial/ runtime data (gitignored, .gitkeep only)
-docs/           documentation (index at docs/README.md), threat model, decisions, reports
-docs/figures/   demo plots (generated, committed on purpose)
-docs/results/   demo JSON report (generated, committed on purpose)
+docs/           documentation (index at docs/README.md), data cards, decisions, reports
+docs/data/      feature layout, generated EDA report, committed manifests
+docs/figures/   demo + EDA plots (generated, committed on purpose)
+docs/results/   demo + EDA JSON (generated, committed on purpose)
 models/         trained weights (gitignored, .gitkeep only)
 notebooks/      exploratory notebooks (later)
-scripts/        art_quickstart.py demo
-src/            config.py paths/seeds, utils/, data/, models/, attacks/, defenses/, evaluation/
-tests/          seed, config, API, and smoke tests
+scripts/        art_quickstart.py, preprocess.py, eda_datasets.py
+src/            config.py paths/seeds, utils/, data/ (Sprint 2), models/, attacks/, defenses/, evaluation/
+tests/          seed, config, API, data (synthetic), and smoke tests
 ```
 
 Full reference: [`docs/project-structure.md`](docs/project-structure.md).
@@ -251,12 +262,93 @@ Full reference: [`docs/project-structure.md`](docs/project-structure.md).
 - Never commit datasets, model weights, `.env`, or `mlruns/`. Check `git status`
   before every commit.
 
-## Data policy
+## Data
 
-Datasets and model weights are not in this repo. When the real datasets arrive,
-raw downloads go in `data/raw/`, cleaned splits in `data/processed/`,
-generated adversarial sets in `data/adversarial/`, and checkpoints in `models/`.
-Download and verification instructions will be added alongside the loading code.
+Raw datasets are **read in place** from outside the repository and are never
+committed. Processed arrays/scalers also stay out of Git
+(`data/processed/` is gitignored); only compact manifests, data cards, reports,
+and EDA figures are committed.
+
+### Locations and resolution order
+
+| Dataset | Local files |
+|---|---|
+| EMBER2018 v2 | `~/Documents/EMBER-Dataset/` (6 train JSONL files + `test_features.jsonl`) |
+| CIC-IDS-2017 | `~/Documents/CIC-IDS-Dataset/` (8 original UNB/CIC CSVs) |
+
+Code resolves sources in this order:
+
+```text
+CLI --source
+  > EMBER_DATA_DIR / CICIDS_DATA_DIR
+  > data/raw/EMBER-Dataset or data/raw/CIC-IDS-Dataset
+  > ~/Documents/EMBER-Dataset or ~/Documents/CIC-IDS-Dataset
+```
+
+No download is performed by the pipeline. Do not copy the datasets into the
+repository; if you symlink them under `data/raw/`, they remain ignored.
+
+### Commands
+
+```bash
+# Full pipeline (default source locations; publishes manifests)
+python scripts/preprocess.py --dataset all
+
+# Explicit sources/outputs (same commands as the Sprint 2 verification)
+python scripts/preprocess.py --dataset ember \
+  --source ~/Documents/EMBER-Dataset \
+  --output-dir data/processed/ember2018
+python scripts/preprocess.py --dataset cicids2017 \
+  --source ~/Documents/CIC-IDS-Dataset \
+  --output-dir data/processed/cicids2017
+
+# Verify artifacts against the manifests without reprocessing
+python scripts/preprocess.py --dataset all --verify-only
+
+# Fast deterministic subset (writes subset=true; /tmp only)
+python scripts/preprocess.py --dataset ember --max-samples 2000 \
+  --output-dir /tmp/ember_smoke --force --jobs 1
+python scripts/preprocess.py --dataset cicids2017 --max-samples 2000 \
+  --output-dir /tmp/cicids_smoke --force
+
+# EDA (default outputs in docs/; --output-dir for tests)
+python scripts/eda_datasets.py --dataset all
+python scripts/eda_datasets.py --dataset all --max-samples 5000 \
+  --output-dir /tmp/eda_smoke
+```
+
+Or `make data`, `make data-smoke`, and `make eda`.
+
+### Expected runtime and outputs
+
+On this Linux machine (12 CPU cores, 14 GB RAM, Python 3.11):
+
+- Full EMBER: about 10 minutes with `--jobs 6` (source hashing, metadata scan,
+  vectorisation, scaler, artifact hashing), ~7.6 GB of arrays.
+- Full CICIDS2017: about 1.5 minutes, ~0.8 GB of arrays.
+- Subset smoke runs: about 1–2.5 minutes each (EMBER also hashes the 9.4 GB
+  source even for a subset).
+- `make test` stays dataset-free and runs in under a minute.
+
+Full manifests are committed under [`docs/data/manifests/`](docs/data/manifests/);
+processed arrays live in gitignored `data/processed/`. See:
+
+- [`docs/data/ember_feature_layout.md`](docs/data/ember_feature_layout.md) — 2381-dim layout.
+- [`docs/data/eda_report.md`](docs/data/eda_report.md) — generated EDA report.
+- [`docs/data_cards/`](docs/data_cards/) — datasheets, licenses, limitations.
+- [`docs/sprint2_report.md`](docs/sprint2_report.md) — commands and actual results.
+
+### Loading processed data
+
+```python
+from src.data import load_ember, load_cicids2017
+
+X_train, y_train = load_ember("train").X, load_ember("train").y
+cicids_val = load_cicids2017("val", target="binary", standardize=True)
+```
+
+`load_ember` / `load_cicids2017` raise a clear error if artifacts are missing and
+never download data.
 
 ## Roadmap
 

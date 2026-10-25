@@ -97,3 +97,69 @@ and one Makefile fix (`clean`); no changes to application code or CI behavior.
   marked draft for SS-A/SS-B review. Also corrected the Grosse et al. title in
   `reading_list.md` and added the CICIDS2017 data-quality critique (Engelen et
   al., 2021).
+
+## Sprint 2 — Data pipeline (2026-10-25)
+
+- **Datasets are read in place; nothing is downloaded or copied.** Resolution
+  order is CLI `--source` > `EMBER_DATA_DIR` / `CICIDS_DATA_DIR` > repo-local
+  `data/raw/<dataset>` > `~/Documents/<dataset>`. `src/config.py` owns the
+  helpers; library code never hard-codes a personal path. The local copies are
+  EMBER2018 feature v2 (not EMBER2024) and the eight original UNB/CIC CSV files
+  (no Kaggle "cleaned" variant).
+- **Manifest-based versioning instead of DVC/Git LFS.** Neither tool is
+  installed and no remote is configured. Each run writes a JSON manifest with
+  source names/sizes/SHA-256, row/label/split counts, feature dimensions, the
+  preprocessing configuration and seed, output artifact hashes, UTC timestamp,
+  and code revision. Compact full-run manifests are committed under
+  `docs/data/manifests/`; arrays stay in gitignored `data/processed/`. DVC can
+  later wrap the same directories without changing the loader API.
+- **EMBER vectoriser is a clean-room implementation.** The published
+  `elastic/ember` extraction code is AGPL-3.0, incompatible with this MIT
+  repository. `src/data/ember.py` was written from the published 2381-dim
+  specification. It uses `sklearn.feature_extraction.FeatureHasher` with the
+  official `n_features`/`input_type` and default signed hashing. The raw EMBER
+  data files themselves are MIT-licensed.
+- **EMBER validation is time-based.** The official 200k test set is preserved
+  untouched and never used for fitting/tuning. Labeled train records are sorted
+  by `appeared` (then `sha256`) and the latest ~15% becomes validation. If that
+  global split leaves a class missing/too small, the code falls back to the
+  latest ~15% within each class and records `strategy = per_class_time`. Rows
+  sharing a `sha256` are kept in the same split; train/val copies that duplicate
+  official test hashes are removed and counted. On the local EMBER2018 copy
+  there are zero duplicate sha256 values across all 1,000,000 records.
+- **CICIDS cleaning choices.** UTF-8 with `errors="replace"` was selected after
+  a probe (all eight files decode as UTF-8; latin-1 is the fallback). Column
+  names are stripped (`65/79` headers had leading spaces), the
+  `Fwd Header Length.1` column is verified identical to `Fwd Header Length`
+  (2,830,743 rows checked, 0 mismatches) and dropped, web-attack U+FFFD labels
+  are canonicalised, and `+/-inf` becomes NaN before rows with any NaN are
+  dropped. Invalid rows are 2,867 (0.1013%), below the 1% safety threshold.
+- **CICIDS duplicate detection is at stored float32 precision.** Exact
+  duplicate rows are removed globally before splitting so no identical row can
+  appear in two splits. Casting to the saved `float32` representation collapses
+  rows that differ only beyond float32 precision; those rows are
+  indistinguishable to a model, so they are treated as duplicates. The full run
+  removed 330,614 such rows (203,796 within a file, 126,818 across files).
+  An independent raw `float64` scan found 307,775 duplicate rows; the briefing's
+  approximate ~254,479 was not reproducible with the local original CSVs, so the
+  measured counts are reported instead. 5,228 identical feature rows had
+  conflicting labels at float32 (5,052 at float64); the first occurrence is kept
+  and the conflict count is recorded.
+- **CICIDS split and scaling.** 70/15/15 stratified on the binary target with
+  seed 42. Multiclass labels and a sorted mapping are preserved, but splits are
+  not forced to include rare classes (Heartbleed is absent from validation in
+  the full run). No resampling or class weighting is applied; Sprint 3 owns
+  modelling decisions. The scaler is fitted on train only; zero-variance
+  columns use `scale = 1`.
+- **Subset manifests never masquerade as full runs.** `--max-samples` marks the
+  manifest `subset: true`; for EMBER the sample is drawn before vectorisation
+  (per source partition, stratified by label), while CICIDS samples cleaned,
+  deduplicated rows. Full manifests are published to `docs/data/manifests/` only
+  when the output directory is the default processed directory.
+- **One-process CICIDS cleaning, multi-process EMBER vectorisation.** CICIDS
+  dedup is global, so `--jobs` applies only to EMBER. EMBER metadata is scanned
+  in parallel, final arrays are preallocated as `.npy` memmaps and atomically
+  renamed after all workers finish, keeping peak memory bounded.
+- **Ruff `UP017` suppressed for `datetime.timezone.utc`.** The project supports
+  Python 3.10, where the `datetime.UTC` alias does not exist; `# noqa: UP017`
+  keeps the 3.10–3.12 compatibility promised in the README/AGENTS.
