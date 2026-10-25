@@ -163,3 +163,22 @@ and one Makefile fix (`clean`); no changes to application code or CI behavior.
 - **Ruff `UP017` suppressed for `datetime.timezone.utc`.** The project supports
   Python 3.10, where the `datetime.UTC` alias does not exist; `# noqa: UP017`
   keeps the 3.10–3.12 compatibility promised in the README/AGENTS.
+
+## Repository maintenance (2026-10-26)
+
+- **The README is an entry point, not the manual.** Setup/verification/demo/
+  services moved to `docs/development.md`, and the data pipeline moved to
+  `docs/data/README.md`. This keeps the root README short while preserving one
+  authoritative place for operational detail.
+- **Make targets are the command source of truth.** CI now calls `make lint`
+  and `make test`; `make lint` includes `ruff format --check` so formatting is
+  enforced remotely as well as by pre-commit. `make` resolves the repo venv
+  automatically and falls back to the system Python.
+- **Local dashboard defaults to `http://localhost:8000`.** Compose still sets
+  `API_URL=http://api:8000` for the container network, so local development no
+  longer requires an environment variable that only worked inside Docker.
+- **`data/external/` is tracked with a `.gitkeep`.** `src/config.py` creates and
+  documents the directory, so the ignore rule now excludes its contents instead
+  of the directory itself. Unused `.env` template entries (`PYTHONPATH`,
+  `SEED`, `MLFLOW_TRACKING_URI`) were removed because compose does not read
+  them.

@@ -54,7 +54,8 @@ the other way around.
 - [`src/models/baseline_mlp.py`](../src/models/baseline_mlp.py) —
   `BaselineMLP` (tabular baseline skeleton) and `SmallCNN` (the MNIST demo
   model).
-- [`src/data/`](../src/data/README.md) — Sprint 2 data layer:
+- [`src/data/`](../src/data/README.md) — Sprint 2 data layer (usage guide:
+  [`docs/data/README.md`](data/README.md)):
   `ember.py` (clean-room EMBER v2 vectoriser, metadata scan, time split),
   `cicids2017.py` (cleaning, canonical labels, dedup, stratified split),
   `preprocessing.py` (atomic writes, hashing/manifests, scalers, split
@@ -91,7 +92,8 @@ endpoints. The Docker image (`Dockerfile`) runs this app with uvicorn.
 
 [`dashboard/app.py`](../dashboard/app.py) is a placeholder page with a button
 that calls the API's `/health` endpoint. It reads `API_URL` from the
-environment (compose sets it to `http://api:8000`).
+environment, defaulting to `http://localhost:8000` for local runs; compose sets
+it to `http://api:8000`.
 
 ### Deployment stack
 
@@ -111,7 +113,8 @@ as a non-root user.
 [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) runs on every push
 and pull request:
 
-- `lint-test` — Python 3.11, `ruff check`, then `pytest`.
+- `lint-test` — Python 3.11, `make lint` (ruff check + format check), then
+  `make test`.
 - `docker` — `docker build` only (no push).
 
 ## Dependency rules
@@ -174,15 +177,15 @@ Streamlit (dashboard/) --HTTP GET /health--> FastAPI (api/) --> {"status": "ok"}
 
 ## Where future components fit
 
-| Planned work | Location | Module README |
-|---|---|---|
-| EMBER / CIC-IDS-2017 loaders, preprocessing, splits | `src/data/` | [`src/data/README.md`](../src/data/README.md) |
-| Baseline detectors | `src/models/` | [`src/models/README.md`](../src/models/README.md) |
-| FGSM/PGD/CW wrappers over ART | `src/attacks/` | [`src/attacks/README.md`](../src/attacks/README.md) |
-| Adversarial training, distillation, ensembles, sanitization, detector | `src/defenses/` | [`src/defenses/README.md`](../src/defenses/README.md) |
-| Metrics and plots | `src/evaluation/` | [`src/evaluation/README.md`](../src/evaluation/README.md) |
-| REST endpoints (/predict, /attack, /defend) | `api/` | [`api/README.md`](../api/README.md) |
-| Real dashboard | `dashboard/` | [`dashboard/README.md`](../dashboard/README.md) |
+| Planned work | Sprint | Location | Module README |
+|---|---|---|---|
+| EMBER / CIC-IDS-2017 loaders, preprocessing, splits | 2 (done) | `src/data/` | [`src/data/README.md`](../src/data/README.md) |
+| Baseline detectors | 3–4 | `src/models/` | [`src/models/README.md`](../src/models/README.md) |
+| FGSM/PGD/CW wrappers over ART | 5–6 | `src/attacks/` | [`src/attacks/README.md`](../src/attacks/README.md) |
+| Adversarial training, distillation, ensembles, sanitization, detector | 9–11 | `src/defenses/` | [`src/defenses/README.md`](../src/defenses/README.md) |
+| Metrics and plots | 5, 7 | `src/evaluation/` | [`src/evaluation/README.md`](../src/evaluation/README.md) |
+| REST endpoints (/predict, /attack, /defend) | 13 | `api/` | [`api/README.md`](../api/README.md) |
+| Real dashboard | 13 | `dashboard/` | [`dashboard/README.md`](../dashboard/README.md) |
 
 Non-obvious choices are logged in [`DECISIONS.md`](DECISIONS.md); sprint
 reports record what was actually run and measured.

@@ -7,9 +7,10 @@ and how to get it running; this page is the map to everything else.
 
 | Document | What it covers |
 |---|---|
-| [`../README.md`](../README.md) | Project overview, setup, verification, ART demo, API/dashboard, troubleshooting |
+| [`../README.md`](../README.md) | Project overview, current status, quick start, command summary |
 | [`../AGENTS.md`](../AGENTS.md) | Short navigation map for AI coding agents and new contributors |
 | [`../CONTRIBUTING.md`](../CONTRIBUTING.md) | Branching, commit style, PR checklist, code style |
+| [`development.md`](development.md) | Setup, verification, ART demo, API/dashboard, Docker, troubleshooting |
 | [`progress.md`](progress.md) | Where are we now: sprint/milestone status, current checklist |
 
 ## Architecture and structure
@@ -19,10 +20,11 @@ and how to get it running; this page is the map to everything else.
 | [`architecture.md`](architecture.md) | Components, entry points, dependency rules, data flows, constraints |
 | [`project-structure.md`](project-structure.md) | Directory responsibilities, where new code/tests/docs belong, conventions |
 
-## Data (Sprint 2)
+## Data
 
 | Document | What it covers |
 |---|---|
+| [`data/README.md`](data/README.md) | Dataset locations, preprocessing/EDA commands, outputs, and loaders |
 | [`data/ember_feature_layout.md`](data/ember_feature_layout.md) | EMBER2018 v2 2381-dim group offsets and processing semantics |
 | [`data/eda_report.md`](data/eda_report.md) | Generated EDA report for both datasets (do not hand-edit) |
 | [`data/manifests/ember2018.json`](data/manifests/ember2018.json) | Full-run EMBER manifest: sources, counts, splits, artifact hashes |
@@ -50,15 +52,19 @@ and how to get it running; this page is the map to everything else.
 
 ## Generated artifacts (do not edit by hand)
 
-These are produced by `scripts/art_quickstart.py` (`make demo`) and committed
-on purpose so the demo results are visible without running anything:
+These are committed on purpose so results are visible without running anything:
 
 | Path | Produced by |
 |---|---|
-| [`results/art_quickstart_results.json`](results/art_quickstart_results.json) | `run_demo()` JSON report |
+| [`results/art_quickstart_results.json`](results/art_quickstart_results.json) | `scripts/art_quickstart.py` (`make demo`) |
 | [`figures/art_samples.png`](figures/art_samples.png) | original vs FGSM vs PGD grid |
 | [`figures/art_accuracy_vs_eps.png`](figures/art_accuracy_vs_eps.png) | accuracy-vs-epsilon curves |
+| [`results/data_eda.json`](results/data_eda.json) | `scripts/eda_datasets.py` (`make eda`) |
+| [`figures/data_*.png`](figures/) | EDA plots |
+| [`data/eda_report.md`](data/eda_report.md) | generated EDA report |
+| [`data/manifests/`](data/manifests/) | compact manifests from full `scripts/preprocess.py` runs |
 
-To regenerate, run the demo (see the root README). Do not hand-edit them.
-`mlruns/`, `data/raw/`, and `models/` are also generated at runtime but are
-gitignored, not committed.
+To regenerate, run the corresponding command (see
+[`development.md`](development.md) and [`data/README.md`](data/README.md)).
+`mlruns/`, `data/raw/`, `data/processed/`, and `models/` are generated at
+runtime but are gitignored, not committed.
