@@ -1,21 +1,21 @@
-# Runtime (CPU only). Python 3.11 is canonical (CI); 3.10-3.12 also work.
-# CPU wheels for torch/torchvision:
---extra-index-url https://download.pytorch.org/whl/cpu
+# Runtime (CPU only). Python 3.11-3.12 (CI and Docker use 3.11).
+# Install the CPU torch/torchvision wheels from requirements-torch.txt; this
+# file intentionally contains no extra PyPI index so normal packages cannot be
+# shadowed by another index (dependency-confusion defense).
 
-torch==2.4.1
-torchvision==0.19.1
 numpy==1.26.4
 pandas==2.2.2
 scikit-learn==1.5.1
 matplotlib==3.9.2
 scipy==1.14.1
-Pillow==10.4.0
-adversarial-robustness-toolbox==1.18.1
-setuptools==75.8.0
-mlflow==2.15.1
-fastapi==0.115.0
-uvicorn==0.30.6
-streamlit==1.39.0
-python-dotenv==1.0.1
+Pillow==13.0.0
+adversarial-robustness-toolbox==1.20.1
+setuptools==84.2.1
+mlflow==3.17.2
+fastapi==0.162.0
+starlette==1.10.0
+uvicorn==0.54.0
+streamlit==1.66.1
+python-dotenv==1.2.4
 tqdm==4.66.5
 pyyaml==6.0.2

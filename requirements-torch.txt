@@ -1,0 +1,13 @@
+# CPU-only torch/torchvision wheels.
+#
+# Install after requirements.txt / requirements-dev.txt:
+#   python -m pip install -r requirements-torch.txt
+#
+# The PyTorch index is scoped to this file. The exact +cpu local versions do
+# not exist on PyPI, so normal packages cannot shadow or replace these wheels.
+
+--index-url https://download.pytorch.org/whl/cpu
+--extra-index-url https://pypi.org/simple
+
+torch==2.14.1+cpu
+torchvision==0.29.1+cpu

@@ -1,6 +1,10 @@
 # CleverHans is kept SEPARATE (see docs/DECISIONS.md).
+# SECURITY: this optional environment is pinned to TensorFlow/Keras 2.15 and
+# has known advisories (see docs/security/SECURITY_AUDIT.md, SEC-01/SEC-10).
+# Do not use it for untrusted inputs or network services; prefer ART-only
+# checks unless the CleverHans cross-check is explicitly required.
 # cleverhans 4.0.0 (last release, 2020) pins very old TF/numpy/scipy
-# and conflicts with torch 2.x + numpy 1.26 + ART 1.18 on Python 3.11/3.12.
+# and conflicts with torch 2.x + numpy 1.26 + ART 1.20 on Python 3.11/3.12.
 # Install only in an isolated env if you need the --cleverhans cross-check:
 #   python -m venv .venv-ch
 #   .venv-ch\Scripts\activate (Windows) or source .venv-ch/bin/activate

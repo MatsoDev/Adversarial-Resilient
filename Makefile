@@ -1,4 +1,4 @@
-.PHONY: setup lint format format-check test check demo data data-smoke eda docker-build docker-up clean
+.PHONY: setup lint format format-check test security check demo data data-smoke eda docker-build docker-scan docker-up clean
 
 PY ?= python
 VENV ?= .venv
@@ -17,7 +17,8 @@ TARGETS := src scripts tests api dashboard
 setup:
 	$(PY) -m venv $(VENV)
 	$(VENV_PY) -m pip install --upgrade pip
-	$(VENV_PY) -m pip install -r requirements.txt -r requirements-dev.txt
+	$(VENV_PY) -m pip install -r requirements-dev.txt
+	$(VENV_PY) -m pip install -r requirements-torch.txt
 	$(VENV_PY) -m pre_commit install || echo "pre-commit hook install skipped"
 
 # `lint` is the CI check: it validates formatting without rewriting files.
@@ -32,6 +33,11 @@ format-check:
 
 test:
 	$(PYTHON) -m pytest
+
+# Dependency and static security checks (also run in CI).
+security:
+	$(PYTHON) -m pip_audit -r requirements-dev.txt --progress-spinner off
+	$(PYTHON) -m bandit -q -r src scripts api dashboard -ll
 
 check: lint test
 
@@ -52,6 +58,15 @@ eda:
 
 docker-build:
 	docker build -t adversarial-resilient:dev .
+
+# Fixed HIGH/CRITICAL vulnerabilities only; unfixed base-image advisories are
+# reported separately and addressed by bumping the pinned base-image digest.
+docker-scan:
+	@docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+		aquasec/trivy@sha256:790fd66d1697395d8693d1acaa1ea702406a20f109b6fc7bac8db623eca6c06c \
+		image --scanners vuln --severity HIGH,CRITICAL --ignore-unfixed \
+		--exit-code 1 --no-progress adversarial-resilient:dev > /tmp/trivy-scan.log 2>&1 \
+		|| (cat /tmp/trivy-scan.log; exit 1)
 
 docker-up:
 	docker compose up --build

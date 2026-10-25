@@ -1,4 +1,7 @@
 -r requirements.txt
-pytest==8.3.3
+pytest==9.1.1
 ruff==0.6.9
 pre-commit==3.8.0
+httpx2==2.16.0
+pip-audit==2.10.1
+bandit==1.9.4

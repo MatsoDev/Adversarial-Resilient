@@ -21,6 +21,7 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+import os
 import sys
 from pathlib import Path
 
@@ -410,6 +411,9 @@ def log_mlflow(
     except Exception as e:
         logger.warning("mlflow not available, skipping logging: %s", e)
         return
+    # MLflow >=3.7 requires an explicit opt-in for the local file store. The
+    # demo is a local, single-user workflow and intentionally keeps mlruns/.
+    os.environ.setdefault("MLFLOW_ALLOW_FILE_STORE", "true")
     mlflow.set_tracking_uri(f"file:{tracking_dir}")
     mlflow.set_experiment("art_quickstart")
     with mlflow.start_run():
