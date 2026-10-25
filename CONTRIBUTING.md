@@ -4,7 +4,8 @@ New here? Read [`README.md`](README.md) for the overview, the documentation
 index at [`docs/README.md`](docs/README.md), and
 [`docs/development.md`](docs/development.md) for setup and checks.
 [`docs/project-structure.md`](docs/project-structure.md) says where code,
-tests, and docs belong.
+tests, and docs belong; [`docs/testing.md`](docs/testing.md) covers test
+conventions and the optional real-data checks.
 
 ## Branching
 - `main` is protected. Work on `sprint<N>/<topic>` or `feat/<topic>`, `fix/<topic>`, `docs/<topic>`.

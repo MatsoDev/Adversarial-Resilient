@@ -13,17 +13,21 @@ Baselines, attacks, and defenses land in later sprints.
 2. [`docs/README.md`](docs/README.md) — documentation index.
 3. [`docs/development.md`](docs/development.md) — setup, verification, demo,
    services, troubleshooting.
-4. [`docs/project-structure.md`](docs/project-structure.md) — directory
+4. [`docs/configuration.md`](docs/configuration.md) — environment variables,
+   dataset resolution, Compose ports.
+5. [`docs/testing.md`](docs/testing.md) — test layout, conventions, optional
+   real-data checks.
+6. [`docs/project-structure.md`](docs/project-structure.md) — directory
    responsibilities, "where do I put ...?", conventions.
-5. [`docs/architecture.md`](docs/architecture.md) — components, dependency
+7. [`docs/architecture.md`](docs/architecture.md) — components, dependency
    rules, data flows, constraints.
-6. [`docs/data/README.md`](docs/data/README.md) — dataset locations,
+8. [`docs/data/README.md`](docs/data/README.md) — dataset locations,
    preprocessing/EDA commands, loaders.
-7. [`docs/DECISIONS.md`](docs/DECISIONS.md) — why non-obvious choices were
+9. [`docs/DECISIONS.md`](docs/DECISIONS.md) — why non-obvious choices were
    made; check before re-litigating them.
-8. [`docs/project_plan.md`](docs/project_plan.md) — scope/schedule baseline;
-   [`docs/progress.md`](docs/progress.md) — current sprint status and
-   checklist. Update `progress.md` when status changes, not the plan.
+10. [`docs/project_plan.md`](docs/project_plan.md) — scope/schedule baseline;
+    [`docs/progress.md`](docs/progress.md) — current sprint status and
+    checklist. Update `progress.md` when status changes, not the plan.
 
 ## Commands (run from the repo root)
 

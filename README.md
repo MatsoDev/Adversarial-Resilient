@@ -50,7 +50,8 @@ Expected: lint is clean and all tests pass; the two optional real-data checks
 are skipped unless `RUN_REAL_DATA_TESTS=1`.
 
 Windows and non-Make setups are documented in the
-[development guide](docs/development.md). The same commands without `make` are:
+[development guide](docs/development.md). If your system only provides
+`python3`, run `make setup PY=python3`. The same commands without `make` are:
 
 ```bash
 python -m ruff check src scripts tests api dashboard
@@ -66,9 +67,10 @@ python -m pytest
 | `make data` | Full EMBER + CICIDS preprocessing (needs local raw datasets) |
 | `make data-smoke` | Deterministic 2000-row subsets into `/tmp` |
 | `make eda` | Regenerate EDA JSON, figures, and report under `docs/` |
-| `make docker-build` / `make docker-up` | Build the image / start the compose stack |
+| `make docker-build` / `make docker-up` | Build the image / start the compose stack (`cp .env.example .env` first) |
 | `make format` | Rewrite files with `ruff format` |
 | `make check` | `make lint` + `make test` |
+| `make clean` | Remove caches and `mlruns/` (committed demo/EDA artifacts stay) |
 
 API locally: `python -m uvicorn api.main:app --port 8000`; dashboard:
 `streamlit run dashboard/app.py`. Full setup, demo flags, service details, and
@@ -81,12 +83,18 @@ Highlights:
 
 - [`docs/development.md`](docs/development.md) — setup, verification, ART demo,
   API/dashboard, Docker, troubleshooting.
+- [`docs/configuration.md`](docs/configuration.md) — environment variables,
+  dataset resolution, Compose ports, paths, and seeds.
+- [`docs/testing.md`](docs/testing.md) — test layout, commands, fixtures, and
+  optional real-data checks.
 - [`docs/architecture.md`](docs/architecture.md) — components, dependency
   rules, and data flows.
 - [`docs/project-structure.md`](docs/project-structure.md) — directory
   responsibilities and where new code belongs.
 - [`docs/data/README.md`](docs/data/README.md) — dataset locations,
   preprocessing/EDA commands, and loaders.
+- [`api/README.md`](api/README.md) — HTTP endpoints, responses, and OpenAPI
+  URLs.
 - [`docs/progress.md`](docs/progress.md) — current sprint and milestone status
   (scope baseline: [`docs/project_plan.md`](docs/project_plan.md)).
 - [`AGENTS.md`](AGENTS.md) — quick navigation map for AI coding agents.

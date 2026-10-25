@@ -11,6 +11,8 @@ and how to get it running; this page is the map to everything else.
 | [`../AGENTS.md`](../AGENTS.md) | Short navigation map for AI coding agents and new contributors |
 | [`../CONTRIBUTING.md`](../CONTRIBUTING.md) | Branching, commit style, PR checklist, code style |
 | [`development.md`](development.md) | Setup, verification, ART demo, API/dashboard, Docker, troubleshooting |
+| [`configuration.md`](configuration.md) | Environment variables, dataset resolution, Compose ports, paths/seeds |
+| [`testing.md`](testing.md) | Test layout, commands, synthetic fixtures, optional real-data checks |
 | [`progress.md`](progress.md) | Where are we now: sprint/milestone status, current checklist |
 
 ## Architecture and structure
@@ -19,6 +21,13 @@ and how to get it running; this page is the map to everything else.
 |---|---|
 | [`architecture.md`](architecture.md) | Components, entry points, dependency rules, data flows, constraints |
 | [`project-structure.md`](project-structure.md) | Directory responsibilities, where new code/tests/docs belong, conventions |
+| [`../api/README.md`](../api/README.md) | FastAPI endpoints, responses, run commands, OpenAPI URLs |
+| [`../dashboard/README.md`](../dashboard/README.md) | Streamlit page, `API_URL`, run command |
+| [`../src/data/README.md`](../src/data/README.md) | Data layer APIs: preprocessing entry points and loaders |
+| [`../src/models/README.md`](../src/models/README.md) | Current model classes and planned baseline work |
+| [`../src/attacks/README.md`](../src/attacks/README.md) | Planned FGSM/PGD/CW wrappers (placeholder) |
+| [`../src/defenses/README.md`](../src/defenses/README.md) | Planned hardening methods (placeholder) |
+| [`../src/evaluation/README.md`](../src/evaluation/README.md) | Planned metrics and plots (placeholder) |
 
 ## Data
 

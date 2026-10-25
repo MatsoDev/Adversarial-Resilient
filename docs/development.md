@@ -3,6 +3,8 @@
 Local setup, verification, demos, and services. Start with the root
 [`README.md`](../README.md) for the project overview and
 [`project-structure.md`](project-structure.md) for where code belongs.
+Environment variables are listed in [`configuration.md`](configuration.md);
+test organization is in [`testing.md`](testing.md).
 
 ## Prerequisites
 
@@ -10,9 +12,9 @@ Local setup, verification, demos, and services. Start with the root
 - Python 3.10–3.12. Tested with Python 3.12.1 on Windows and Python 3.11 in
   CI; the pins in `requirements.txt` support 3.10–3.12.
 - About 3 GB free disk for the Python environment and MNIST demo. Full
-  preprocessing additionally needs roughly 8 GB for EMBER processed arrays and
-  1 GB for CICIDS (stored under gitignored `data/processed/`); the pipeline
-  checks for headroom before a full run.
+  preprocessing additionally needs roughly 9 GB for EMBER processed arrays
+  (7.6 GB of arrays plus headroom) and 1 GB for CICIDS (stored under gitignored
+  `data/processed/`); the pipeline checks for headroom before a full run.
 - Internet access for the first install and the MNIST download.
 - Docker (optional, only for the container stack).
 - GNU Make (optional; the commands below also run directly with `python`).
@@ -33,7 +35,8 @@ make setup
 ```
 
 This creates `.venv`, installs `requirements.txt` + `requirements-dev.txt`, and
-installs the pre-commit hooks.
+installs the pre-commit hooks. If `python` is not on `PATH` (common on Linux
+distributions that only install `python3`), run `make setup PY=python3`.
 
 ### Manual setup
 
@@ -78,6 +81,7 @@ make lint      # ruff check + ruff format --check (same as CI)
 make test      # pytest; synthetic fixtures, no datasets required
 make format    # rewrite files with ruff format
 make check     # lint + test
+make clean     # remove caches and mlruns/ (committed demo/EDA artifacts stay)
 ```
 
 Without Make, use the equivalent commands:
@@ -91,7 +95,9 @@ python -m pytest
 The `pytest` run takes under a minute. Fast tests use synthetic fixtures; two
 optional local-dataset checks are skipped unless `RUN_REAL_DATA_TESTS=1`.
 Tests write only to pytest temporary directories, never to committed
-`docs/results/`, `docs/figures/`, or `docs/data/` artifacts.
+`docs/results/`, `docs/figures/`, or `docs/data/` artifacts. Test layout,
+single-test commands, and the optional real-data checks are documented in
+[`testing.md`](testing.md).
 
 ## Run the ART demo
 
@@ -170,8 +176,8 @@ set `API_URL` to point it elsewhere.
 
 ## Run the Docker stack
 
-The image builds in CI on every push; the stack below was smoke-tested on
-Linux.
+The image builds in CI on every push and pull request; the stack below was
+smoke-tested on Linux.
 
 ```bash
 cp .env.example .env
@@ -197,6 +203,7 @@ processed-data loaders.
 | Problem | Fix |
 |---|---|
 | `python --version` shows 3.9 or older, or install fails on your Python | Install Python 3.10–3.12 (CI uses 3.11). Then recreate `.venv` from scratch. |
+| `make setup` fails with `python: No such file or directory` | Only `python3` is installed. Run `make setup PY=python3` (or create the venv manually as shown above). |
 | `ModuleNotFoundError: No module named 'pkg_resources'` when importing mlflow | Your setuptools is too new. `requirements.txt` already pins `setuptools==75.8.0`; if you still see it, run `pip install "setuptools==75.8.0"`. |
 | `ruff` or `pytest` not found | The venv is not activated, or dev requirements are missing. Activate `.venv` and run `pip install -r requirements-dev.txt`. |
 | torch download is very slow or fails | The CPU wheel is about 200 MB. Check disk space and connection, then rerun the same `pip install` command; pip resumes. |
@@ -208,5 +215,5 @@ processed-data loaders.
 | `--cleverhans` prints `CleverHans not available, skipping` | Expected: CleverHans lives in the separate `requirements-cleverhans.txt` because version 4.0.0 conflicts with the ART/torch stack. Only install it in an isolated env if you need the cross-check. |
 | `git clone` fails on Windows with filename-too-long errors | Enable long paths once: `git config --system core.longpaths true` (needs an elevated prompt), then clone again. |
 | `scripts/preprocess.py` says the source directory is missing | Set `EMBER_DATA_DIR` / `CICIDS_DATA_DIR`, pass `--source`, or place the dataset under `data/raw/` or `~/Documents/`. The pipeline never downloads data. |
-| EMBER preprocessing is killed or runs out of disk | Full arrays need ~10 GB. Use `--max-samples` for smoke work or free space under `data/processed/`; the pipeline preallocates `.npy.tmp` files and only publishes them after success. |
+| EMBER preprocessing is killed or runs out of disk | Plan for about 9–10 GB (arrays plus headroom). Use `--max-samples` for smoke work or free space under `data/processed/`; the pipeline preallocates `.npy.tmp` files and only publishes them after success. |
 | CICIDS duplicate/NaN counts differ from an older notebook | This pipeline reads the original eight CSVs, deduplicates at saved float32 precision, and reports raw-float64 counts too. See the data card and Sprint 2 report rather than assuming a Kaggle-cleaned copy. |

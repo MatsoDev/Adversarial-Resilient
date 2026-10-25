@@ -51,7 +51,7 @@ Adversarial-Resilient/
 │   ├── test_config.py
 │   ├── test_seed.py
 │   ├── test_api_health.py
-│   ├── test_docs_links.py       # relative Markdown links resolve
+│   ├── test_docs_links.py       # relative Markdown links resolve (docs + component READMEs)
 │   ├── test_art_quickstart_smoke.py
 │   ├── test_data_ember.py
 │   ├── test_data_cicids.py
@@ -61,6 +61,8 @@ Adversarial-Resilient/
 ├── docs/                        # see docs/README.md for the documentation index
 │   ├── README.md                # documentation index
 │   ├── development.md           # setup, verification, demo, services, troubleshooting
+│   ├── configuration.md         # environment variables, data paths, Compose ports
+│   ├── testing.md               # test layout, commands, fixtures, optional checks
 │   ├── architecture.md          # components, data flows, dependency rules
 │   ├── project-structure.md     # this file
 │   ├── threat_model_v0.1.md     # security scope and attacker model
@@ -129,7 +131,8 @@ Adversarial-Resilient/
 - **Paths or seeds:** add to `src/config.py` / use `src/utils/seed.py` rather
   than hard-coding relative paths in modules.
 - **Documentation:** general docs in `docs/` (setup/operations in
-  `docs/development.md`; data work in `docs/data/`), paper notes in
+  `docs/development.md`; environment settings in `docs/configuration.md`; test
+  conventions in `docs/testing.md`; data work in `docs/data/`), paper notes in
   `docs/literature/` (copy a template there), non-obvious decisions logged in
   `docs/DECISIONS.md`, then link new docs from `docs/README.md`.
 - **Datasets / weights:** never commit; raw data is read in place from
