@@ -28,6 +28,8 @@ Baselines, attacks, and defenses land in later sprints.
 10. [`docs/project_plan.md`](docs/project_plan.md) — scope/schedule baseline;
     [`docs/progress.md`](docs/progress.md) — current sprint status and
     checklist. Update `progress.md` when status changes, not the plan.
+11. [`docs/security/SECURITY_AUDIT.md`](docs/security/SECURITY_AUDIT.md) —
+    security baseline, fixed findings, verification, and residual risks.
 
 ## Commands (run from the repo root)
 
@@ -36,6 +38,8 @@ make setup              # create .venv, install deps, install pre-commit hooks
 make lint               # ruff check + ruff format --check (mirrors CI)
 make test               # pytest (synthetic fixtures; no datasets needed)
 make check              # lint + test
+make security           # pip-audit + bandit (also a CI job)
+make docker-build docker-scan  # build + Trivy scan of fixed HIGH/CRITICAL
 make format             # rewrite files with ruff format
 make demo               # scripts/art_quickstart.py --fast (real MNIST, minutes)
 python scripts/art_quickstart.py --synthetic   # fast demo pipeline check
@@ -48,9 +52,9 @@ streamlit run dashboard/app.py                 # dashboard (API_URL default loca
 docker compose up --build                      # api + dashboard + mlflow (.env first)
 ```
 
-CI (`.github/workflows/ci.yml`) runs `make lint`, `make test` on Python 3.11,
-plus `docker build`; keep all green. `make lint` includes formatting, so run it
-before every commit.
+CI (`.github/workflows/ci.yml`) runs `make lint`, `make test`, `make security`
+on Python 3.11, plus `docker build`; keep all green. `make lint` includes
+formatting, so run it before every commit.
 
 ## Architectural rules (do not violate)
 
@@ -70,7 +74,7 @@ before every commit.
 
 ## Hard constraints
 
-- **Python 3.10–3.12 only** (CI: 3.11); CPU-only, no CUDA assumptions.
+- **Python 3.11–3.12 only** (CI: 3.11); CPU-only, no CUDA assumptions.
 - **Never commit** datasets, model weights, `.env`, or `mlruns/`; check
   `git status` before committing.
 - **Generated files — never hand-edit:** `docs/results/art_quickstart_results.json`
@@ -96,9 +100,14 @@ before every commit.
   tooling, public feature datasets only (see
   [`docs/threat_model_v0.1.md`](docs/threat_model_v0.1.md)).
 
-## Environment quirk
+## Environment quirks
 
-`mlflow==2.15.1` needs `pkg_resources`, so `setuptools` is pinned to `75.8.0`
-in `requirements.txt`. Do not "modernize" the pin without verifying MLflow
-still imports. CleverHans is deliberately isolated in
-`requirements-cleverhans.txt`.
+- CPU torch/torchvision wheels are installed from `requirements-torch.txt`;
+  the PyTorch index is scoped there so normal PyPI packages cannot be
+  shadowed. Install runtime/dev requirements first, then that file.
+- `mlflow==3.17.2` keeps the local `mlruns/` file store behind an explicit
+  opt-in (`MLFLOW_ALLOW_FILE_STORE=true`); the demo and Compose set it.
+- CleverHans is deliberately isolated in `requirements-cleverhans.txt`.
+- Compose binds published ports to `127.0.0.1` by default; do not set
+  `BIND_ADDR=0.0.0.0` without TLS/authentication in front of MLflow and the
+  dashboard (they have no built-in auth).

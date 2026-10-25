@@ -17,13 +17,17 @@ conventions and the optional real-data checks.
 ## PR checklist
 - `make check` passes (`make lint` + `make test`); paste output if touching
   demo/models.
+- `make security` passes when dependencies, HTTP behavior, containers, or CI
+  changed.
 - No datasets, weights, `.env`, or `mlruns/` committed.
 - New docs linked from `docs/README.md`; relative links resolve
   (`tests/test_docs_links.py`).
 - Non-obvious choices logged in `docs/DECISIONS.md`.
+- Security-impacting changes reviewed against
+  [`docs/security/SECURITY_AUDIT.md`](docs/security/SECURITY_AUDIT.md).
 
 ## Code style
-- Python 3.10–3.12 (CI uses 3.11); `pathlib`, `argparse`, `logging` (no
+- Python 3.11–3.12 (CI uses 3.11); `pathlib`, `argparse`, `logging` (no
   `print` in library code).
 - `make lint` must pass (`ruff check` + `ruff format --check`); keep functions
   small and typed where it helps.

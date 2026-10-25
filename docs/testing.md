@@ -12,6 +12,7 @@ From the repository root, with the virtual environment active (or use
 ```bash
 make test                 # full suite; synthetic fixtures, no datasets needed
 make lint                 # ruff check + ruff format --check
+make security             # dependency audit + static security scan
 make check                # lint + test (run before pushing)
 
 python -m pytest -q
@@ -32,6 +33,10 @@ datasets. Two optional real-data checks are skipped unless
 | `tests/test_config.py` | `ensure_dirs()` creates the runtime directories |
 | `tests/test_seed.py` | `set_seed()` determinism and seed changes |
 | `tests/test_api_health.py` | `health()` return value and `/health` route registration (no HTTP client needed) |
+| `tests/test_api_security.py` | Security headers, Host validation, HSTS, and the docs switch (`httpx2` TestClient) |
+| `tests/test_dashboard_security.py` | `API_URL` scheme/credential validation and bounded JSON health responses |
+| `tests/test_manifest_security.py` | Manifest path containment, absolute-path/`..` rejection, and symlink escapes |
+| `tests/test_security_config.py` | Torch index scoping, Docker/CI pins, loopback ports, capability drops, and CI security job |
 | `tests/test_art_quickstart_smoke.py` | Synthetic end-to-end ART demo, including JSON/figure outputs under `tmp_path` |
 | `tests/test_data_ember.py` | EMBER vectorizer layout/normalisation, time split, dedup, manifest, subset guard, tamper detection |
 | `tests/test_data_cicids.py` | Label canonicalisation, duplicate column handling, cleaning/dedup, stratified split, scaler, manifest, subset guard |
@@ -94,10 +99,12 @@ python scripts/preprocess.py --dataset all --verify-only
 
 ## CI and expected results
 
-[`../.github/workflows/ci.yml`](../.github/workflows/ci.yml) runs `make lint`
-and `make test` on Python 3.11, plus `docker build`. The local equivalents are
-`make check` and `docker build -t adversarial-resilient:dev .`.
+[`../.github/workflows/ci.yml`](../.github/workflows/ci.yml) runs `make lint`,
+`make test`, and `make security` on Python 3.11, plus `docker build` and a
+Trivy scan (`make docker-scan`). The local equivalents are `make check`,
+`make security`, `make docker-build`, and `make docker-scan`.
 
 A healthy default run passes with the two real-data checks skipped. Warnings
-from third-party packages (for example matplotlib/pyparsing, mlflow's
-`pkg_resources`, and Pydantic deprecations) are not test failures.
+from third-party packages (for example matplotlib/pyparsing deprecations) are
+not test failures. `make security` must report no known vulnerabilities and no
+medium/high Bandit findings.

@@ -13,7 +13,7 @@ Compose; paths and constants are defined in
 |---|---|
 | CLI flags | One-off datasets, output directories, seeds, demo options |
 | Environment variables | Dataset locations, dashboard API URL, Compose host ports, optional real-data tests |
-| `.env` | Compose host-port mapping, plus api/dashboard container environment via `env_file` (never commit it) |
+| `.env` | Compose host binding/ports, plus api/dashboard container environment via `env_file` (never commit it) |
 | Python constants | Repository paths, default seed, dataset names, demo constants in [`../src/config.py`](../src/config.py) |
 
 Precedence for raw dataset discovery (highest first):
@@ -35,7 +35,10 @@ produce an actionable error instead of using a personal absolute path.
 |---|---|---|---|---|
 | `EMBER_DATA_DIR` | No | Resolution order above | `src.config.resolve_ember_source()` | Raw EMBER2018 v2 directory |
 | `CICIDS_DATA_DIR` | No | Resolution order above | `src.config.resolve_cicids_source()` | Raw CIC-IDS-2017 directory (eight CSVs) |
-| `API_URL` | No | `http://localhost:8000` | `dashboard/app.py` | Base URL the Streamlit page uses for `GET /health`; read at import time, so restart Streamlit after changing it |
+| `API_URL` | No | `http://localhost:8000` | `dashboard/app.py`, `dashboard/client.py` | Base URL the Streamlit page uses for `GET /health`; must be absolute http/https with no credentials, query string, or fragment; read at import time, so restart Streamlit after changing it |
+| `API_ALLOWED_HOSTS` | No | `localhost,127.0.0.1,api,testserver` | `api/main.py` | Comma-separated `Host` header allowlist; `*` disables validation (not recommended) |
+| `API_DOCS_ENABLED` | No | `true` | `api/main.py` | Serve `/docs`, `/redoc`, and `/openapi.json`; set `false` to hide them |
+| `BIND_ADDR` | No | `127.0.0.1` | Docker Compose | Host interface for all published ports; do not use `0.0.0.0` without TLS/authentication |
 | `API_PORT` | No | `8000` | Docker Compose | Host port mapped to the API container; not read by Python |
 | `DASHBOARD_PORT` | No | `8501` | Docker Compose | Host port mapped to the dashboard container; not read by Python |
 | `MLFLOW_PORT` | No | `5000` | Docker Compose | Host port mapped to the MLflow container; not read by Python |
@@ -46,7 +49,12 @@ Notes:
 - `src/utils/seed.py` sets `PYTHONHASHSEED` internally from the seed argument;
   it is not a user-facing configuration option.
 - No API keys or secrets are read by the current code. The API exposes only
-  liveness/message endpoints, so there is nothing to authenticate yet.
+  liveness/message endpoints, so there is nothing to authenticate yet. Future
+  prediction/attack endpoints must add authentication, authorization, and
+  rate limiting before they are exposed beyond localhost.
+- MLflow and the dashboard have no built-in authentication. Compose binds all
+  published ports to `127.0.0.1` by default; use a TLS reverse proxy with
+  authentication before changing `BIND_ADDR`.
 - The dashboard's `API_URL` is overridden to `http://api:8000` in
   [`../docker-compose.yml`](../docker-compose.yml); the environment value is
   what lets the same page work locally and in the container network.
@@ -60,13 +68,23 @@ cp .env.example .env
 docker compose up --build
 ```
 
-- Compose requires `.env` because both services declare `env_file: .env`.
-- The three variables in the template are used for host-port mapping only;
+- Compose requires `.env` because the services declare `env_file: .env`.
+- `BIND_ADDR` plus the three `*_PORT` variables control host binding/ports;
   the Python apps do not read them. Inside the containers the API always
   listens on 8000, the dashboard on 8501, and MLflow on 5000.
+- `API_ALLOWED_HOSTS` and `API_DOCS_ENABLED` are optional API settings in the
+  same file. The safe defaults are built into the app.
 - `.env` is gitignored. Never commit it or put real credentials in it.
 - If you add a new variable, document it here and add a safe placeholder to
   `.env.example`; do not hard-code paths or secrets in application code.
+
+## Security notes
+
+The application security baseline and residual risks are documented in
+[`security/SECURITY_AUDIT.md`](security/SECURITY_AUDIT.md). In short: keep the
+Compose ports on loopback, do not expose MLflow without authentication/TLS,
+keep `API_DOCS_ENABLED=false` on public deployments, and run `make security`
+after dependency or HTTP changes.
 
 ## Data paths and seeds
 

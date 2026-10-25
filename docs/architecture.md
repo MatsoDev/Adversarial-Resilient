@@ -86,10 +86,13 @@ One-off and demo scripts that wire the library together. `scripts/` may import
 
 [`api/main.py`](../api/main.py) exposes `GET /health` (used by the dashboard's
 API check and `tests/test_api_health.py`) and `GET /`. FastAPI also serves
-`/docs`, `/redoc`, and `/openapi.json`. Compose does not define a healthcheck
-for the service. Semester 2 adds the real `/predict`, `/attack`, and `/defend`
-endpoints. The Docker image (`Dockerfile`) runs this app with uvicorn. The
-endpoint contract is documented in [`api/README.md`](../api/README.md).
+`/docs`, `/redoc`, and `/openapi.json` (disable with `API_DOCS_ENABLED=false`).
+It validates Host headers, sends browser security headers, and runs with
+`--no-server-header` in the image/Compose stack. Semester 2 adds the real
+`/predict`, `/attack`, and `/defend` endpoints, which must also add
+authentication, authorization, and rate limiting. The Docker image
+(`Dockerfile`) runs this app as a non-root user with uvicorn. The endpoint
+contract is documented in [`api/README.md`](../api/README.md).
 
 ### `dashboard/` — Streamlit UI
 
@@ -107,9 +110,12 @@ it to `http://api:8000`.
 - `mlflow` — the official MLflow image, serving `./mlruns` on
   `${MLFLOW_PORT:-5000}`.
 
-The stack reads `.env` (copied from [`.env.example`](../.env.example)).
-`.dockerignore` keeps the build context small. The image is CPU-only and runs
-as a non-root user.
+The stack reads `.env` (copied from [`.env.example`](../.env.example)) and
+publishes ports on `127.0.0.1` by default. API and dashboard drop all Linux
+capabilities and set `no-new-privileges`; MLflow has no authentication, so it
+must stay on loopback or sit behind a TLS reverse proxy with auth.
+`.dockerignore` keeps the build context small. The image is CPU-only, runs as
+a non-root user, and pins its base image and pip version.
 
 ### CI
 
@@ -118,7 +124,9 @@ and pull request:
 
 - `lint-test` — Python 3.11, `make lint` (ruff check + format check), then
   `make test`.
-- `docker` — `docker build` only (no push).
+- `security` — `make security` (pip-audit + Bandit).
+- `docker` — `docker build` plus a pinned Trivy scan of fixed
+  HIGH/CRITICAL findings (no push).
 
 ## Dependency rules
 
@@ -164,9 +172,9 @@ Streamlit (dashboard/) --HTTP GET /health--> FastAPI (api/) --> {"status": "ok"}
 
 ## Constraints and invariants
 
-- Python 3.10–3.12 (CI uses 3.11; pins do not support newer interpreters).
+- Python 3.11–3.12 (CI and Docker use 3.11; Python 3.10 support ends in October 2026).
 - CPU-only; torch/torchvision CPU wheels from the PyTorch index
-  (`requirements.txt`).
+  (`requirements-torch.txt`, scoped index).
 - Deterministic runs: fixed seeds (`SEED = 42` default) and
   `set_seed()`; the demo also records the seed in its JSON output.
 - Raw datasets, processed arrays, scalers, model weights, `.env`, and `mlruns/`

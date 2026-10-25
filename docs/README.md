@@ -46,6 +46,7 @@ and how to get it running; this page is the map to everything else.
 | Document | What it covers |
 |---|---|
 | [`threat_model_v0.1.md`](threat_model_v0.1.md) | Assets, attacker goals/knowledge, scope, metrics (draft for review) |
+| [`security/SECURITY_AUDIT.md`](security/SECURITY_AUDIT.md) | Application security audit: findings, fixes, verification, residual risks |
 | [`reading_list.md`](reading_list.md) | Papers and why they matter to the project |
 | [`literature/README.md`](literature/README.md) | Literature notes and note templates (malware + network tracks) |
 

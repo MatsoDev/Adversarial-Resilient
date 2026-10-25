@@ -55,3 +55,14 @@ eps/params, plus (Sprint 2+) per-family/per-attack breakdowns and ROC.
 2. Allowed query budget / rate limits for Semester 2 API?
 3. Which ATLAS / OWASP items do we formally claim?
 4. Acceptable clean-accuracy drop for hardening?
+
+## 11. Implementation security audit (2026-10-26)
+
+The original threat model focuses on adversarial ML evasion. A separate
+application-security review now covers the repository, HTTP service, dashboard,
+data pipeline, containers, dependencies, and CI. It is recorded in
+[`security/SECURITY_AUDIT.md`](security/SECURITY_AUDIT.md). That review does not
+replace this model: model evasion remains the primary research threat, while
+API authentication, authorization, and rate limiting remain prerequisites before
+the planned `/predict`, `/attack`, and `/defend` endpoints are exposed beyond
+localhost.

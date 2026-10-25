@@ -11,17 +11,19 @@ Adversarial-Resilient/
 ├── CONTRIBUTING.md              # branching, commit style, PR checklist
 ├── AGENTS.md                    # short navigation map for AI agents
 ├── LICENSE                      # MIT
-├── Makefile                     # setup / lint / format / test / check / demo / data / docker / clean
+├── Makefile                     # setup / lint / format / test / security / check / demo / data / docker / clean
 ├── pyproject.toml               # ruff + pytest configuration (tooling only, no packaging)
-├── requirements.txt             # pinned runtime dependencies (CPU-only)
-├── requirements-dev.txt         # runtime + pytest/ruff/pre-commit
+├── requirements.txt             # pinned non-torch runtime dependencies
+├── requirements-torch.txt       # CPU-only torch/torchvision (scoped PyTorch index)
+├── requirements-dev.txt         # runtime + pytest/ruff/pre-commit/security tools
 ├── requirements-cleverhans.txt  # optional isolated env for the CH cross-check
 ├── Dockerfile                   # dev image; CMD runs the FastAPI app
 ├── docker-compose.yml           # api + dashboard + mlflow services
 ├── .env.example                 # compose host-port template
 ├── .pre-commit-config.yaml      # ruff + whitespace/hygiene hooks
 ├── .github/
-│   ├── workflows/ci.yml         # lint + tests (py3.11), docker build
+│   ├── workflows/ci.yml         # lint + tests + security scan (py3.11), docker build
+│   ├── dependabot.yml           # weekly pip/actions/docker update PRs
 │   ├── ISSUE_TEMPLATE/          # bug.md, task.md
 │   └── PULL_REQUEST_TEMPLATE.md
 ├── api/                         # FastAPI service (importable as `api.*`)
@@ -29,6 +31,7 @@ Adversarial-Resilient/
 │   └── README.md
 ├── dashboard/                   # Streamlit UI
 │   ├── app.py                   # placeholder page calling the API
+│   ├── client.py                # validated/bounded API health client
 │   └── README.md
 ├── src/                         # shared library (importable as `src.*`)
 │   ├── config.py                # central paths, seed, dataset resolvers
@@ -51,6 +54,10 @@ Adversarial-Resilient/
 │   ├── test_config.py
 │   ├── test_seed.py
 │   ├── test_api_health.py
+│   ├── test_api_security.py     # HTTP headers, Host allowlist, docs switch
+│   ├── test_dashboard_security.py  # API_URL validation + bounded responses
+│   ├── test_manifest_security.py   # manifest path containment
+│   ├── test_security_config.py     # Docker/CI/dependency security invariants
 │   ├── test_docs_links.py       # relative Markdown links resolve (docs + component READMEs)
 │   ├── test_art_quickstart_smoke.py
 │   ├── test_data_ember.py
@@ -66,6 +73,7 @@ Adversarial-Resilient/
 │   ├── architecture.md          # components, data flows, dependency rules
 │   ├── project-structure.md     # this file
 │   ├── threat_model_v0.1.md     # security scope and attacker model
+│   ├── security/                # application security audit + residual risks
 │   ├── project_plan.md          # canonical scope/schedule baseline
 │   ├── progress.md              # living sprint/milestone tracker
 │   ├── DECISIONS.md             # log of non-obvious decisions
@@ -109,9 +117,9 @@ Adversarial-Resilient/
 
 | File | Purpose |
 |---|---|
-| `Makefile` | Canonical developer commands; mirrors what CI runs (`lint`, `test`, `check`) |
+| `Makefile` | Canonical developer commands; mirrors what CI runs (`lint`, `test`, `security`, `docker-scan`, `check`) |
 | `pyproject.toml` | ruff (lint/format) and pytest settings; the project is not packaged |
-| `requirements*.txt` | Pinned dependencies; `-dev` adds test/lint tooling, `-cleverhans` is isolated |
+| `requirements*.txt` | Pinned dependencies; `-torch` is the CPU index scope, `-dev` adds test/lint/security tooling, `-cleverhans` is isolated |
 | `Dockerfile`, `docker-compose.yml`, `.dockerignore`, `.env.example` | Container stack and its configuration template |
 | `.pre-commit-config.yaml` | Formatting/hygiene hooks installed by `make setup` |
 | `.gitattributes`, `.gitignore` | Line-ending normalization and ignore policy |

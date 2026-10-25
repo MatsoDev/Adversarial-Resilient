@@ -4,7 +4,7 @@ Living status of the project against [`project_plan.md`](project_plan.md).
 Update this file as work lands (at least at each sprint boundary); keep it
 short. Evidence of record stays in the sprint reports, PRs, and MLflow runs.
 
-**Last updated:** 2026-10-25 · **Current sprint:** Sprint 2 complete · next: Sprint 3 — Classical baselines
+**Last updated:** 2026-10-26 · **Current sprint:** Sprint 2 complete · next: Sprint 3 — Classical baselines
 
 ## Milestones
 
@@ -67,6 +67,15 @@ that reproduces everything from raw data.
 
 Evidence: [`sprint2_report.md`](sprint2_report.md) (commands, actual counts,
 known issues, skipped items).
+
+## Cross-cutting — Security audit (2026-10-26)
+
+- [x] Repository-wide application security review, dependency upgrades,
+  HTTP/dashboard hardening, manifest path containment, container/CI defaults,
+  and security regression tests. Evidence: [`security/SECURITY_AUDIT.md`](security/SECURITY_AUDIT.md).
+- [x] Full three-service Compose smoke test on loopback (API/dashboard/MLflow
+  health endpoints 200). Browser/MLflow artifact workflows and sustained load
+  remain unverified; the official MLflow container runs as root.
 
 ## How to update this file
 

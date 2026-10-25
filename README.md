@@ -18,10 +18,15 @@ Works today:
 - FastAPI service with `GET /health` returning `{"status": "ok"}`.
 - Streamlit dashboard page (early placeholder that can ping the API).
 - `Dockerfile` and `docker-compose.yml` for api, dashboard, and mlflow services
-  (the image is built in CI; the compose stack was smoke-tested on Linux).
+  (the image is built in CI; Compose publishes ports on localhost by default and
+  runs the API/dashboard with dropped capabilities).
 - Cleaned/versioned EMBER2018 v2 and CIC-IDS-2017 datasets with manifest-based
   versioning, reusable loaders, EDA, data cards, and a reproducible
   `scripts/preprocess.py` pipeline.
+- Security baseline: upgraded vulnerable dependencies, API host/header
+  hardening, defensive dashboard URL handling, manifest path containment,
+  loopback-only Compose defaults, and CI dependency/static checks. Evidence
+  and residual risks are in [`docs/security/SECURITY_AUDIT.md`](docs/security/SECURITY_AUDIT.md).
 
 Next: baseline detectors, FGSM/PGD/CW attacks on the real datasets, defenses,
 and the full dashboard. Sprint-by-sprint status is tracked in
@@ -30,20 +35,23 @@ and the full dashboard. Sprint-by-sprint status is tracked in
 
 Honestly not verified: the CleverHans cross-check was only tested as a graceful
 skip (library not installed). Docker is covered differently: the image builds
-in CI on every push, and the compose stack (api, dashboard, mlflow) was
-smoke-tested on Linux — see the
-[troubleshooting section](docs/development.md#troubleshooting) for why
-CleverHans is optional.
+in CI on every push; the 2026-10 security audit rebuilt the image, started the
+full three-service stack on loopback, and health-checked the API, dashboard,
+and MLflow. Browser/MLflow artifact workflows and sustained load were not
+exercised, and the official MLflow container runs as root. See the
+[security audit](docs/security/SECURITY_AUDIT.md) and the
+[troubleshooting section](docs/development.md#troubleshooting) for details.
 
 ## Quick start
 
-Prerequisites: Git and Python 3.10–3.12. Docker is optional. The first install
+Prerequisites: Git and Python 3.11–3.12. Docker is optional. The first install
 and the MNIST demo need internet access.
 
 ```bash
 make setup     # .venv, pinned dependencies, pre-commit hooks
 make lint      # ruff check + format check (same as CI)
 make test      # pytest, synthetic fixtures only
+make security  # dependency + static security checks
 ```
 
 Expected: lint is clean and all tests pass; the two optional real-data checks
@@ -68,7 +76,9 @@ python -m pytest
 | `make data-smoke` | Deterministic 2000-row subsets into `/tmp` |
 | `make eda` | Regenerate EDA JSON, figures, and report under `docs/` |
 | `make docker-build` / `make docker-up` | Build the image / start the compose stack (`cp .env.example .env` first) |
+| `make docker-scan` | Scan the built image for fixed HIGH/CRITICAL vulnerabilities |
 | `make format` | Rewrite files with `ruff format` |
+| `make security` | Dependency audit (`pip-audit`) + static security scan (`bandit`) |
 | `make check` | `make lint` + `make test` |
 | `make clean` | Remove caches and `mlruns/` (committed demo/EDA artifacts stay) |
 
@@ -102,6 +112,8 @@ Highlights:
 - [`docs/DECISIONS.md`](docs/DECISIONS.md) — non-obvious technical decisions.
 - [`docs/threat_model_v0.1.md`](docs/threat_model_v0.1.md) — security scope
   and attacker model.
+- [`docs/security/SECURITY_AUDIT.md`](docs/security/SECURITY_AUDIT.md) —
+  application security audit, fixes, verification, and remaining risks.
 
 ## Project structure
 

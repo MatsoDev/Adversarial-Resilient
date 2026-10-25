@@ -4,13 +4,14 @@ Local setup, verification, demos, and services. Start with the root
 [`README.md`](../README.md) for the project overview and
 [`project-structure.md`](project-structure.md) for where code belongs.
 Environment variables are listed in [`configuration.md`](configuration.md);
-test organization is in [`testing.md`](testing.md).
+test organization is in [`testing.md`](testing.md). Security checks, findings,
+and residual risks are in [`security/SECURITY_AUDIT.md`](security/SECURITY_AUDIT.md).
 
 ## Prerequisites
 
 - Git.
-- Python 3.10–3.12. Tested with Python 3.12.1 on Windows and Python 3.11 in
-  CI; the pins in `requirements.txt` support 3.10–3.12.
+- Python 3.11–3.12. Tested with Python 3.12.1 on Windows and Python 3.11 in
+  CI; the pins in `requirements*.txt` support 3.11–3.12 (Python 3.10 support ends in October 2026).
 - About 3 GB free disk for the Python environment and MNIST demo. Full
   preprocessing additionally needs roughly 9 GB for EMBER processed arrays
   (7.6 GB of arrays plus headroom) and 1 GB for CICIDS (stored under gitignored
@@ -34,8 +35,9 @@ git --version
 make setup
 ```
 
-This creates `.venv`, installs `requirements.txt` + `requirements-dev.txt`, and
-installs the pre-commit hooks. If `python` is not on `PATH` (common on Linux
+This creates `.venv`, installs `requirements-dev.txt` (which includes
+`requirements.txt`) and the separate CPU torch requirements, and installs the
+pre-commit hooks. If `python` is not on `PATH` (common on Linux
 distributions that only install `python3`), run `make setup PY=python3`.
 
 ### Manual setup
@@ -48,7 +50,8 @@ cd Adversarial-Resilient
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
-pip install -r requirements.txt -r requirements-dev.txt
+pip install -r requirements-dev.txt
+pip install -r requirements-torch.txt
 pre-commit install
 ```
 
@@ -67,7 +70,8 @@ cd Adversarial-Resilient
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
-pip install -r requirements.txt -r requirements-dev.txt
+pip install -r requirements-dev.txt
+pip install -r requirements-torch.txt
 pre-commit install
 ```
 
@@ -79,6 +83,8 @@ in the repository root.
 ```bash
 make lint      # ruff check + ruff format --check (same as CI)
 make test      # pytest; synthetic fixtures, no datasets required
+make security  # pip-audit + bandit (same as CI)
+make docker-scan  # Trivy scan of adversarial-resilient:dev (after docker-build)
 make format    # rewrite files with ruff format
 make check     # lint + test
 make clean     # remove caches and mlruns/ (committed demo/EDA artifacts stay)
@@ -90,6 +96,8 @@ Without Make, use the equivalent commands:
 python -m ruff check src scripts tests api dashboard
 python -m ruff format --check src scripts tests api dashboard
 python -m pytest
+python -m pip_audit -r requirements-dev.txt
+python -m bandit -q -r src scripts api dashboard -ll
 ```
 
 The `pytest` run takes under a minute. Fast tests use synthetic fixtures; two
@@ -149,7 +157,7 @@ The JSON and figures are committed reference outputs; regenerate them with the
 demo rather than editing them by hand. Browse the logged run with:
 
 ```bash
-python -m mlflow ui
+MLFLOW_ALLOW_FILE_STORE=true python -m mlflow ui
 ```
 
 Then open http://127.0.0.1:5000 in your browser.
@@ -176,8 +184,11 @@ set `API_URL` to point it elsewhere.
 
 ## Run the Docker stack
 
-The image builds in CI on every push and pull request; the stack below was
-smoke-tested on Linux.
+The image builds in CI on every push and pull request. The 2026-10 security
+audit rebuilt the image and started the full three-service stack on loopback;
+API, dashboard, and MLflow health endpoints returned 200. Browser/MLflow
+artifact workflows and sustained load were not exercised; see
+[`security/SECURITY_AUDIT.md`](security/SECURITY_AUDIT.md).
 
 ```bash
 cp .env.example .env
@@ -185,9 +196,14 @@ docker compose up --build
 ```
 
 Ports come from `.env` (defaults: api 8000, dashboard 8501, mlflow 5000).
-Once the containers are up, check http://127.0.0.1:8000/health,
-http://localhost:8501, and http://localhost:5000. Stop with `Ctrl+C`, then
-`docker compose down`.
+Published ports bind to `127.0.0.1` by default, so the stack is not reachable
+from other hosts. Once the containers are up, check
+http://127.0.0.1:8000/health, http://localhost:8501, and
+http://localhost:5000. Stop with `Ctrl+C`, then `docker compose down`.
+
+Do not set `BIND_ADDR=0.0.0.0` unless you put a TLS reverse proxy with
+authentication in front of the stack. MLflow and the placeholder dashboard
+have no built-in authentication.
 
 The compose stack sets `API_URL=http://api:8000` for the dashboard container,
 so the same app works inside Docker and locally.
@@ -202,9 +218,9 @@ processed-data loaders.
 
 | Problem | Fix |
 |---|---|
-| `python --version` shows 3.9 or older, or install fails on your Python | Install Python 3.10–3.12 (CI uses 3.11). Then recreate `.venv` from scratch. |
+| `python --version` shows 3.10 or older, or install fails on your Python | Install Python 3.11–3.12 (CI uses 3.11). Then recreate `.venv` from scratch. |
 | `make setup` fails with `python: No such file or directory` | Only `python3` is installed. Run `make setup PY=python3` (or create the venv manually as shown above). |
-| `ModuleNotFoundError: No module named 'pkg_resources'` when importing mlflow | Your setuptools is too new. `requirements.txt` already pins `setuptools==75.8.0`; if you still see it, run `pip install "setuptools==75.8.0"`. |
+| `ModuleNotFoundError: No module named 'pkg_resources'` when importing mlflow | Your environment predates the current pins. Recreate `.venv` with `make setup` (mlflow 3.17.2 + setuptools 84.2.1). |
 | `ruff` or `pytest` not found | The venv is not activated, or dev requirements are missing. Activate `.venv` and run `pip install -r requirements-dev.txt`. |
 | torch download is very slow or fails | The CPU wheel is about 200 MB. Check disk space and connection, then rerun the same `pip install` command; pip resumes. |
 | PowerShell refuses to activate the venv | Run `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser`, then activate again. |

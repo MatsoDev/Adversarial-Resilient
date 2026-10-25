@@ -186,3 +186,55 @@ and one Makefile fix (`clean`); no changes to application code or CI behavior.
   of the directory itself. Unused `.env` template entries (`PYTHONPATH`,
   `SEED`, `MLFLOW_TRACKING_URI`) were removed because compose does not read
   them.
+
+## Security audit (2026-10-26)
+
+Scope: repository-wide application security review, dependency audit, container
+and CI hardening, regression tests, and a written report at
+[`security/SECURITY_AUDIT.md`](security/SECURITY_AUDIT.md).
+
+- **Python 3.10 support dropped.** Python 3.10's upstream support ends in
+  October 2026, and Pillow 13 (the first release without the known 2026 image-parser
+  advisories) requires Python ≥3.11. The supported range is now 3.11–3.12;
+  CI and Docker were already on 3.11.
+- **Vulnerable pins upgraded together.** The old stack (`mlflow==2.15.1`,
+  `Pillow==10.4.0`, `starlette==0.38.6`, `streamlit==1.39.0`, `torch==2.4.1`,
+  `setuptools==75.8.0`) had known advisories, including a critical
+  `torch.load` issue and remotely triggerable MLflow paths. The current pins
+  were verified with `pip-audit` (no known vulnerabilities), OSV for the CPU
+  torch/torchvision wheels, the full test suite, and a Docker build.
+- **Torch index scoped to `requirements-torch.txt`.** `requirements.txt` no
+  longer carries `--extra-index-url`; CPU torch/torchvision use exact `+cpu`
+  versions from the PyTorch index. This removes the dependency-confusion
+  surface for normal PyPI packages while keeping CPU-only wheels.
+- **MLflow file store is an explicit opt-in.** MLflow 3.17 requires
+  `MLFLOW_ALLOW_FILE_STORE=true` for `./mlruns`; the demo sets it in-process and
+  Compose sets it for the MLflow service. The server is published on loopback by
+  default and still has no built-in authentication.
+- **HTTP hardening is centralized in the API factory.** `TrustedHostMiddleware`
+  validates Host headers, and middleware adds CSP/HSTS (HTTPS only)/no-store and
+  related headers. `API_DOCS_ENABLED` can hide generated docs. There is still no
+  auth because no sensitive endpoint exists; future endpoints must add it.
+- **Dashboard URLs are untrusted configuration.** `dashboard/client.py` accepts
+  only absolute http/https URLs without credentials/query/fragment/backslashes,
+  requires a JSON content type and object, and caps the health response. This
+  closes the `file:`/arbitrary-scheme `urlopen` path flagged by Bandit.
+- **Manifest paths are contained.** `verify_manifest_artifacts()` rejects
+  absolute paths, `..` escapes, NUL bytes, malformed records, and symlinks that
+  resolve outside the manifest root. Atomic writers now use `mkstemp`-created
+  sibling files (0600, unpredictable) instead of fixed `.tmp` names.
+- **Compose is loopback-first and least-privilege.** `BIND_ADDR` defaults to
+  `127.0.0.1`; API/dashboard drop all capabilities, set `no-new-privileges`,
+  limit PIDs, mount the dashboard source read-only, and define healthchecks.
+  The dashboard/MLflow lack authentication, so exposing them requires a TLS
+  reverse proxy with auth.
+- **Supply chain checks are automated.** CI pins actions by commit SHA, removes
+  persisted checkout credentials, adds a `security` job (`pip-audit` + Bandit),
+  and Dependabot tracks pip, GitHub Actions, and Docker updates. Pre-commit adds
+  private-key/JSON/TOML/AST checks.
+- **Residual risks are explicit.** No TLS/authentication is implemented for the
+  Compose stack; MLflow's official image now runs pinned by digest but still as
+  root and without built-in auth; the full stack was health-checked on loopback
+  but browser/MLflow artifact workflows and load were not exercised; and
+  real-data tests remain opt-in. See the security report for the current status
+  and verification evidence.
