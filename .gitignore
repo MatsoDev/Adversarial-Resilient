@@ -5,6 +5,7 @@ __pycache__/
 *.so
 .Python
 .venv/
+.venv-*/
 venv/
 ENV/
 env/
@@ -23,7 +24,8 @@ data/processed/*
 !data/processed/.gitkeep
 data/adversarial/*
 !data/adversarial/.gitkeep
-data/external/
+data/external/*
+!data/external/.gitkeep
 data/raw/EMBER-Dataset/
 data/raw/CIC-IDS-Dataset/
 data/**/*.jsonl
@@ -63,6 +65,8 @@ Thumbs.db
 .mypy_cache/
 .ruff_cache/
 .pytest_cache/
+.coverage
+.coverage.*
 coverage/
 htmlcov/
 dist/

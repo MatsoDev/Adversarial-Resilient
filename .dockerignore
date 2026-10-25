@@ -1,4 +1,4 @@
-# Keep the build context small: the image only needs requirements*.txt,
+# Keep the build context small: the image only needs requirements.txt,
 # src/, api/, dashboard/ and scripts/ (see Dockerfile).
 
 .git
