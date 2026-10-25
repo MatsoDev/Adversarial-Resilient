@@ -1,4 +1,4 @@
-"""Streamlit placeholder (Semester 2: full dashboard)."""
+"""Streamlit placeholder; the full dashboard is planned for Semester 2."""
 
 from __future__ import annotations
 
@@ -6,10 +6,14 @@ import os
 
 import streamlit as st
 
-API_URL = os.getenv("API_URL", "http://api:8000")
+# Compose sets API_URL=http://api:8000; outside Docker the API runs on localhost.
+API_URL = os.getenv("API_URL", "http://localhost:8000")
 
-st.title("Adversarial-Resilient dashboard: placeholder")
-st.write("Sprint 1 placeholder. Semester 2 adds accuracy-vs-epsilon, sample grids, MLflow links.")
+st.title("Adversarial-Resilient dashboard")
+st.write(
+    "Placeholder page. The full dashboard (accuracy-vs-epsilon, sample grids, "
+    "MLflow links) lands in Semester 2."
+)
 
 if st.button("Check API /health"):
     try:
