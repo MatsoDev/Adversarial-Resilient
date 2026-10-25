@@ -71,7 +71,8 @@ RUN_REAL_DATA_TESTS=1 python -m pytest tests/test_data_real_optional.py -q
 
 The EMBER check expects `train_features_0.jsonl` and `test_features.jsonl`;
 the CICIDS check expects exactly eight CSVs. They do not run preprocessing or
-train a model. Full pipeline verification is separate:
+train a model. Full pipeline verification is separate and requires the processed
+artifacts from a previous full run:
 
 ```bash
 python scripts/preprocess.py --dataset all --verify-only
@@ -85,7 +86,8 @@ python scripts/preprocess.py --dataset all --verify-only
    artifacts (shapes, dtypes, row counts, and `verify_manifest_artifacts()`).
 3. For a CLI change, call `main([...])` and assert the exit code plus the
    expected files, using `tmp_path`.
-4. For docs changes, link new pages from [`README.md`](README.md) and run
+4. For docs changes, link new pages from the
+   [documentation index](README.md) and run
    `python -m pytest tests/test_docs_links.py -q`.
 5. Run `make check` before committing; `make lint` includes the formatting
    check that CI enforces.

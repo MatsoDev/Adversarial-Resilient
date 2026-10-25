@@ -62,6 +62,7 @@ python scripts/preprocess.py --dataset cicids2017 \
   --output-dir data/processed/cicids2017
 
 # Verify artifacts against the manifests without reprocessing
+# (requires a previous full run under the default output directories)
 python scripts/preprocess.py --dataset all --verify-only
 
 # Fast deterministic subsets (write subset=true; /tmp only)
@@ -89,8 +90,8 @@ python scripts/eda_datasets.py --dataset all --max-samples 5000 \
 | `--seed N` | `42` | Sampling and split seed; recorded in the manifest |
 | `--max-samples N` / `--limit N` | All rows | Deterministic subset; marks the manifest `subset: true` |
 | `--force` | Off | Override source hash/count mismatches and the 1% invalid-row threshold |
-| `--verify-only` | Off | Re-hash artifacts against `manifest.json`; does not read the raw source |
-| `--jobs N` | Up to 4 | Worker processes for EMBER scan/vectorisation; CICIDS dedup is single-process and logs that `--jobs` is ignored |
+| `--verify-only` | Off | Re-hash artifacts against `manifest.json`; requires a previous run's output and does not read the raw source |
+| `--jobs N` | Up to 4 | Worker processes for EMBER scan/vectorisation; CICIDS dedup is single-process and logs when `--jobs > 1` |
 | `--no-scale` | Off | Do not write `scaler_mean.npy` / `scaler_scale.npy` |
 | `--skip-source-check` | Off | Accept non-official/synthetic sources; intended for tests only |
 
@@ -160,9 +161,8 @@ cicids_val = load_cicids2017("val", target="binary", standardize=True)
 ```
 
 `load_ember` always returns the binary target (`0` benign, `1` malicious).
-CICIDS supports
-`target="binary"` or `target="multiclass"`; the returned `label_mapping`
-documents the class order. `load_ember` / `load_cicids2017` raise
+CICIDS supports `target="binary"` or `target="multiclass"`; the returned
+`label_mapping` documents the class order. `load_ember` / `load_cicids2017` raise
 `FileNotFoundError` with the preprocessing command when artifacts are missing,
 and never download data. See
 [`../../src/data/README.md`](../../src/data/README.md) for the full loader API

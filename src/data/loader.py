@@ -27,9 +27,10 @@ class ProcessedDataset:
     """A cleaned split returned by :func:`load_ember` / :func:`load_cicids2017`.
 
     ``X`` is a float32 feature matrix, ``y`` holds integer targets, and
-    ``metadata`` is the optional per-row metadata CSV. ``target`` and
-    ``label_mapping`` describe the label space (EMBER is always binary; CICIDS
-    is binary or multiclass). ``len(dataset)`` returns the number of rows.
+    ``metadata`` is the optional per-row metadata table loaded from CSV.
+    ``target`` and ``label_mapping`` describe the label space (EMBER is always
+    binary; CICIDS is binary or multiclass). ``len(dataset)`` returns the number
+    of rows.
     """
 
     X: np.ndarray

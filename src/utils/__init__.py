@@ -1,1 +1,1 @@
-"""Utility helpers (seeding, logging, ...)."""
+"""Utility helpers (deterministic seeding)."""

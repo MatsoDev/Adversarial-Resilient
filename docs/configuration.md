@@ -13,7 +13,7 @@ Compose; paths and constants are defined in
 |---|---|
 | CLI flags | One-off datasets, output directories, seeds, demo options |
 | Environment variables | Dataset locations, dashboard API URL, Compose host ports, optional real-data tests |
-| `.env` | Compose host-port mapping and container environment (never commit it) |
+| `.env` | Compose host-port mapping, plus api/dashboard container environment via `env_file` (never commit it) |
 | Python constants | Repository paths, default seed, dataset names, demo constants in [`../src/config.py`](../src/config.py) |
 
 Precedence for raw dataset discovery (highest first):
