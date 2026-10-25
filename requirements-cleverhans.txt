@@ -10,5 +10,5 @@
 #   .venv-ch\Scripts\activate (Windows) or source .venv-ch/bin/activate
 #   pip install -r requirements-cleverhans.txt
 cleverhans==4.0.0
-tensorflow==2.15.0
+tensorflow==2.21.0
 numpy==1.26.4
