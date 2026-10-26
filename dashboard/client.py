@@ -41,8 +41,8 @@ class _SameOriginRedirectHandler(urllib.request.HTTPRedirectHandler):
         self._allowed_origin = allowed_origin
 
     def redirect_request(self, req, fp, code, msg, headers, newurl):
-        parsed = urllib.parse.urlsplit(newurl)
         try:
+            parsed = urllib.parse.urlsplit(newurl)
             target_origin = _origin(newurl)
         except ValueError as error:
             raise urllib.error.HTTPError(
@@ -67,10 +67,14 @@ def validate_api_url(value: str) -> str:
     if "\\" in text:
         raise ApiUrlError("API_URL must not contain backslashes")
 
-    parsed = urllib.parse.urlsplit(text)
+    try:
+        parsed = urllib.parse.urlsplit(text)
+        hostname = parsed.hostname
+    except ValueError as error:
+        raise ApiUrlError("API_URL is not a valid URL") from error
     if parsed.scheme.lower() not in ALLOWED_SCHEMES:
         raise ApiUrlError("API_URL must use http or https")
-    if not parsed.netloc or not parsed.hostname:
+    if not parsed.netloc or not hostname:
         raise ApiUrlError("API_URL must include a host")
     if parsed.username is not None or parsed.password is not None:
         raise ApiUrlError("API_URL must not contain credentials")
