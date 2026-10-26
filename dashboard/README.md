@@ -4,11 +4,22 @@ Current page: a placeholder plus a button that calls the API `/health` and
 shows the JSON response (or an error message). Robustness charts, sample grids,
 and MLflow links are planned for Semester 2.
 
+Start the API in one terminal first:
+
 ```bash
-streamlit run dashboard/app.py
+python -m uvicorn api.main:app --reload --port 8000
 ```
 
-The app listens on <http://localhost:8501>. It reads `API_URL` at import time;
+Then run the dashboard in a second terminal:
+
+```bash
+python -m streamlit run dashboard/app.py
+# or, from the repo root: make dashboard
+```
+
+Both commands block, so keep both terminals open. Run the dashboard from the
+repository root so the `dashboard` package is importable. The app listens on
+<http://localhost:8501>. It reads `API_URL` at import time;
 the default is `http://localhost:8000` for local runs. Compose sets it to
 `http://api:8000`, so the same page works inside the container network. If the
 API is not running, the button reports the configured endpoint without echoing

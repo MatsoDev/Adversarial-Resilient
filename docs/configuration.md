@@ -118,7 +118,7 @@ python scripts/preprocess.py --dataset all
 Point the dashboard at a non-default API port:
 
 ```bash
-API_URL=http://127.0.0.1:8001 streamlit run dashboard/app.py
+API_URL=http://127.0.0.1:8001 python -m streamlit run dashboard/app.py
 ```
 
 Run the optional real-data tests (requires both local datasets):

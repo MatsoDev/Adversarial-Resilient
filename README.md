@@ -76,6 +76,7 @@ python -m pytest
 | `make data` | Full EMBER + CICIDS preprocessing (needs local raw datasets) |
 | `make data-smoke` | Deterministic 2000-row subsets into `/tmp` |
 | `make eda` | Regenerate EDA JSON, figures, and report under `docs/` |
+| `make dashboard` | Run the Streamlit dashboard on http://localhost:8501 |
 | `make docker-build` / `make docker-up` | Build the image / start the compose stack (`cp .env.example .env` first) |
 | `make docker-scan` | Scan the built image for fixed HIGH/CRITICAL vulnerabilities |
 | `make format` | Rewrite files with `ruff format` |
@@ -84,9 +85,11 @@ python -m pytest
 | `make check` | `make lint` + `make test` |
 | `make clean` | Remove caches and `mlruns/` (committed demo/EDA artifacts stay) |
 
-API locally: `python -m uvicorn api.main:app --port 8000`; dashboard:
-`streamlit run dashboard/app.py`. Full setup, demo flags, service details, and
-troubleshooting are in [`docs/development.md`](docs/development.md).
+Both local services block, so run them in separate terminals. Terminal 1 (API):
+`python -m uvicorn api.main:app --port 8000`. Terminal 2 (dashboard):
+`make dashboard` (or `python -m streamlit run dashboard/app.py`). Full setup,
+demo flags, service details, and troubleshooting are in
+[`docs/development.md`](docs/development.md).
 
 ## Documentation
 

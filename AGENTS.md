@@ -48,8 +48,8 @@ make data               # full EMBER + CICIDS preprocessing (needs local raw dat
 make data-smoke         # deterministic 2000-row subset into /tmp
 make eda                # regenerate docs/results/data_eda.json + figures/report
 python scripts/preprocess.py --dataset all --verify-only
-python -m uvicorn api.main:app --port 8000     # API
-streamlit run dashboard/app.py                 # dashboard (API_URL default localhost)
+python -m uvicorn api.main:app --port 8000     # API (blocking; terminal 1)
+python -m streamlit run dashboard/app.py       # dashboard (separate terminal 2)
 docker compose up --build                      # api + dashboard + mlflow (.env first)
 ```
 

@@ -167,6 +167,9 @@ Then open http://127.0.0.1:5000 in your browser.
 
 ## Run the API and dashboard without Docker
 
+Both commands below block until stopped, so use two separate terminal sessions
+and keep both running while testing.
+
 Terminal 1:
 
 ```bash
@@ -178,7 +181,8 @@ Open http://127.0.0.1:8000/health — expect `{"status": "ok"}`.
 Terminal 2 (same folder, virtual environment activated):
 
 ```bash
-streamlit run dashboard/app.py
+python -m streamlit run dashboard/app.py
+# or: make dashboard
 ```
 
 Open http://localhost:8501 — expect the placeholder page with a button that
