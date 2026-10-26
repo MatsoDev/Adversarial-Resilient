@@ -43,6 +43,27 @@ def test_compose_defaults_are_loopback_and_least_privilege():
     assert services["dashboard"]["volumes"] == ["./dashboard:/app/dashboard:ro"]
 
 
+def test_compose_dashboard_uses_module_entrypoint_and_script_healthcheck():
+    compose = yaml.safe_load((ROOT / "docker-compose.yml").read_text(encoding="utf-8"))
+    dashboard = compose["services"]["dashboard"]
+    assert dashboard["command"].startswith("python -m streamlit run dashboard/app.py")
+    assert "--server.scriptHealthCheckEnabled true" in dashboard["command"]
+
+    healthcheck = dashboard["healthcheck"]["test"]
+    probe = healthcheck[-1]
+    assert "/_stcore/script-health-check" in probe
+    assert "/_stcore/health" not in probe
+
+
+def test_makefile_has_dashboard_entrypoint():
+    makefile = (ROOT / "Makefile").read_text(encoding="utf-8")
+    assert re.search(
+        r"^dashboard:\n\t\$\(PYTHON\) -m streamlit run dashboard/app\.py$",
+        makefile,
+        re.MULTILINE,
+    )
+
+
 def test_trivy_image_is_sha_pinned():
     makefile = (ROOT / "Makefile").read_text(encoding="utf-8")
     assert re.search(r"aquasec/trivy@sha256:[0-9a-f]{64}", makefile)
