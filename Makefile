@@ -1,4 +1,4 @@
-.PHONY: setup lint format format-check test coverage security check demo data data-smoke eda docker-build docker-scan docker-up clean
+.PHONY: setup lint format format-check test coverage security check demo dashboard data data-smoke eda docker-build docker-scan docker-up clean
 
 PY ?= python
 VENV ?= .venv
@@ -48,6 +48,9 @@ check: lint test
 
 demo:
 	$(PYTHON) scripts/art_quickstart.py --fast
+
+dashboard:
+	$(PYTHON) -m streamlit run dashboard/app.py
 
 data:
 	$(PYTHON) scripts/preprocess.py --dataset all

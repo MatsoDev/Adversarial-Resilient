@@ -29,7 +29,7 @@ services:
 
   dashboard:
     build: .
-    command: streamlit run dashboard/app.py --server.port 8501 --server.address 0.0.0.0
+    command: python -m streamlit run dashboard/app.py --server.port 8501 --server.address 0.0.0.0 --server.scriptHealthCheckEnabled true
     ports:
       - "${BIND_ADDR:-127.0.0.1}:${DASHBOARD_PORT:-8501}:8501"
     environment:
@@ -50,9 +50,9 @@ services:
         - CMD
         - python
         - -c
-        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8501/_stcore/health', timeout=3)"
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8501/_stcore/script-health-check', timeout=8)"
       interval: 30s
-      timeout: 5s
+      timeout: 10s
       retries: 3
       start_period: 15s
 
