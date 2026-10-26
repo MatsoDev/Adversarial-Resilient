@@ -77,6 +77,22 @@ known issues, skipped items).
   health endpoints 200). Browser/MLflow artifact workflows and sustained load
   remain unverified; the official MLflow container runs as root.
 
+## Cross-cutting — Test hardening (2026-10-26)
+
+- [x] Suite expanded from 105 to 257 collected tests (**255 passed, 2 opt-in
+  real-data checks skipped**), adding direct coverage for preprocessing/splits,
+  atomic writes and manifest verification, dataset resolution, the EDA CLI,
+  ART metrics, model shapes, the dashboard placeholder, and API/dashboard error
+  paths.
+- [x] Branch coverage measured with `make coverage`: **91% total** (baseline
+  65%); CI now runs `make coverage` instead of bare `make test`.
+- [x] Fixed malformed IPv6 `API_URL` values and redirect targets raising raw
+  `ValueError` instead of the documented `ApiUrlError`/`HTTPError`.
+- [x] Hardened unhandled API errors: 500 responses now retain security headers
+  and return a generic body without exception details.
+- [x] `make lint`, `make test`, `make coverage`, and `make security` pass;
+  test layout and commands are documented in [`testing.md`](testing.md).
+
 ## How to update this file
 
 - Tick checklist items as they land and add a one-line pointer to the

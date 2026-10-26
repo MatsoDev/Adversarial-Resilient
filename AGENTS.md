@@ -37,6 +37,7 @@ Baselines, attacks, and defenses land in later sprints.
 make setup              # create .venv, install deps, install pre-commit hooks
 make lint               # ruff check + ruff format --check (mirrors CI)
 make test               # pytest (synthetic fixtures; no datasets needed)
+make coverage           # pytest + line/branch coverage (CI runs this)
 make check              # lint + test
 make security           # pip-audit + bandit (also a CI job)
 make docker-build docker-scan  # build + Trivy scan of fixed HIGH/CRITICAL
@@ -52,7 +53,7 @@ streamlit run dashboard/app.py                 # dashboard (API_URL default loca
 docker compose up --build                      # api + dashboard + mlflow (.env first)
 ```
 
-CI (`.github/workflows/ci.yml`) runs `make lint`, `make test`, `make security`
+CI (`.github/workflows/ci.yml`) runs `make lint`, `make coverage`, `make security`
 on Python 3.11, plus `docker build`; keep all green. `make lint` includes
 formatting, so run it before every commit.
 

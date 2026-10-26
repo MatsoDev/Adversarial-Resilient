@@ -83,6 +83,7 @@ in the repository root.
 ```bash
 make lint      # ruff check + ruff format --check (same as CI)
 make test      # pytest; synthetic fixtures, no datasets required
+make coverage  # same suite + line/branch coverage (CI runs this)
 make security  # pip-audit + bandit (same as CI)
 make docker-scan  # Trivy scan of adversarial-resilient:dev (after docker-build)
 make format    # rewrite files with ruff format
@@ -96,6 +97,8 @@ Without Make, use the equivalent commands:
 python -m ruff check src scripts tests api dashboard
 python -m ruff format --check src scripts tests api dashboard
 python -m pytest
+python -m pytest --cov=src --cov=api --cov=dashboard --cov=scripts \
+  --cov-report=term-missing
 python -m pip_audit -r requirements-dev.txt
 python -m bandit -q -r src scripts api dashboard -ll
 ```

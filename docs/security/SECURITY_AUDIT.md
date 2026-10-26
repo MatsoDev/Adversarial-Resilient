@@ -44,12 +44,15 @@ The audit found and fixed:
   compiler toolchain removed, pip removed from the runtime image, least-privilege
   Compose settings, healthchecks, SHA-pinned GitHub Actions, a CI security job,
   Dependabot, and a pinned Trivy image scan.
-- **Regression coverage**: security tests for API headers/Host/docs, dashboard
-  URL validation, manifest containment, and static Docker/CI invariants.
+- **Regression coverage**: security tests for API headers/Host/docs (including
+  400/404/405/500 responses), dashboard URL/redirect validation (including
+  malformed IPv6 targets), manifest containment, and static Docker/CI
+  invariants.
 
-Verification: `make lint` passes; `make test` passes with **103 passed, 2
-skipped** (the skips are the opt-in real-data checks); `make security` reports
-no known vulnerabilities and no medium/high Bandit findings; the Docker image
+Verification: `make lint` passes; `make coverage` passes with **255 passed, 2
+skipped** (the skips are the opt-in real-data checks) and **91% line/branch
+coverage**; `make security` reports no known vulnerabilities and no
+medium/high Bandit findings; the Docker image
 builds and runs as UID 1000; the container returns the expected headers and
 rejects an unknown Host; Trivy reports no fixed HIGH/CRITICAL Python or OS
 vulnerabilities in the final image (`--ignore-unfixed`).
@@ -270,9 +273,11 @@ exploitable against `/health` alone.
 HSTS is conditional on HTTPS; docs can be disabled with
 `API_DOCS_ENABLED=false`; Docker/Compose run Uvicorn with `--no-server-header`.
 
-**Verification:** `tests/test_api_security.py` checks headers, no CORS header,
-HSTS behavior, unknown-Host rejection, custom allowlists, docs disablement, and
-the docs CSP exception. Container curl checks confirm the behavior.
+**Verification:** `tests/test_api_security.py` checks headers on successful,
+rejected-Host, 404, 405, and unhandled-500 responses; no CORS header; HSTS
+behavior; unknown-Host rejection; custom allowlists; docs disablement; and the
+docs CSP exception. The 500 handler returns a generic body without exception
+details. Container curl checks confirm the behavior.
 
 **Residual:** No authentication or rate limiting exists because there is no
 sensitive endpoint; future endpoints must add them. CSP is intentionally not
@@ -303,9 +308,11 @@ redirects are only followed within the configured origin (no scheme/host/port
 change, no credentials); the app logs details locally but shows a generic
 browser error.
 
-**Verification:** 23 tests in `tests/test_dashboard_security.py` cover accepted
-and rejected URLs, JSON/content-type validation, size limits, and same-origin
-redirect enforcement.
+**Verification:** 45 tests in `tests/test_dashboard_security.py` cover accepted
+and rejected URLs (including malformed IPv6), JSON/content-type validation,
+size limits, same-origin redirect enforcement, credential rejection, and
+malformed redirect targets. `tests/test_dashboard_app.py` checks the user-facing
+invalid-URL and error paths with a fake Streamlit module.
 
 **Residual:** The operator can still point the dashboard at any reachable
 HTTP(S) host; this is configuration trust, not an unauthenticated SSRF. An
@@ -508,9 +515,9 @@ hashes. Do not load MLflow artifacts from untrusted stores.
 | Area | Files | Change |
 |---|---|---|
 | Dependencies | `requirements.txt`, `requirements-dev.txt`, `requirements-torch.txt`, `requirements-cleverhans.txt`, `scripts/art_quickstart.py` | Upgraded pins; split/scoped CPU torch index; explicit MLflow file-store opt-in; removed pip from runtime image; warning on the optional CleverHans env |
-| API | `api/main.py`, `tests/test_api_security.py` | App factory, Host allowlist, security headers, HSTS/CSP/no-store, docs switch, no server header; 7 security tests |
-| Dashboard | `dashboard/client.py`, `dashboard/app.py`, `tests/test_dashboard_security.py` | URL validation, same-origin redirects, JSON/content-type/size checks, generic error; 23 parameterized/security cases |
-| Data | `src/data/preprocessing.py`, `src/data/ember.py`, `src/data/cicids2017.py`, `tests/test_manifest_security.py` | Manifest containment, secure temp files, shared DataFrame writer, git subprocess timeout; 7 security tests |
+| API | `api/main.py`, `tests/test_api_security.py` | App factory, Host allowlist, security headers, HSTS/CSP/no-store, docs switch, no server header, generic 500 handling; 26 security tests |
+| Dashboard | `dashboard/client.py`, `dashboard/app.py`, `tests/test_dashboard_security.py`, `tests/test_dashboard_app.py` | URL/redirect validation, JSON/content-type/size checks, generic error; 49 parameterized/security/UI cases |
+| Data | `src/data/preprocessing.py`, `src/data/ember.py`, `src/data/cicids2017.py`, `tests/test_manifest_security.py` | Manifest containment, secure temp files, shared DataFrame writer, git subprocess timeout; 10 security tests |
 | Containers | `Dockerfile`, `docker-compose.yml`, `.dockerignore`, `.env.example` | Digest/pip pins, non-root/no compiler/no pip, least privilege, loopback, healthchecks, read-only mount, PID limits |
 | CI/process | `.github/workflows/ci.yml`, `.github/dependabot.yml`, `.pre-commit-config.yaml`, `Makefile`, `.github/PULL_REQUEST_TEMPLATE.md` | SHA pins, security job, Trivy scan, Dependabot, extra hooks, PR checklist |
 | Tests | `tests/test_security_config.py` | Static invariants for deps/Docker/Compose/CI/Trivy |
@@ -526,7 +533,8 @@ underlying exception text.
 ### Passed
 
 - `make lint` — ruff check and format check pass.
-- `make test` — **103 passed, 2 skipped** (the two opt-in real-data checks).
+- `make coverage` — **255 passed, 2 skipped** (the two opt-in real-data
+  checks), **91% line/branch coverage**; `make test` also passes.
 - `make security` — `pip-audit -r requirements-dev.txt`: no known
   vulnerabilities; Bandit (`-ll`): no medium/high findings.
 - `pip-audit -r requirements.txt` — no known vulnerabilities.

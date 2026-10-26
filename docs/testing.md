@@ -11,6 +11,7 @@ From the repository root, with the virtual environment active (or use
 
 ```bash
 make test                 # full suite; synthetic fixtures, no datasets needed
+make coverage             # same suite + line/branch coverage report
 make lint                 # ruff check + ruff format --check
 make security             # dependency audit + static security scan
 make check                # lint + test (run before pushing)
@@ -19,6 +20,8 @@ python -m pytest -q
 python -m pytest tests/test_data_loader.py -q          # one file
 python -m pytest tests/test_api_health.py::test_health_returns_ok -q
 python -m pytest -k "loader or preprocess" -q          # name/keyword filter
+python -m pytest --cov=src --cov=api --cov=dashboard --cov=scripts \
+  --cov-report=term-missing
 ```
 
 The default suite does not download MNIST or read the raw EMBER/CICIDS
@@ -30,18 +33,24 @@ datasets. Two optional real-data checks are skipped unless
 | File | Covers |
 |---|---|
 | `tests/data_fixtures.py` | Synthetic EMBER JSONL and CICIDS CSV builders (not a test module) |
-| `tests/test_config.py` | `ensure_dirs()` creates the runtime directories |
-| `tests/test_seed.py` | `set_seed()` determinism and seed changes |
+| `tests/test_config.py` | `ensure_dirs()` creates every runtime directory idempotently |
+| `tests/test_data_resolution.py` | Dataset resolution precedence: CLI > env > repo-local > `~/Documents` |
+| `tests/test_seed.py` | `set_seed()` determinism for stdlib, numpy, torch, and `PYTHONHASHSEED` |
+| `tests/test_preprocessing.py` | Scaler statistics, standardisation, stratified/time splits, hashing, atomic writes, manifest verification |
 | `tests/test_api_health.py` | `health()` return value and `/health` route registration (no HTTP client needed) |
-| `tests/test_api_security.py` | Security headers, Host validation, HSTS, and the docs switch (`httpx2` TestClient) |
-| `tests/test_dashboard_security.py` | `API_URL` scheme/credential validation and bounded JSON health responses |
-| `tests/test_manifest_security.py` | Manifest path containment, absolute-path/`..` rejection, and symlink escapes |
-| `tests/test_security_config.py` | Torch index scoping, Docker/CI pins, loopback ports, capability drops, and CI security job |
+| `tests/test_api_security.py` | Security headers on success/error responses, Host validation, HSTS, docs switch, env flags |
+| `tests/test_dashboard_security.py` | `API_URL` scheme/credential validation, IPv6 handling, same-origin redirects, bounded JSON responses |
+| `tests/test_dashboard_app.py` | Streamlit placeholder behavior with a fake `st` module (invalid URL, button click, safe errors) |
+| `tests/test_manifest_security.py` | Manifest path containment, NUL/absolute/`..` rejection, symlink escapes, malformed records |
+| `tests/test_security_config.py` | Torch index scoping, Docker/CI pins, loopback ports, capability drops, coverage gate |
 | `tests/test_art_quickstart_smoke.py` | Synthetic end-to-end ART demo, including JSON/figure outputs under `tmp_path` |
-| `tests/test_data_ember.py` | EMBER vectorizer layout/normalisation, time split, dedup, manifest, subset guard, tamper detection |
-| `tests/test_data_cicids.py` | Label canonicalisation, duplicate column handling, cleaning/dedup, stratified split, scaler, manifest, subset guard |
-| `tests/test_preprocess_cli.py` | `scripts/preprocess.py` subset/verify/force flows for both datasets |
-| `tests/test_data_loader.py` | Loader API, standardisation, target/split validation, missing-artifact errors |
+| `tests/test_art_metrics.py` | Attack metric contract (accuracy/ASR/L2/Linf) and deterministic synthetic MNIST loader |
+| `tests/test_models.py` | BaselineMLP/SmallCNN output-shape contracts |
+| `tests/test_data_ember.py` | EMBER parsing/validation, vectorizer layout, time split, dedup, manifest, subset guard, tamper detection, parallel vectorisation |
+| `tests/test_data_cicids.py` | Label canonicalisation, duplicate column handling, cleaning/dedup, drop-threshold guard, stratified split, scaler, manifest, subset guard |
+| `tests/test_preprocess_cli.py` | `scripts/preprocess.py` subset/verify/force/`--dataset all` flows, manifest publishing, `--no-scale` |
+| `tests/test_eda_cli.py` | EDA CLI end-to-end JSON/report/figure generation, sampling, and argument validation |
+| `tests/test_data_loader.py` | Loader API, standardisation, shape/scaler validation, missing-artifact errors |
 | `tests/test_data_real_optional.py` | Local dataset availability only; skipped by default |
 | `tests/test_docs_links.py` | Relative Markdown links in the root docs and component READMEs resolve |
 
@@ -100,9 +109,10 @@ python scripts/preprocess.py --dataset all --verify-only
 ## CI and expected results
 
 [`../.github/workflows/ci.yml`](../.github/workflows/ci.yml) runs `make lint`,
-`make test`, and `make security` on Python 3.11, plus `docker build` and a
+`make coverage`, and `make security` on Python 3.11, plus `docker build` and a
 Trivy scan (`make docker-scan`). The local equivalents are `make check`,
-`make security`, `make docker-build`, and `make docker-scan`.
+`make coverage`, `make security`, `make docker-build`, and `make docker-scan`.
+Coverage is reported as a diagnostic; there is no arbitrary global threshold.
 
 A healthy default run passes with the two real-data checks skipped. Warnings
 from third-party packages (for example matplotlib/pyparsing deprecations) are

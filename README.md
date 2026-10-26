@@ -51,6 +51,7 @@ and the MNIST demo need internet access.
 make setup     # .venv, pinned dependencies, pre-commit hooks
 make lint      # ruff check + format check (same as CI)
 make test      # pytest, synthetic fixtures only
+make coverage  # pytest with line/branch coverage
 make security  # dependency + static security checks
 ```
 
@@ -78,6 +79,7 @@ python -m pytest
 | `make docker-build` / `make docker-up` | Build the image / start the compose stack (`cp .env.example .env` first) |
 | `make docker-scan` | Scan the built image for fixed HIGH/CRITICAL vulnerabilities |
 | `make format` | Rewrite files with `ruff format` |
+| `make coverage` | Full test suite with line/branch coverage (CI uses this) |
 | `make security` | Dependency audit (`pip-audit`) + static security scan (`bandit`) |
 | `make check` | `make lint` + `make test` |
 | `make clean` | Remove caches and `mlruns/` (committed demo/EDA artifacts stay) |

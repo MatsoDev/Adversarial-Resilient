@@ -123,7 +123,7 @@ a non-root user, and pins its base image and pip version.
 and pull request:
 
 - `lint-test` — Python 3.11, `make lint` (ruff check + format check), then
-  `make test`.
+  `make coverage` (the full suite with line/branch coverage).
 - `security` — `make security` (pip-audit + Bandit).
 - `docker` — `docker build` plus a pinned Trivy scan of fixed
   HIGH/CRITICAL findings (no push).
