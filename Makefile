@@ -1,4 +1,4 @@
-.PHONY: setup lint format format-check test security check demo data data-smoke eda docker-build docker-scan docker-up clean
+.PHONY: setup lint format format-check test coverage security check demo data data-smoke eda docker-build docker-scan docker-up clean
 
 PY ?= python
 VENV ?= .venv
@@ -33,6 +33,11 @@ format-check:
 
 test:
 	$(PYTHON) -m pytest
+
+# Same suite as `make test`, plus line/branch coverage (CI uses this).
+coverage:
+	$(PYTHON) -m pytest --cov=src --cov=api --cov=dashboard --cov=scripts \
+		--cov-report=term-missing
 
 # Dependency and static security checks (also run in CI).
 security:

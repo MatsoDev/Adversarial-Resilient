@@ -58,3 +58,16 @@ def test_ci_actions_are_sha_pinned_and_security_job_runs():
     assert "make docker-scan" in text
     workflow = yaml.safe_load(text)
     assert "security" in workflow["jobs"]
+
+
+def test_ci_runs_the_coverage_target_and_pytest_cov_is_pinned():
+    makefile = (ROOT / "Makefile").read_text(encoding="utf-8")
+    assert re.search(r"^coverage:", makefile, re.MULTILINE)
+    assert "--cov=src" in makefile
+    assert "--cov=api" in makefile
+
+    ci = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
+    assert "make coverage" in ci
+
+    dev = (ROOT / "requirements-dev.txt").read_text(encoding="utf-8")
+    assert re.search(r"^pytest-cov==\S+$", dev, re.MULTILINE)
