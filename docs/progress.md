@@ -76,10 +76,15 @@ known issues, skipped items).
 - [x] Full three-service Compose smoke test on loopback (API/dashboard/MLflow
   health endpoints 200). Browser/MLflow artifact workflows and sustained load
   remain unverified; the official MLflow container runs as root.
+- [x] Dashboard entrypoint fix (2026-10-26): documented commands now use
+  `python -m streamlit run ...`; a real-CLI regression test loads the script,
+  and the Compose probe uses `/_stcore/script-health-check` instead of the
+  runtime-only health endpoint. Rebuilt api/dashboard containers reach
+  `healthy`, and the script probe returns `ok`.
 
 ## Cross-cutting — Test hardening (2026-10-26)
 
-- [x] Suite expanded from 105 to 257 collected tests (**255 passed, 2 opt-in
+- [x] Suite expanded from 105 to 260 collected tests (**258 passed, 2 opt-in
   real-data checks skipped**), adding direct coverage for preprocessing/splits,
   atomic writes and manifest verification, dataset resolution, the EDA CLI,
   ART metrics, model shapes, the dashboard placeholder, and API/dashboard error

@@ -49,7 +49,7 @@ The audit found and fixed:
   malformed IPv6 targets), manifest containment, and static Docker/CI
   invariants.
 
-Verification: `make lint` passes; `make coverage` passes with **255 passed, 2
+Verification: `make lint` passes; `make coverage` passes with **258 passed, 2
 skipped** (the skips are the opt-in real-data checks) and **91% line/branch
 coverage**; `make security` reports no known vulnerabilities and no
 medium/high Bandit findings; the Docker image
@@ -132,6 +132,16 @@ python3 -m pytest tests/test_api_security.py tests/test_dashboard_security.py \
   200. The temporary `.env` and generated `mlruns/` were deleted afterward.
   Browser UX, MLflow artifact/model workflows, and sustained load were not
   exercised.
+- The dashboard health probe used Streamlit's `/_stcore/health`, which reports
+  200 when the runtime is ready even if the app script cannot import. A
+  follow-up entrypoint check found that the documented
+  `streamlit run dashboard/app.py` command could not import the `dashboard`
+  package because the repository root was not on `sys.path`. Commands now use
+  `python -m streamlit run ...`, and Compose probes
+  `/_stcore/script-health-check`, which executes the script and fails on
+  import/run errors. A regression test launches the real CLI; a rebuilt
+  api/dashboard stack reported both containers healthy and the script probe
+  returned `ok`.
 - Real-dataset tests were not run (`RUN_REAL_DATA_TESTS` unset); two optional
   checks are skipped by design.
 - No DAST/fuzzing or external penetration test was performed. Container
@@ -533,7 +543,7 @@ underlying exception text.
 ### Passed
 
 - `make lint` — ruff check and format check pass.
-- `make coverage` — **255 passed, 2 skipped** (the two opt-in real-data
+- `make coverage` — **258 passed, 2 skipped** (the two opt-in real-data
   checks), **91% line/branch coverage**; `make test` also passes.
 - `make security` — `pip-audit -r requirements-dev.txt`: no known
   vulnerabilities; Bandit (`-ll`): no medium/high findings.
