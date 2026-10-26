@@ -13,6 +13,7 @@ import os
 from collections.abc import Awaitable, Callable
 
 from fastapi import FastAPI, Request, Response
+from fastapi.responses import JSONResponse
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 logging.basicConfig(level=logging.INFO)
@@ -79,6 +80,19 @@ def _add_security_headers(response: Response, *, docs_request: bool, https: bool
         )
 
 
+async def _unhandled_exception(request: Request, exc: Exception) -> Response:
+    """Return a generic 500 response that still carries the security headers.
+
+    Exception handlers run outside the normal HTTP middleware stack, so the
+    headers have to be applied here as well. Exception details are logged, not
+    returned to the client.
+    """
+    logger.exception("unhandled error while serving %s", request.url.path)
+    response = JSONResponse({"detail": "Internal server error"}, status_code=500)
+    _add_security_headers(response, docs_request=False, https=request.url.scheme == "https")
+    return response
+
+
 def create_app() -> FastAPI:
     """Build the API app from environment settings (factory is test-friendly)."""
     docs_enabled = _env_flag("API_DOCS_ENABLED", default=True)
@@ -105,6 +119,7 @@ def create_app() -> FastAPI:
         )
         return response
 
+    app.add_exception_handler(Exception, _unhandled_exception)
     return app
 
 
