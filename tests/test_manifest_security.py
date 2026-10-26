@@ -37,14 +37,24 @@ def test_nested_valid_artifact_is_accepted(tmp_path):
     assert verify_manifest_artifacts(_manifest("sub/data.bin", payload), root) == []
 
 
-@pytest.mark.parametrize("relative", ["../secret.txt", "../../etc/passwd", "/etc/passwd"])
-def test_manifest_rejects_paths_outside_root(tmp_path, relative):
+@pytest.mark.parametrize(
+    "relative",
+    ["../secret.txt", "../../etc/passwd", "/etc/passwd", "nul\x00name", ""],
+)
+def test_manifest_rejects_unsafe_paths(tmp_path, relative):
     root = tmp_path / "generated"
     root.mkdir()
     (tmp_path / "secret.txt").write_text("secret")
     errors = verify_manifest_artifacts(_manifest(relative, b"secret"), root)
     assert errors
-    assert "escapes the manifest root" in errors[0]
+    assert "escapes the manifest root" in errors[0] or "missing 'file'" in errors[0]
+
+
+def test_manifest_without_artifacts_is_rejected(tmp_path):
+    root = tmp_path / "generated"
+    root.mkdir()
+    assert verify_manifest_artifacts({}, root) == ["manifest has no artifacts"]
+    assert verify_manifest_artifacts({"artifacts": []}, root) == ["manifest has no artifacts"]
 
 
 def test_manifest_rejects_symlink_escape(tmp_path):

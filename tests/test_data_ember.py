@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import copy
 import json
 
 import numpy as np
@@ -9,13 +10,32 @@ import pandas as pd
 import pytest
 from src.data.ember import (
     FEATURE_DIM,
+    TEST_FILE_NAME,
+    TRAIN_FILE_NAMES,
     EmberVectorizer,
+    _check_ember_source_counts,
+    discover_ember_files,
     feature_names,
+    iter_ember_records,
     run_ember_preprocessing,
 )
 from src.data.preprocessing import time_based_split, verify_manifest_artifacts
 
 from tests.data_fixtures import ember_record, fake_sha, write_ember_source
+
+
+def _set_path(record, path, value):
+    target = record
+    for key in path[:-1]:
+        target = target[key]
+    target[path[-1]] = value
+
+
+def _delete_path(record, path):
+    target = record
+    for key in path[:-1]:
+        target = target[key]
+    del target[path[-1]]
 
 
 def test_ember_vectorizer_layout_and_normalization():
@@ -283,3 +303,259 @@ def test_time_split_keeps_duplicate_hashes_together():
     split, _ = time_based_split(frame, val_fraction=0.2, min_val_per_class=1)
     duplicate_positions = np.flatnonzero(frame["sha256"].to_numpy() == "dup")
     assert len(set(split[duplicate_positions])) == 1
+
+
+def test_discover_ember_files_requires_directory_train_files_and_test_file(tmp_path):
+    with pytest.raises(FileNotFoundError, match="source directory not found"):
+        discover_ember_files(tmp_path / "missing")
+
+    empty = tmp_path / "empty"
+    empty.mkdir()
+    with pytest.raises(FileNotFoundError, match="no train_features"):
+        discover_ember_files(empty)
+
+    no_test = tmp_path / "no-test"
+    no_test.mkdir()
+    (no_test / "train_features_0.jsonl").write_text("", encoding="utf-8")
+    with pytest.raises(FileNotFoundError, match=TEST_FILE_NAME):
+        discover_ember_files(no_test, strict=False)
+
+
+def test_discover_ember_files_strict_order_and_non_strict_sorting(tmp_path):
+    source = tmp_path / "source"
+    source.mkdir()
+    for name in reversed(TRAIN_FILE_NAMES):
+        (source / name).write_text("", encoding="utf-8")
+    (source / TEST_FILE_NAME).write_text("", encoding="utf-8")
+    files = discover_ember_files(source)
+    assert [path.name for path in files.train] == list(TRAIN_FILE_NAMES)
+    assert files.test.name == TEST_FILE_NAME
+
+    partial = tmp_path / "partial"
+    partial.mkdir()
+    (partial / "train_features_10.jsonl").write_text("", encoding="utf-8")
+    (partial / "train_features_2.jsonl").write_text("", encoding="utf-8")
+    (partial / TEST_FILE_NAME).write_text("", encoding="utf-8")
+    ordered = discover_ember_files(partial, strict=False)
+    assert [path.name for path in ordered.train] == [
+        "train_features_2.jsonl",
+        "train_features_10.jsonl",
+    ]
+    with pytest.raises(FileNotFoundError, match="expected EMBER train files"):
+        discover_ember_files(partial)
+
+
+def test_iter_ember_records_skips_blank_lines_and_returns_line_numbers(tmp_path):
+    record_a = ember_record("iter-a", 0, "2018-01")
+    record_b = ember_record("iter-b", 1, "2018-02")
+    path = tmp_path / "records.jsonl"
+    path.write_text(json.dumps(record_a) + "\n\n" + json.dumps(record_b) + "\n", encoding="utf-8")
+
+    records = list(iter_ember_records(path))
+    assert [line_number for line_number, _ in records] == [0, 2]
+    assert [record["sha256"] for _, record in records] == [
+        record_a["sha256"],
+        record_b["sha256"],
+    ]
+
+
+@pytest.mark.parametrize(
+    ("path", "value", "message"),
+    [
+        (("histogram",), [1] * 255, "histogram must have 256"),
+        (("byteentropy",), [1] * 255, "byteentropy must have 256"),
+        (("strings", "printabledist"), [1] * 95, "printabledist must have 96"),
+    ],
+)
+def test_ember_vectorizer_rejects_wrong_count_lengths(path, value, message):
+    record = ember_record("bad-length", 0, "2018-01")
+    _set_path(record, path, value)
+    with pytest.raises(ValueError, match=message):
+        EmberVectorizer().transform(record)
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        ("strings", "MZ"),
+        ("header", "coff", "machine"),
+        ("header", "optional", "magic"),
+        ("section", "entry"),
+        ("section", "sections"),
+    ],
+)
+def test_ember_vectorizer_rejects_missing_nested_fields(path):
+    record = ember_record("missing-field", 0, "2018-01")
+    _delete_path(record, path)
+    with pytest.raises(ValueError):
+        EmberVectorizer().transform(record)
+
+
+@pytest.mark.parametrize(
+    ("path", "value", "message"),
+    [
+        (("general",), [], "general must contain"),
+        (("header", "coff"), [], "header.coff/header.optional must be objects"),
+        (("section", "entry"), 5, "section.entry must be a string"),
+        (("section", "sections"), {}, "section.sections must be a list"),
+        (("imports",), [], "imports must be an object"),
+        (("exports",), {}, "exports must be a list"),
+        (("datadirectories",), {}, "datadirectories must be a list"),
+        (("appeared",), "2018-13", "invalid appeared"),
+        (("appeared",), "2018-1", "invalid appeared"),
+    ],
+)
+def test_ember_vectorizer_rejects_wrong_types_and_dates(path, value, message):
+    record = ember_record("bad-type", 0, "2018-01")
+    _set_path(record, path, value)
+    with pytest.raises(ValueError, match=message):
+        EmberVectorizer().transform(record)
+
+
+def test_ember_general_fields_must_keep_the_official_order():
+    record = ember_record("general-order", 0, "2018-01")
+    record["general"] = dict(reversed(list(record["general"].items())))
+    with pytest.raises(ValueError, match="official order"):
+        EmberVectorizer().transform(record)
+
+
+def test_ember_vectorizer_zero_histograms_normalize_to_zero_blocks():
+    record = ember_record(
+        "zero-histogram",
+        0,
+        "2018-01",
+        histogram=[0] * 256,
+        byteentropy=[0] * 256,
+    )
+    vector = EmberVectorizer().transform(record)
+    assert np.all(vector[0:256] == 0)
+    assert np.all(vector[256:512] == 0)
+
+
+def test_ember_vectorizer_keeps_only_the_first_fifteen_datadirectories():
+    directories = [{"size": index, "virtual_address": index * 10} for index in range(20)]
+    record = ember_record("datadirs", 0, "2018-01", datadirectories=directories)
+    vector = EmberVectorizer().transform(record)
+    expected = np.zeros(30, dtype=np.float32)
+    expected[0::2] = np.arange(15)
+    expected[1::2] = np.arange(15) * 10
+    np.testing.assert_array_equal(vector[2351:], expected)
+
+
+def test_ember_source_count_guard_reports_mismatches_and_force_overrides():
+    file_stats = [
+        {
+            "name": "train_features_0.jsonl",
+            "partition": "train",
+            "rows": 800_000,
+            "label_counts": {-1: 200_000, 0: 300_000, 1: 300_000},
+        },
+        {
+            "name": "test_features.jsonl",
+            "partition": "test",
+            "rows": 200_000,
+            "label_counts": {0: 100_000, 1: 100_000},
+        },
+    ]
+    assert _check_ember_source_counts(file_stats, force=False) is None
+
+    wrong = copy.deepcopy(file_stats)
+    wrong[0]["rows"] = 799_999
+    with pytest.raises(ValueError, match="train rows"):
+        _check_ember_source_counts(wrong, force=False)
+    assert _check_ember_source_counts(wrong, force=True) is None
+
+
+def test_ember_pipeline_rejects_source_files_with_wrong_hashes(tmp_path):
+    source = tmp_path / "source"
+    source.mkdir()
+    for name in TRAIN_FILE_NAMES:
+        (source / name).write_text("{}\n", encoding="utf-8")
+    (source / TEST_FILE_NAME).write_text("{}\n", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="sha256 mismatch"):
+        run_ember_preprocessing(source, tmp_path / "out", jobs=1, verify_source=True)
+
+
+def test_ember_pipeline_can_skip_scaler_artifacts(tmp_path):
+    source = _pipeline_source(tmp_path)
+    output = tmp_path / "no-scaler"
+    manifest = run_ember_preprocessing(
+        source, output, seed=3, jobs=1, verify_source=False, scaler=False
+    )
+    for name in ("scaler_mean.npy", "scaler_scale.npy", "scaler.json"):
+        assert not (output / name).exists(), name
+    for name in ("scaler_mean", "scaler_scale", "scaler"):
+        assert name not in manifest["artifacts"]
+    assert verify_manifest_artifacts(manifest, output) == []
+
+
+def test_ember_pipeline_parallel_vectorisation_matches_serial(tmp_path):
+    source = _pipeline_source(tmp_path)
+    serial_output = tmp_path / "serial"
+    parallel_output = tmp_path / "parallel"
+    serial = run_ember_preprocessing(
+        source, serial_output, seed=9, jobs=1, verify_source=False, scaler=False
+    )
+    parallel = run_ember_preprocessing(
+        source, parallel_output, seed=9, jobs=2, verify_source=False, scaler=False
+    )
+
+    for split in ("train", "val", "test"):
+        np.testing.assert_array_equal(
+            np.load(serial_output / f"{split}_X.npy"),
+            np.load(parallel_output / f"{split}_X.npy"),
+        )
+        np.testing.assert_array_equal(
+            np.load(serial_output / f"{split}_y.npy"),
+            np.load(parallel_output / f"{split}_y.npy"),
+        )
+    serial.pop("generated_at")
+    parallel.pop("generated_at")
+    assert json.dumps(serial, sort_keys=True) == json.dumps(parallel, sort_keys=True)
+
+
+def test_ember_pipeline_rejects_records_missing_required_keys(tmp_path):
+    bad = ember_record("missing-header", 0, "2018-01")
+    bad.pop("header")
+    source = write_ember_source(
+        tmp_path / "source",
+        train_files=[[bad]],
+        test_records=[ember_record("test", 0, "2018-06")],
+    )
+    with pytest.raises(ValueError, match="missing required keys"):
+        run_ember_preprocessing(source, tmp_path / "out", jobs=1, verify_source=False, scaler=False)
+
+
+def test_ember_pipeline_rejects_unexpected_labels(tmp_path):
+    source = write_ember_source(
+        tmp_path / "source",
+        train_files=[[ember_record("bad-label", 2, "2018-01")]],
+        test_records=[ember_record("test", 0, "2018-06")],
+    )
+    with pytest.raises(ValueError, match="unexpected EMBER labels"):
+        run_ember_preprocessing(source, tmp_path / "out", jobs=1, verify_source=False, scaler=False)
+
+
+def test_ember_pipeline_requires_at_least_one_labeled_training_row(tmp_path):
+    source = write_ember_source(
+        tmp_path / "source",
+        train_files=[[ember_record(f"unlabeled-{index}", -1, "2018-01") for index in range(3)]],
+        test_records=[ember_record("test", 0, "2018-06")],
+    )
+    with pytest.raises(RuntimeError, match="no labeled EMBER training rows"):
+        run_ember_preprocessing(source, tmp_path / "out", jobs=1, verify_source=False, scaler=False)
+
+
+def test_ember_subset_must_cover_every_class(tmp_path):
+    source = _pipeline_source(tmp_path)
+    with pytest.raises(ValueError, match="at least the number of classes"):
+        run_ember_preprocessing(
+            source,
+            tmp_path / "tiny",
+            seed=1,
+            max_samples=1,
+            jobs=1,
+            verify_source=False,
+            scaler=False,
+        )
