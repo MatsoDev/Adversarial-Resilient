@@ -40,6 +40,9 @@ data/**/*.parquet
 *.h5
 models/*.pt
 models/*.pth
+models/baselines/
+results/baselines/
+*.joblib
 !models/.gitkeep
 
 # MLflow

@@ -1,8 +1,7 @@
 # api/ — FastAPI service
 
-Minimal HTTP service for the project. **Current scope is a placeholder:** it
-exposes liveness/message endpoints only. Model prediction, attack, and defense
-endpoints are planned for Semester 2 and are not implemented.
+Minimal HTTP service for the project. Sprint 3 adds read-only artifact endpoints
+for the dashboard; prediction, attack, and defense endpoints remain future work.
 
 ## Endpoints
 
@@ -10,6 +9,11 @@ endpoints are planned for Semester 2 and are not implemented.
 |---|---|---|---|
 | `GET` | `/health` | 200 | `{"status": "ok"}` |
 | `GET` | `/` | 200 | `{"message": "Adversarial-Resilient API placeholder (Sprint 1). See /health."}` |
+| `GET` | `/v1/datasets/{ember2018,cicids2017}` | 200/503 | Committed EDA + manifest summary; local arrays are not loaded |
+| `GET` | `/v1/runs` | 200 | Validated Sprint 3 baseline run summaries (empty until training) |
+| `GET` | `/v1/demo` | 200/503 | MNIST ART tooling evidence, explicitly not malware results |
+| `GET` | `/v1/reports/{id}` | 200/404 | Allowlisted report text |
+| `GET` | `/v1/figures/{id}` | 200/404 | Allowlisted bounded PNG artifact |
 
 FastAPI also serves its generated documentation:
 
@@ -17,9 +21,9 @@ FastAPI also serves its generated documentation:
 - `GET /redoc` — ReDoc
 - `GET /openapi.json` — OpenAPI schema
 
-There are no request bodies, query parameters, authentication requirements, or
-persistent state. Unknown paths return FastAPI's default `404`; unsupported
-methods on a known path return `405`.
+These Sprint 3 routes have no request bodies, query parameters, authentication
+requirements, or persistent state. Unknown paths return FastAPI's default
+`404`; unsupported methods on a known path return `405`.
 
 ### Security baseline
 

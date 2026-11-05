@@ -14,7 +14,10 @@ from collections.abc import Awaitable, Callable
 
 from fastapi import FastAPI, Request, Response
 from fastapi.responses import JSONResponse
+from src.evaluation.artifacts import ArtifactStore
 from starlette.middleware.trustedhost import TrustedHostMiddleware
+
+from api.artifacts import artifact_router
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -93,7 +96,7 @@ async def _unhandled_exception(request: Request, exc: Exception) -> Response:
     return response
 
 
-def create_app() -> FastAPI:
+def create_app(store: ArtifactStore | None = None) -> FastAPI:
     """Build the API app from environment settings (factory is test-friendly)."""
     docs_enabled = _env_flag("API_DOCS_ENABLED", default=True)
     app = FastAPI(
@@ -106,6 +109,7 @@ def create_app() -> FastAPI:
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=_allowed_hosts())
     app.add_api_route("/health", health, methods=["GET"], summary="Liveness probe")
     app.add_api_route("/", root, methods=["GET"], summary="Service message")
+    app.include_router(artifact_router(store or ArtifactStore()))
 
     @app.middleware("http")
     async def security_headers(

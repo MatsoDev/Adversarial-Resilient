@@ -1,8 +1,9 @@
 # dashboard/ — Streamlit UI
 
-Current page: a placeholder plus a button that calls the API `/health` and
-shows the JSON response (or an error message). Robustness charts, sample grids,
-and MLflow links are planned for Semester 2.
+Current page: a Sprint 3 read-only MVP with API health, dataset provenance,
+baseline-run status, and the separate MNIST tooling demo. It does not load raw
+datasets or model weights. Prediction, attacks, and defenses arrive in later
+sprints.
 
 Start the API in one terminal first:
 

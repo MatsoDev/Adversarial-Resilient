@@ -125,7 +125,7 @@ def _json_default(value: Any) -> Any:
     if isinstance(value, np.ndarray):
         return value.tolist()
     if isinstance(value, Path):
-        return str(value)
+        return value.as_posix()
     raise TypeError(f"Object of type {type(value).__name__} is not JSON serializable")
 
 
@@ -172,6 +172,11 @@ def open_atomic_memmap(
 
 def finalize_atomic_memmap(memmap: np.memmap, tmp: Path, final: Path) -> None:
     memmap.flush()
+    # ``del`` alone does not close the Windows mmap handle when another local
+    # reference exists (or while the temporary object is being finalized).
+    mmap_handle = getattr(memmap, "_mmap", None)
+    if mmap_handle is not None:
+        mmap_handle.close()
     del memmap
     os.replace(tmp, final)
 
