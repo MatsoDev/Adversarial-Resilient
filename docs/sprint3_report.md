@@ -125,6 +125,16 @@ Sprint 4. These scores must not be interpreted as calibrated file safety.
 | Real browser: Overview → Datasets → Models | Passed; screenshots reviewed on desktop/mobile |
 | Docker build, Compose runtime and Trivy | Not run: Docker unavailable locally |
 
+Follow-up GitHub CI on commit `0fd9f56`: lint/tests and Python security jobs
+passed, and the Docker image built. Trivy then found two HIGH Debian findings
+for apt/libapt-pkg7.0 3.0.3 (CVE-2026-109518), fixed in 3.0.4 per the
+[Debian tracker](https://security-tracker.debian.org/tracker/CVE-2026-109518).
+The follow-up Dockerfile upgrades those packages and requires apt >=3.0.4,
+with retries disabled during the update. The corrected image needs a new CI
+build/scan before the deployment gate can be cleared. No scanner exceptions
+or disabled checks were added. See the
+[initial CI run](https://github.com/MatsoDev/Adversarial-Resilient/actions/runs/42128865179).
+
 Commands:
 
 ```powershell
