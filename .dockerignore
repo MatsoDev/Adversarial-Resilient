@@ -26,6 +26,7 @@ notebooks/
 tests/
 *.html
 *.md
+!docs/**/*.md
 
 # Secrets
 .env
