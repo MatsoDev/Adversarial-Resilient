@@ -59,7 +59,9 @@ and how to get it running; this page is the map to everything else.
 | [`DECISIONS.md`](DECISIONS.md) | Log of non-obvious technical decisions, sprint by sprint |
 | [`sprint1_report.md`](sprint1_report.md) | Sprint 1 report: what was done, run, measured, not verified |
 | [`sprint2_report.md`](sprint2_report.md) | Sprint 2 report: data pipeline commands, counts, EDA, limitations |
-| [`sprint3.md`](sprint3.md) | Sprint 3 branch contents, teammate data setup, dashboard run, database test gate |
+| [`sprint3.md`](sprint3.md) | Sprint 3 branch contents, teammate data setup, dashboard run and review gate |
+| [`sprint3_contract.md`](sprint3_contract.md) | Versioned read-only API and planned feature prediction contract |
+| [`sprint3_report.md`](sprint3_report.md) | Real EMBER baseline metrics, verification evidence and Sprint 4 findings |
 | [`PR_sprint1.md`](PR_sprint1.md) | Snapshot of the Sprint 1 pull request description (historical) |
 
 ## Generated artifacts (do not edit by hand)

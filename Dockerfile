@@ -25,6 +25,7 @@ COPY --chown=appuser:appuser src/ src/
 COPY --chown=appuser:appuser api/ api/
 COPY --chown=appuser:appuser dashboard/ dashboard/
 COPY --chown=appuser:appuser scripts/ scripts/
+COPY --chown=appuser:appuser docs/ docs/
 
 USER appuser
 

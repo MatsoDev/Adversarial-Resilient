@@ -1,13 +1,12 @@
 # Sprint 3 — Baselines and Dashboard MVP
 
 **Branch:** [`sprint3/baselines-dashboard`](https://github.com/MatsoDev/Adversarial-Resilient/tree/sprint3/baselines-dashboard)  
-**Status:** In progress. **Database integration and full real-data verification are pending; do not merge until the team tests against the agreed database and records the result.**
+**Status:** Implemented and validated with real EMBER development runs. Full automated checks and browser checks are recorded in [sprint3_report.md](sprint3_report.md). Branch remains unmerged for team review.
 
 This sprint adds the first tabular malware baselines and a read-only dashboard
 for dataset provenance and experiment evidence. The dashboard can read the
-committed Sprint 1/2 reports without downloading datasets. Training and
-database-backed integration require local data/database setup as described
-below.
+committed Sprint 1/2 reports without downloading datasets. Training requires
+local dataset setup as described below.
 
 ## Included in this branch
 
@@ -41,15 +40,15 @@ filename and gives its SHA-256 as
 `b6052eb8d350a49a8d5a5396fbe7d16cf42848b86ff969b77464434cf2997812`
 ([upstream download table](https://github.com/elastic/ember#download)).
 
-**Download availability issue (checked 2026-11-05):** the legacy URL
-<https://ember.elastic.co/ember_dataset_2018_2.tar.bz2> currently returns a
-Google Cloud Storage `AccessDenied` response in the browser. The upstream
-repository still documents the archive and checksum, but its README points to
-that same legacy host; we have not verified a working official mirror. Ask the
-team to obtain the exact upstream archive through an institution-approved
-mirror or a working upstream link, and verify the SHA-256 below before using
-it. Do not treat a similarly named dataset as equivalent without confirming
-feature version, schema, source provenance and license with the team.
+Use the **direct archive link**:
+<https://ember.elastic.co/ember_dataset_2018_2.tar.bz2>.
+On 2026-11-06 it returned HTTP 200 with 1,696,539,273 bytes. The bucket root
+`https://ember.elastic.co/` may return `AccessDenied` because listing the bucket
+is restricted; that is different from downloading a named object. The earlier
+note incorrectly attributed that listing error to the archive URL. The team's
+downloaded archive now matches the official checksum. If a future archive
+request fails, use the upstream download table and verify any alternative copy
+before extraction. No alternate mirror has been verified by this project.
 
 The upstream archive is approximately **1.70 GB**; the original extracted
 JSONL files in the Sprint 2 full-run manifest total approximately **9.95 GB**;
@@ -91,7 +90,7 @@ implements/tests an explicit conversion path.
 Run the default development comparison:
 
 ```powershell
-python scripts\train_baselines.py --dataset ember2018 --max-train 10000 --max-val 5000
+python scripts\train_baselines.py --dataset ember2018 --max-train 10000 --max-val 90000
 ```
 
 This writes checkpoints to ignored `models/baselines/`, summaries to ignored
@@ -137,31 +136,34 @@ local manifest/array verification state and baseline run list remain
 refresh `/v1/runs` or restart/reload the dashboard session to see the new
 validation metrics.
 
-## Database testing and merge gate
+## Dataset verification and merge gate
 
-**Pending: connect Sprint 3 to the team's intended database and test the full
-read/write flow before merging.** The current baseline summaries are local JSON
-files; `/v1/*` artifact endpoints are read-only and this branch does not yet
-provide a persistent database integration. The team should agree which
-database/service is the target, configure it locally (keep credentials in an
-untracked `.env`), then verify persistence, restart behavior, API/dashboard
-agreement and failure behavior when the database is unavailable. Record the
-database engine/version, setup steps, test commands and observed results here
-or in a linked sprint report. Do not mark Sprint 3 complete or merge until this
-gate is met.
+EMBER is a feature dataset, not an application database. Sprint 3 reads dataset
+and experiment artifacts from files through HTTP; a separate database is not
+required for training or this dashboard. The earlier wording incorrectly made
+database integration a Sprint 3 prerequisite. Persistent prediction history and
+audit storage belong to the later upload/history work in the revised plan.
+
+Before reviewing this sprint for merge, record archive integrity, preprocessing
+verification, measured training/validation counts, baseline metrics, automated
+tests and dashboard checks. The branch stays unmerged for team review.
 
 ## Current verification and remaining work
 
-- Ruff lint and format checks passed on the implementation branch.
-- The synthetic/unit suite passed: **258 passed, 2 optional real-data tests
-  skipped**.
-- API artifact routes returned the expected committed dataset, report, figure,
-  demo and empty-run responses locally.
-- Real EMBER baseline training was attempted and correctly stopped because
-  `data/processed/ember2018/manifest.json` is absent on that machine. No
-  dataset was downloaded.
-- Database integration/acceptance testing is still pending, as are real-data
-  baseline measurements and Sprint 4 test-set evaluation.
+- Official archive checksum matches; all seven JSONL files were extracted and
+  the full preprocessing run verified 14 output artifacts.
+- All four baselines ran on 10,000 training rows and all 90,000 validation rows
+  with MLflow tracking. Counts, metrics, warnings and run IDs are recorded in
+  [sprint3_report.md](sprint3_report.md).
+- Automated suite: **271 passed, 3 real-data opt-in skips**, **91% coverage**;
+  explicit real EMBER checks: **2 passed**. API and Streamlit browser checks
+  passed. Static security checks and dependency audit passed.
+- Model performance still needs Sprint 4 tuning. LinearSVC reached its
+  iteration limit, and MLP validation loss is high; these limitations are shown
+  in the results/report. No model is frozen or production-ready.
+- Docker build/Compose/Trivy could not run because Docker is absent on this
+  machine. Container configuration was checked by the automated suite.
+- CICIDS real-data training remains optional and was not run here.
 
 Keep data, database credentials, model weights, result artifacts and MLflow
 runs out of version control. For directory/command details, see

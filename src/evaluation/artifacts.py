@@ -6,6 +6,9 @@ import base64
 import hashlib
 import json
 from pathlib import Path
+from typing import Literal
+
+from pydantic import BaseModel, ConfigDict, Field, FiniteFloat
 
 from src.config import DOCS_DIR
 
@@ -33,6 +36,39 @@ FIGURES = (
     "data_cicids_per_file",
 )
 LIMIT = 2 * 1024 * 1024
+
+
+class Metrics(BaseModel):
+    model_config = ConfigDict(extra="allow")
+    accuracy: FiniteFloat = Field(ge=0, le=1)
+    precision: FiniteFloat = Field(ge=0, le=1)
+    recall: FiniteFloat = Field(ge=0, le=1)
+    f1: FiniteFloat = Field(ge=0, le=1)
+    roc_auc: FiniteFloat | None = Field(ge=0, le=1)
+    false_positive_rate: FiniteFloat | None = Field(ge=0, le=1)
+    confusion_matrix: list[list[int]] = Field(min_length=2, max_length=2)
+
+
+class RunSummary(BaseModel):
+    model_config = ConfigDict(extra="allow")
+    run_id: str
+    batch_id: str
+    dataset: Literal["ember2018", "cicids2017"]
+    model: Literal["logistic_regression", "random_forest", "linear_svm", "mlp"]
+    model_version: str
+    manifest_sha256: str
+    train_indices_sha256: str
+    val_indices_sha256: str
+    evaluation_split: Literal["val"]
+    test_evaluated: Literal[False]
+    subset: bool
+    train_rows: int = Field(gt=0)
+    val_rows: int = Field(gt=0)
+    config: dict
+    generated_at: str
+    metrics: Metrics
+    history: list[dict]
+    convergence_warnings: list[str]
 
 
 class ArtifactUnavailable(ValueError):
@@ -110,14 +146,23 @@ class ArtifactStore:
                 if report["schema_version"] != 1 or not isinstance(batch, list) or len(batch) > 4:
                     raise ValueError("Invalid batch")
                 for run in batch:
-                    if (
-                        run["dataset"] not in DATASETS
-                        or run["evaluation_split"] != "val"
-                        or run["test_evaluated"] is not False
-                        or not isinstance(run["metrics"], dict)
-                        or not isinstance(run["run_id"], str)
-                    ):
-                        raise ValueError("Invalid run")
+                    RunSummary.model_validate(run)
+                    if run["batch_id"] != report["batch_id"] or "seed" not in run["config"]:
+                        raise ValueError("Invalid batch identity/config")
+                    matrix = run["metrics"]["confusion_matrix"]
+                    if any(len(row) != 2 or any(value < 0 for value in row) for row in matrix):
+                        raise ValueError("Invalid confusion matrix")
+                identities = {
+                    (
+                        r["dataset"],
+                        r["manifest_sha256"],
+                        r["train_indices_sha256"],
+                        r["val_indices_sha256"],
+                    )
+                    for r in batch
+                }
+                if len(identities) > 1 or len({r["model"] for r in batch}) != len(batch):
+                    raise ValueError("Incompatible comparison batch")
                 runs.extend(batch)
             except (ArtifactUnavailable, KeyError, TypeError, ValueError):
                 unavailable += 1

@@ -114,6 +114,7 @@ def load_ember(
     split: str = "train",
     root: str | Path = EMBER_PROCESSED_DIR,
     standardize: bool = False,
+    mmap_mode: str | None = None,
 ) -> ProcessedDataset:
     """Load one processed EMBER split (X float32, y int8 0/1).
 
@@ -144,6 +145,7 @@ def load_ember(
     X = np.load(
         _require(root / f"{split}_X.npy", dataset=dataset, artifact=f"{split}_X.npy", root=root),
         allow_pickle=False,
+        mmap_mode=mmap_mode,
     )
     y = np.load(
         _require(root / f"{split}_y.npy", dataset=dataset, artifact=f"{split}_y.npy", root=root),
@@ -183,6 +185,7 @@ def load_cicids2017(
     target: str = "binary",
     root: str | Path = CICIDS_PROCESSED_DIR,
     standardize: bool = False,
+    mmap_mode: str | None = None,
 ) -> ProcessedDataset:
     """Load one processed CIC-IDS-2017 split.
 
@@ -221,6 +224,7 @@ def load_cicids2017(
     X = np.load(
         _require(root / f"{split}_X.npy", dataset=dataset, artifact=f"{split}_X.npy", root=root),
         allow_pickle=False,
+        mmap_mode=mmap_mode,
     )
     y = np.load(
         _require(root / y_name, dataset=dataset, artifact=y_name, root=root),

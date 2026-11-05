@@ -18,6 +18,8 @@ pip-wheel-metadata/
 .env.local
 
 # Data & models (never commit datasets or weights)
+ember_dataset_*.tar.bz2
+Plan ( Dont Push)/
 data/raw/*
 !data/raw/.gitkeep
 data/processed/*
@@ -42,6 +44,7 @@ models/*.pt
 models/*.pth
 models/baselines/
 results/baselines/
+docs/results/baselines/
 *.joblib
 !models/.gitkeep
 

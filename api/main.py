@@ -1,7 +1,7 @@
-"""Minimal FastAPI service. Sprint 1: /health only.
+"""FastAPI liveness and read-only Sprint 3 research artifact service.
 
-Semester 2 adds the real /predict, /attack, and /defend endpoints. This module
-also establishes the HTTP security baseline those endpoints must inherit:
+Later sprints add real /predict, /attack, and /defend endpoints. This module
+establishes the HTTP security baseline those endpoints must inherit:
 validated Host headers, no-store/cache-free JSON responses, and standard
 browser security headers.
 """

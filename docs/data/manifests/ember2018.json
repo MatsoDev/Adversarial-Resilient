@@ -98,7 +98,7 @@
       "size_bytes": 90128
     }
   },
-  "code_revision": "3be770e955d7034b606f0df0a368d1314e07b7b3",
+  "code_revision": "4098512aaa0737e1a33ec3713804e911ecbe7002",
   "dataset": "ember2018",
   "dataset_version": "EMBER2018 feature version 2 (2381 dimensions)",
   "duplicates": {
@@ -107,7 +107,7 @@
     "duplicate_sha256_rows_in_supervised_train": 0,
     "removed_train_or_val_rows_duplicating_test": 0
   },
-  "generated_at": "2026-10-25T19:39:43+00:00",
+  "generated_at": "2026-11-05T23:06:44+00:00",
   "notes": [
     "label=-1 rows are counted but excluded from supervised train/val and arrays",
     "processed arrays are gitignored; only this manifest is committed",

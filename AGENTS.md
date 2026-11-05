@@ -2,10 +2,12 @@
 
 Adversarial-Resilient Security Models: ML malware/network detectors attacked
 with adversarial examples (FGSM/PGD/CW) and hardened with defenses. Current
-state (Sprint 2 complete): pinned CPU environment, ART demo on MNIST, FastAPI
-`/health`, Streamlit placeholder, Docker stack, CI, plus cleaned/versioned
-EMBER2018 + CIC-IDS-2017 datasets, reusable loaders, EDA, and manifests.
-Baselines, attacks, and defenses land in later sprints.
+state (Sprint 3 implemented; unmerged for review): pinned CPU environment,
+ART demo on MNIST, read-only FastAPI artifact routes, readable Streamlit
+research dashboard, classical/MLP training and measured EMBER validation runs.
+Sprint 2 supplies cleaned/versioned datasets, loaders, EDA and manifests.
+See docs/sprint3_report.md for metrics and limitations. Tuning/freezing,
+prediction, attacks and defenses remain later-sprint work.
 
 ## Read first
 

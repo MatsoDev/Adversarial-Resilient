@@ -1,5 +1,24 @@
 # Decisions log
 
+## Sprint 3 — Dashboard and baseline validation (2026-11-06)
+
+- The team approved dashboard development from Sprint 3 onward. Reuse
+  Streamlit and FastAPI over HTTP; show measured validation results, provenance
+  and clear empty/error states. Application history/audit storage remains
+  later-sprint work. EMBER is a dataset, not a database service; earlier Sprint
+  3 documentation incorrectly made database integration a prerequisite.
+- The initial comparison uses 10,000 selected training rows and all 90,000
+  validation rows, seed 42. All four models share selected-row/manifest hashes.
+  Test predictions and baseline freezing remain Sprint 4 work.
+- Memory-map large arrays before sampling, and fit scaling on selected train
+  rows only. Reject corrupted inputs and invalid/incompatible comparison
+  batches before showing results.
+- The local torch installation was upgraded from 2.4.1+cpu to the existing
+  repository pin 2.14.1+cpu before the user clarified that no download was
+  needed. No dependency pins changed. This Windows/Python 3.12 environment
+  needs early torch initialization during test collection to avoid native DLL
+  initialization failure; `tests/conftest.py` does that on Windows only.
+
 Entries record choices that are not obvious from the code, grouped by sprint
 and date. Sprint reports and manifests remain the evidence for what was run;
 this log explains why.

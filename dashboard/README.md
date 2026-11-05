@@ -1,9 +1,17 @@
 # dashboard/ — Streamlit UI
 
-Current page: a Sprint 3 read-only MVP with API health, dataset provenance,
-baseline-run status, and the separate MNIST tooling demo. It does not load raw
-datasets or model weights. Prediction, attacks, and defenses arrive in later
-sprints.
+Sprint 3 provides a sidebar with Overview, Datasets, Models, MNIST demo and
+Methodology pages. Dataset cards include class charts, split counts, feature
+statistics and source provenance. Models compares one compatible experiment
+batch at a time with validation metrics, confusion matrices and MLP learning
+curves. Refresh results re-fetches the API without restarting the services.
+
+All displayed values come from HTTP artifact routes. Baseline results are read
+from `docs/results/baselines/` (local runtime outputs, ignored by Git); no
+raw arrays or weights are loaded by the dashboard. An empty results directory
+shows a clear training instruction. Missing/invalid artifacts and an offline
+API produce retryable errors. MNIST figures are explicitly separated from
+malware results. See the [contract](../docs/sprint3_contract.md) for details.
 
 Start the API in one terminal first:
 

@@ -33,7 +33,7 @@ repository; if you symlink them under `data/raw/`, they remain ignored.
 The pipeline expects the official releases, not a re-cleaned Kaggle copy:
 
 - **EMBER2018 v2** — obtain the feature release from
-  <https://ember.elastic.co/> and keep `train_features_0.jsonl` …
+  <https://ember.elastic.co/ember_dataset_2018_2.tar.bz2> and keep `train_features_0.jsonl` …
   `train_features_5.jsonl` and `test_features.jsonl` together. The optional
   pretrained model file is not used in Sprint 2. See the
   [EMBER data card](../data_cards/ember2018.md) for license and composition.

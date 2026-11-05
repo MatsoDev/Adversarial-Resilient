@@ -8,6 +8,7 @@ from __future__ import annotations
 import copy
 import hashlib
 import json
+import logging
 import os
 import time
 import uuid
@@ -30,12 +31,18 @@ from torch.utils.data import DataLoader, TensorDataset
 
 from src.config import BASELINE_MODELS_DIR, BASELINE_RESULTS_DIR, MLRUNS_DIR, SEED
 from src.data import load_cicids2017, load_ember
-from src.data.preprocessing import sha256_file, verify_manifest_artifacts, write_json_atomic
+from src.data.preprocessing import (
+    code_revision,
+    sha256_file,
+    verify_manifest_artifacts,
+    write_json_atomic,
+)
 from src.evaluation.binary import binary_metrics, threshold_at_tpr
 from src.models.tabular import TabularMLP
 from src.utils.seed import set_seed
 
 MODEL_NAMES = ("logistic_regression", "random_forest", "linear_svm", "mlp")
+logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -120,6 +127,13 @@ def _fit_mlp(X, y, val_X, val_y, config):
             )
             val_loss = loss_fn(logits, torch.from_numpy(val_y.astype(np.float32))).item()
         history.append({"epoch": epoch + 1, "train_loss": total / count, "val_loss": val_loss})
+        logger.info(
+            "MLP epoch %s/%s: train_loss=%.5f val_loss=%.5f",
+            epoch + 1,
+            config.epochs,
+            total / count,
+            val_loss,
+        )
         if val_loss < best_loss:
             best_loss, best_epoch = val_loss, epoch + 1
             best_state = copy.deepcopy(model.state_dict())
@@ -161,7 +175,10 @@ def train_baselines(
     if failures:
         raise ValueError("Training artifact verification failed: " + "; ".join(failures))
     load = load_ember if config.dataset == "ember2018" else load_cicids2017
-    train, val = load("train", root=data_root), load("val", root=data_root)
+    train, val = (
+        load("train", root=data_root, mmap_mode="r"),
+        load("val", root=data_root, mmap_mode="r"),
+    )
     if train.feature_names != val.feature_names:
         raise ValueError("Feature schemas differ")
     for split in (train, val):
@@ -181,6 +198,7 @@ def train_baselines(
     write_json_atomic(destination / "feature_names.json", train.feature_names)
     records = []
     for name in models:
+        logger.info("Training %s: %s train / %s validation rows", name, len(X), len(val_X))
         set_seed(config.seed)
         torch.set_num_threads(config.threads)
         started = time.perf_counter()
@@ -238,6 +256,7 @@ def train_baselines(
             "evaluation_split": "val",
             "test_evaluated": False,
             "generated_at": datetime.now(UTC).isoformat(),
+            "code_revision": code_revision(),
             "config": asdict(config),
             "manifest_sha256": sha256_file(manifest_path),
             "manifest_generated_at": manifest.get("generated_at"),
@@ -278,6 +297,13 @@ def train_baselines(
                 record["mlflow_run_id"] = run.info.run_id
                 mlflow.log_dict(record, "result.json")
         records.append(record)
+        logger.info(
+            "%s validation accuracy=%.4f F1=%.4f AUC=%s",
+            name,
+            metrics["accuracy"],
+            metrics["f1"],
+            metrics["roc_auc"],
+        )
     report = {"schema_version": 1, "batch_id": batch_id, "runs": records}
     write_json_atomic(destination / "training.json", report)
     write_json_atomic(results_dir / f"{batch_id}.json", report)

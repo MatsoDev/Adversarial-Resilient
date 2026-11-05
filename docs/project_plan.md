@@ -1,5 +1,15 @@
 # Adversarial-Resilient Security Models — Full Project Plan
 
+> Approved UI revision (2026-11-04): start Streamlit dashboard delivery in
+> Sprint 3, adding readable data, baseline, demo and methodology views. Add
+> frozen-model feature prediction in Sprint 4; attack views in Sprint 5–6;
+> upload/history and persistence in Sprint 7; Phase 1 demo in Sprint 8; defense
+> comparisons in Sprint 9–12; final integration in Sprint 13; and deployment,
+> thesis/demo and handover in Sprint 14–16. Research milestone dates stay the
+> same. The original task descriptions below are the historical baseline;
+> current implementation and contracts are documented in
+> [sprint3.md](sprint3.md) and [sprint3_contract.md](sprint3_contract.md).
+
 > Canonical scope and schedule baseline for the project. This file changes
 > rarely and deliberately: keep edits reviewed and record significant scope
 > changes in [`DECISIONS.md`](DECISIONS.md). Day-to-day status is tracked in

@@ -4,7 +4,7 @@ Living status of the project against [`project_plan.md`](project_plan.md).
 Update this file as work lands (at least at each sprint boundary); keep it
 short. Evidence of record stays in the sprint reports, PRs, and MLflow runs.
 
-**Last updated:** 2026-11-05 · **Current sprint:** Sprint 3 in progress — baselines + Dashboard MVP
+**Last updated:** 2026-11-06 · **Current sprint:** Sprint 3 implemented and real-data validated; unmerged for review. Next: Sprint 4 tuning/freezing.
 
 ## Milestones
 
@@ -25,7 +25,7 @@ short. Evidence of record stays in the sprint reports, PRs, and MLflow runs.
 |--------|--------|-----------------------------------------|-------------|----------|
 | S1     | 1–2    | Foundations                             | Done        | [`sprint1_report.md`](sprint1_report.md), PR #1 |
 | S2     | 3–4    | Data (EMBER v2, CICIDS2017, EDA, preprocessing) | Done (required); optional datasets skipped | [`sprint2_report.md`](sprint2_report.md), [`data/manifests/`](data/manifests/) |
-| S3     | 5–6    | Classical baselines + first neural model + Dashboard MVP | In progress | [`feature_feasibility.md`](feature_feasibility.md), API `/v1/*`, `scripts/train_baselines.py` |
+| S3     | 5–6    | Classical baselines + first neural model + Dashboard MVP | Done (development subset); team review pending | [`sprint3_report.md`](sprint3_report.md) — real metrics, 271 tests passed, 91% coverage |
 | S4     | 7–8    | Tune and freeze the baseline (M1)       | Not started | — |
 | S5     | 9–10   | Attack implementation (FGSM/PGD/CW)     | Not started | — |
 | S6     | 11–12  | Realistic attacks + black-box           | Not started | — |
