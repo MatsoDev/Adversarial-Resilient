@@ -33,7 +33,7 @@ repository; if you symlink them under `data/raw/`, they remain ignored.
 The pipeline expects the official releases, not a re-cleaned Kaggle copy:
 
 - **EMBER2018 v2** — obtain the feature release from
-  <https://ember.elastic.co/> and keep `train_features_0.jsonl` …
+  <https://ember.elastic.co/ember_dataset_2018_2.tar.bz2> and keep `train_features_0.jsonl` …
   `train_features_5.jsonl` and `test_features.jsonl` together. The optional
   pretrained model file is not used in Sprint 2. See the
   [EMBER data card](../data_cards/ember2018.md) for license and composition.
@@ -167,6 +167,55 @@ CICIDS supports `target="binary"` or `target="multiclass"`; the returned
 and never download data. See
 [`../../src/data/README.md`](../../src/data/README.md) for the full loader API
 (`ProcessedDataset` fields, standardisation, and target options).
+
+## Sprint 3 baseline training (team instructions)
+
+After pulling the Sprint 3 branch, each teammate must obtain the official raw
+EMBER2018 feature release locally. It is not stored in Git or downloaded by the
+training command. The compressed archive is about **1.70 GB**; the extracted
+JSONL files total about **9.95 GB**, and the processed arrays use about **7.71
+GB**. Allow roughly **25 GB free** for archive, extraction, processing and
+model outputs. The checked-in manifests/EDA are compact reports; they do not
+include the arrays.
+
+1. Download the official EMBER2018 v2 feature archive from
+   <https://ember.elastic.co/>. Extract it outside the repository (or to
+   `data/raw/EMBER-Dataset/`) and confirm it contains `train_features_0.jsonl`
+   through `train_features_5.jsonl` and `test_features.jsonl`.
+2. In PowerShell, point the pipeline at the folder and preprocess:
+
+   ```powershell
+   $env:EMBER_DATA_DIR = 'D:\Datasets\EMBER-Dataset'
+   .\.venv\Scripts\python.exe scripts\preprocess.py --dataset ember --jobs 4
+   .\.venv\Scripts\python.exe scripts\preprocess.py --dataset ember --verify-only
+   ```
+
+   Replace the example path with your extracted folder. The full processed
+   arrays are local under `data/processed/ember2018/` and ignored by Git.
+3. Train the default CPU-friendly development comparison and log to local
+   MLflow:
+
+   ```powershell
+   .\.venv\Scripts\python.exe scripts\train_baselines.py --dataset ember2018 --max-train 10000 --max-val 5000
+   ```
+
+   Outputs go to ignored `models/baselines/`, `docs/results/baselines/`, and
+   `mlruns/`. They stay local. The development metrics use validation only;
+   Sprint 4 selects/tunes the baseline and evaluates the held-out test set.
+   `--models logistic_regression random_forest linear_svm mlp` selects models;
+   `--full` uses every training and validation row and can take substantially
+   longer on CPU.
+
+4. Start the API and dashboard in separate terminals to view the committed
+   dataset/EDA summaries and completed validation runs. Before local arrays are
+   present, the API explicitly reports local verification as `not_checked`;
+   the baseline training command fails clearly when a manifest/data artifact
+   is missing. The MNIST page is a separate tooling demo, not a malware result.
+
+The full CIC-IDS-2017 dataset is optional in Sprint 3. If the team elects to
+train it, obtain the original eight CSV files, set `CICIDS_DATA_DIR`, run its
+preprocessing command from this guide, then use `--dataset cicids2017`. Do not
+commit raw or processed data, weights, baseline result files, or MLflow runs.
 
 ## Committed data documentation
 

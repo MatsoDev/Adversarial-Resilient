@@ -10,6 +10,13 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
+# Debian trixie's apt 3.0.3 is affected by CVE-2026-109518. Disable retries
+# while obtaining the security update, then require the fixed package version.
+RUN apt-get -o Acquire::Retries=0 update \
+    && apt-get -o Acquire::Retries=0 install -y --no-install-recommends --only-upgrade apt libapt-pkg7.0 \
+    && dpkg --compare-versions "$(dpkg-query -W -f='${Version}' apt)" ge 3.0.4 \
+    && rm -rf /var/lib/apt/lists/*
+
 # The pinned runtime packages ship manylinux wheels; no compiler toolchain is
 # kept in the final image.
 COPY requirements.txt requirements-torch.txt ./
@@ -25,6 +32,7 @@ COPY --chown=appuser:appuser src/ src/
 COPY --chown=appuser:appuser api/ api/
 COPY --chown=appuser:appuser dashboard/ dashboard/
 COPY --chown=appuser:appuser scripts/ scripts/
+COPY --chown=appuser:appuser docs/ docs/
 
 USER appuser
 

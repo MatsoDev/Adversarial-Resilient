@@ -101,12 +101,29 @@ def fetch_health(
     max_bytes: int = MAX_RESPONSE_BYTES,
 ) -> dict[str, Any]:
     """Fetch and minimally validate the API health response."""
+    return fetch_json(api_url, "/health", timeout=timeout, max_bytes=max_bytes)
+
+
+def fetch_json(
+    api_url: str,
+    endpoint: str,
+    *,
+    timeout: float = DEFAULT_TIMEOUT_SECONDS,
+    max_bytes: int = 4 * 1024 * 1024,
+) -> dict[str, Any]:
+    """Bounded JSON request to a fixed API path; no caller-supplied absolute URLs."""
+    if (
+        not endpoint.startswith("/")
+        or any(c in endpoint for c in ("..", "?", "#", "\\", "%"))
+        or "//" in endpoint
+    ):
+        raise ValueError("Invalid endpoint")
     if timeout <= 0:
         raise ValueError("timeout must be positive")
     if max_bytes < 1:
         raise ValueError("max_bytes must be positive")
 
-    url = health_url(api_url)
+    url = f"{validate_api_url(api_url)}{endpoint}"
     request = urllib.request.Request(
         url,
         headers={

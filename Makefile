@@ -50,7 +50,7 @@ demo:
 	$(PYTHON) scripts/art_quickstart.py --fast
 
 dashboard:
-	$(PYTHON) -m streamlit run dashboard/app.py
+	$(PYTHON) -m uvicorn api.main:app --host 127.0.0.1 --port 8501
 
 data:
 	$(PYTHON) scripts/preprocess.py --dataset all

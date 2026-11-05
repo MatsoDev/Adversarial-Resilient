@@ -75,6 +75,13 @@ nested test packages.
 
 ## Optional real-data checks
 
+Sprint 3 also adds `tests/test_sprint3.py` (training, metrics, artifact contracts,
+MLflow and UI model views), real Streamlit AppTest navigation/error checks in
+`tests/test_dashboard_app.py`, and `tests/test_sprint3_real.py` for opt-in
+processed EMBER counts/schema/normalization. On Windows, `tests/conftest.py`
+initializes torch before collection to avoid native DLL import-order errors.
+The [Sprint 3 report](sprint3_report.md) records the complete executed results.
+
 These require the resolved EMBER and CIC-IDS-2017 directories (see
 [`configuration.md`](configuration.md)) and only check that the expected files
 exist:

@@ -1,8 +1,36 @@
-# dashboard/ — Streamlit UI
+# dashboard/ — HTML research dashboard
 
-Current page: a placeholder plus a button that calls the API `/health` and
-shows the JSON response (or an error message). Robustness charts, sample grids,
-and MLflow links are planned for Semester 2.
+## Current UI: HTML / CSS / JavaScript
+
+The primary dashboard is now `dashboard/web/index.html`, `styles.css` and
+`app.js`. It is served by FastAPI at **/dashboard/** and reads `/v1/*` on the
+same origin. Start `python -m uvicorn api.main:app --host 127.0.0.1 --port 8000`
+and open <http://localhost:8000/dashboard/>. `make dashboard` or the Compose
+dashboard service uses <http://localhost:8501/dashboard/>.
+
+No frontend build or third-party CDN is needed. CSS/JavaScript are local files;
+the UI has a separate restrictive self-only CSP, with JSON API headers retained.
+All model numbers come from recorded artifacts, with explicit validation/subset
+labels. Readable cards, grouped charts, dataset pages and model error matrices
+replace raw JSON as the primary presentation.
+
+The Streamlit implementation below is legacy reference only; it is no longer
+the default dashboard entry point.
+
+## Legacy Streamlit interface
+
+Sprint 3 provides a sidebar with Overview, Datasets, Models, MNIST demo and
+Methodology pages. Dataset cards include class charts, split counts, feature
+statistics and source provenance. Models compares one compatible experiment
+batch at a time with validation metrics, confusion matrices and MLP learning
+curves. Refresh results re-fetches the API without restarting the services.
+
+All displayed values come from HTTP artifact routes. Baseline results are read
+from `docs/results/baselines/` (local runtime outputs, ignored by Git); no
+raw arrays or weights are loaded by the dashboard. An empty results directory
+shows a clear training instruction. Missing/invalid artifacts and an offline
+API produce retryable errors. MNIST figures are explicitly separated from
+malware results. See the [contract](../docs/sprint3_contract.md) for details.
 
 Start the API in one terminal first:
 

@@ -20,11 +20,14 @@ data/
 models/
 mlruns/
 mlartifacts/
-docs/
+# The read-only dashboard consumes compact research artifacts.
+docs/results/baselines/
 notebooks/
 tests/
 *.html
+!dashboard/web/*.html
 *.md
+!docs/**/*.md
 
 # Secrets
 .env
@@ -34,3 +37,5 @@ tests/
 *.p12
 id_rsa*
 id_ed25519*
+Plan ( Dont Push)/
+ember_dataset_*.tar.bz2

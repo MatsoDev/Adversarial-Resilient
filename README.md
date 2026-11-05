@@ -1,5 +1,16 @@
 # Adversarial-Resilient Security Models
 
+**Team: after pulling main, run `python scripts/setup_environment.py` to sync
+the project environment.** Then start the HTML dashboard using the commands in
+[the team handoff](docs/team_handoff.md). A compact recorded results snapshot
+is included so a fresh checkout shows the same Sprint 3 comparison immediately;
+large datasets and trained models require separate local setup.
+
+The primary UI is now plain **HTML, CSS and JavaScript** served by FastAPI.
+Run `python -m uvicorn api.main:app --host 127.0.0.1 --port 8000` and open
+<http://localhost:8000/dashboard/>. No Streamlit process or frontend build is
+needed. See [dashboard/README.md](dashboard/README.md) for details.
+
 Machine-learning detectors for malware and network intrusion, attacked with
 adversarial examples (FGSM, PGD, Carlini-Wagner) and then hardened with
 adversarial training, distillation, ensembles, input sanitization, and
@@ -16,7 +27,8 @@ Works today:
   including accuracy-vs-epsilon plots, a JSON report, and local MLflow logging.
 - Test suite (`pytest`) and lint/format checks (`ruff`).
 - FastAPI service with `GET /health` returning `{"status": "ok"}`.
-- Streamlit dashboard page (early placeholder that can ping the API).
+- Streamlit research dashboard with Overview, Datasets, Models, MNIST demo and
+  Methodology pages; baseline comparisons use measured validation artifacts.
 - `Dockerfile` and `docker-compose.yml` for api, dashboard, and mlflow services
   (the image is built in CI; Compose publishes ports on localhost by default and
   runs the API/dashboard with dropped capabilities).
@@ -28,8 +40,11 @@ Works today:
   loopback-only Compose defaults, and CI dependency/static checks. Evidence
   and residual risks are in [`docs/security/SECURITY_AUDIT.md`](docs/security/SECURITY_AUDIT.md).
 
-Next: baseline detectors, FGSM/PGD/CW attacks on the real datasets, defenses,
-and the full dashboard. Sprint-by-sprint status is tracked in
+Sprint 3 adds Logistic Regression, Random Forest, Linear SVM and PyTorch MLP
+training with reproducible validation reports and MLflow tracking. Follow
+[`docs/sprint3.md`](docs/sprint3.md) for local data setup and commands.
+Next: tune/freeze the baseline in Sprint 4, then FGSM/PGD/CW attacks and defenses.
+Sprint-by-sprint status is tracked in
 [`docs/progress.md`](docs/progress.md); scope and schedule are in
 [`docs/project_plan.md`](docs/project_plan.md).
 

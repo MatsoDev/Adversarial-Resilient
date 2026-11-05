@@ -1,0 +1,447 @@
+{
+  "batch_id": "20261105T231122Z-c6c9c704",
+  "runs": [
+    {
+      "batch_id": "20261105T231122Z-c6c9c704",
+      "best_epoch": null,
+      "code_revision": "4098512aaa0737e1a33ec3713804e911ecbe7002",
+      "config": {
+        "batch_size": 256,
+        "dataset": "ember2018",
+        "dropout": 0.2,
+        "epochs": 10,
+        "hidden": [
+          1024,
+          512,
+          128
+        ],
+        "learning_rate": 0.001,
+        "max_iter": 1000,
+        "max_train": 10000,
+        "max_val": 90000,
+        "seed": 42,
+        "threads": 2,
+        "trees": 100
+      },
+      "convergence_warnings": [],
+      "dataset": "ember2018",
+      "evaluation_split": "val",
+      "feature_count": 2381,
+      "feature_schema_sha256": "2776432ba73c53078886c62beacd9453607a8b004fff5c80318e548919e591a1",
+      "generated_at": "2026-11-05T23:11:31.279177+00:00",
+      "history": [],
+      "manifest_generated_at": "2026-11-05T23:06:44+00:00",
+      "manifest_sha256": "c414f8cbb7727767b3927bb702b63ee7263497bd0d9feb4f4367b5b2510d11cd",
+      "metrics": {
+        "accuracy": 0.8326333333333333,
+        "confusion_matrix": [
+          [
+            26914,
+            5460
+          ],
+          [
+            9603,
+            48023
+          ]
+        ],
+        "confusion_matrix_labels": [
+          0,
+          1
+        ],
+        "f1": 0.8644304241780594,
+        "false_positive_rate": 0.168653858034225,
+        "n_samples": 90000,
+        "precision": 0.8979114858927135,
+        "recall": 0.833356471037379,
+        "roc_auc": 0.8694985651582443,
+        "threshold": 0.5
+      },
+      "mlflow_run_id": "1c0c4320cfa140de875c0e9d40c84c33",
+      "model": "logistic_regression",
+      "model_version": "sprint3-20261105T231122Z-c6c9c704-logistic_regression",
+      "run_id": "20261105T231122Z-c6c9c704-logistic_regression",
+      "schema_version": 1,
+      "score_kind": "uncalibrated_probability",
+      "stage": "development",
+      "subset": true,
+      "test_evaluated": false,
+      "train_indices_sha256": "c4e7a21ca96162b256aabbdfbf3f72fda4fc16059dc525147d1db23fe274b769",
+      "train_rows": 10000,
+      "training_seconds": 6.442234899994219,
+      "val_indices_sha256": "2985ad6593bdc8bf796161c334ed9b66b3a29551103c635f59a64611c385ebec",
+      "val_rows": 90000,
+      "validation_operating_point": {
+        "accuracy": 0.7165,
+        "confusion_matrix": [
+          [
+            9740,
+            22634
+          ],
+          [
+            2881,
+            54745
+          ]
+        ],
+        "confusion_matrix_labels": [
+          0,
+          1
+        ],
+        "f1": 0.8110069997407503,
+        "false_positive_rate": 0.6991412862173348,
+        "n_samples": 90000,
+        "optimistic_validation_estimate": true,
+        "precision": 0.7074916967135786,
+        "recall": 0.9500052059834103,
+        "roc_auc": 0.8694985651582443,
+        "selected_on": "val",
+        "target_tpr": 0.95,
+        "threshold": 4.248249061199467e-06
+      }
+    },
+    {
+      "batch_id": "20261105T231122Z-c6c9c704",
+      "best_epoch": null,
+      "code_revision": "4098512aaa0737e1a33ec3713804e911ecbe7002",
+      "config": {
+        "batch_size": 256,
+        "dataset": "ember2018",
+        "dropout": 0.2,
+        "epochs": 10,
+        "hidden": [
+          1024,
+          512,
+          128
+        ],
+        "learning_rate": 0.001,
+        "max_iter": 1000,
+        "max_train": 10000,
+        "max_val": 90000,
+        "seed": 42,
+        "threads": 2,
+        "trees": 100
+      },
+      "convergence_warnings": [],
+      "dataset": "ember2018",
+      "evaluation_split": "val",
+      "feature_count": 2381,
+      "feature_schema_sha256": "2776432ba73c53078886c62beacd9453607a8b004fff5c80318e548919e591a1",
+      "generated_at": "2026-11-05T23:11:48.010037+00:00",
+      "history": [],
+      "manifest_generated_at": "2026-11-05T23:06:44+00:00",
+      "manifest_sha256": "c414f8cbb7727767b3927bb702b63ee7263497bd0d9feb4f4367b5b2510d11cd",
+      "metrics": {
+        "accuracy": 0.8474444444444444,
+        "confusion_matrix": [
+          [
+            27919,
+            4455
+          ],
+          [
+            9275,
+            48351
+          ]
+        ],
+        "confusion_matrix_labels": [
+          0,
+          1
+        ],
+        "f1": 0.8756700956244566,
+        "false_positive_rate": 0.13761042812133192,
+        "n_samples": 90000,
+        "precision": 0.9156345869787524,
+        "recall": 0.8390483462326034,
+        "roc_auc": 0.9418365601400239,
+        "threshold": 0.5
+      },
+      "mlflow_run_id": "ed3e01c564df4b5e988b175dcc9eba31",
+      "model": "random_forest",
+      "model_version": "sprint3-20261105T231122Z-c6c9c704-random_forest",
+      "run_id": "20261105T231122Z-c6c9c704-random_forest",
+      "schema_version": 1,
+      "score_kind": "uncalibrated_probability",
+      "stage": "development",
+      "subset": true,
+      "test_evaluated": false,
+      "train_indices_sha256": "c4e7a21ca96162b256aabbdfbf3f72fda4fc16059dc525147d1db23fe274b769",
+      "train_rows": 10000,
+      "training_seconds": 10.467974199993478,
+      "val_indices_sha256": "2985ad6593bdc8bf796161c334ed9b66b3a29551103c635f59a64611c385ebec",
+      "val_rows": 90000,
+      "validation_operating_point": {
+        "accuracy": 0.8570333333333333,
+        "confusion_matrix": [
+          [
+            22207,
+            10167
+          ],
+          [
+            2700,
+            54926
+          ]
+        ],
+        "confusion_matrix_labels": [
+          0,
+          1
+        ],
+        "f1": 0.8951507101589811,
+        "false_positive_rate": 0.3140483103725212,
+        "n_samples": 90000,
+        "optimistic_validation_estimate": true,
+        "precision": 0.8438080899635906,
+        "recall": 0.9531461493076042,
+        "roc_auc": 0.9418365601400239,
+        "selected_on": "val",
+        "target_tpr": 0.95,
+        "threshold": 0.3
+      }
+    },
+    {
+      "batch_id": "20261105T231122Z-c6c9c704",
+      "best_epoch": null,
+      "code_revision": "4098512aaa0737e1a33ec3713804e911ecbe7002",
+      "config": {
+        "batch_size": 256,
+        "dataset": "ember2018",
+        "dropout": 0.2,
+        "epochs": 10,
+        "hidden": [
+          1024,
+          512,
+          128
+        ],
+        "learning_rate": 0.001,
+        "max_iter": 1000,
+        "max_train": 10000,
+        "max_val": 90000,
+        "seed": 42,
+        "threads": 2,
+        "trees": 100
+      },
+      "convergence_warnings": [
+        "Liblinear failed to converge, increase the number of iterations."
+      ],
+      "dataset": "ember2018",
+      "evaluation_split": "val",
+      "feature_count": 2381,
+      "feature_schema_sha256": "2776432ba73c53078886c62beacd9453607a8b004fff5c80318e548919e591a1",
+      "generated_at": "2026-11-05T23:13:57.777692+00:00",
+      "history": [],
+      "manifest_generated_at": "2026-11-05T23:06:44+00:00",
+      "manifest_sha256": "c414f8cbb7727767b3927bb702b63ee7263497bd0d9feb4f4367b5b2510d11cd",
+      "metrics": {
+        "accuracy": 0.8329222222222222,
+        "confusion_matrix": [
+          [
+            26751,
+            5623
+          ],
+          [
+            9414,
+            48212
+          ]
+        ],
+        "confusion_matrix_labels": [
+          0,
+          1
+        ],
+        "f1": 0.8650918258404285,
+        "false_positive_rate": 0.17368876258726137,
+        "n_samples": 90000,
+        "precision": 0.8955512213244172,
+        "recall": 0.8366362405858466,
+        "roc_auc": 0.8597518355596813,
+        "threshold": 0.0
+      },
+      "mlflow_run_id": "99956b9696fb43d5bc31c798a720b437",
+      "model": "linear_svm",
+      "model_version": "sprint3-20261105T231122Z-c6c9c704-linear_svm",
+      "run_id": "20261105T231122Z-c6c9c704-linear_svm",
+      "schema_version": 1,
+      "score_kind": "decision_margin",
+      "stage": "development",
+      "subset": true,
+      "test_evaluated": false,
+      "train_indices_sha256": "c4e7a21ca96162b256aabbdfbf3f72fda4fc16059dc525147d1db23fe274b769",
+      "train_rows": 10000,
+      "training_seconds": 129.64464690000023,
+      "val_indices_sha256": "2985ad6593bdc8bf796161c334ed9b66b3a29551103c635f59a64611c385ebec",
+      "val_rows": 90000,
+      "validation_operating_point": {
+        "accuracy": 0.7031222222222222,
+        "confusion_matrix": [
+          [
+            8536,
+            23838
+          ],
+          [
+            2881,
+            54745
+          ]
+        ],
+        "confusion_matrix_labels": [
+          0,
+          1
+        ],
+        "f1": 0.8038382192072477,
+        "false_positive_rate": 0.7363316241428307,
+        "n_samples": 90000,
+        "optimistic_validation_estimate": true,
+        "precision": 0.6966519476222592,
+        "recall": 0.9500052059834103,
+        "roc_auc": 0.8597518355596813,
+        "selected_on": "val",
+        "target_tpr": 0.95,
+        "threshold": -5.690112545737604
+      }
+    },
+    {
+      "batch_id": "20261105T231122Z-c6c9c704",
+      "best_epoch": 9,
+      "code_revision": "4098512aaa0737e1a33ec3713804e911ecbe7002",
+      "config": {
+        "batch_size": 256,
+        "dataset": "ember2018",
+        "dropout": 0.2,
+        "epochs": 10,
+        "hidden": [
+          1024,
+          512,
+          128
+        ],
+        "learning_rate": 0.001,
+        "max_iter": 1000,
+        "max_train": 10000,
+        "max_val": 90000,
+        "seed": 42,
+        "threads": 2,
+        "trees": 100
+      },
+      "convergence_warnings": [],
+      "dataset": "ember2018",
+      "evaluation_split": "val",
+      "feature_count": 2381,
+      "feature_schema_sha256": "2776432ba73c53078886c62beacd9453607a8b004fff5c80318e548919e591a1",
+      "generated_at": "2026-11-05T23:14:45.304713+00:00",
+      "history": [
+        {
+          "epoch": 1,
+          "train_loss": 0.32890184869766237,
+          "val_loss": 374.097900390625
+        },
+        {
+          "epoch": 2,
+          "train_loss": 0.18894731135368348,
+          "val_loss": 524.5159301757812
+        },
+        {
+          "epoch": 3,
+          "train_loss": 0.1461806617498398,
+          "val_loss": 378.4725036621094
+        },
+        {
+          "epoch": 4,
+          "train_loss": 0.13384228105545043,
+          "val_loss": 631.9409790039062
+        },
+        {
+          "epoch": 5,
+          "train_loss": 0.11854343926906585,
+          "val_loss": 550.12646484375
+        },
+        {
+          "epoch": 6,
+          "train_loss": 0.09567936296463013,
+          "val_loss": 616.7669677734375
+        },
+        {
+          "epoch": 7,
+          "train_loss": 0.09761273365020752,
+          "val_loss": 860.5988159179688
+        },
+        {
+          "epoch": 8,
+          "train_loss": 0.10790612988471984,
+          "val_loss": 723.0059204101562
+        },
+        {
+          "epoch": 9,
+          "train_loss": 0.09785695744752884,
+          "val_loss": 369.3069152832031
+        },
+        {
+          "epoch": 10,
+          "train_loss": 0.07968465540409088,
+          "val_loss": 416.6546630859375
+        }
+      ],
+      "manifest_generated_at": "2026-11-05T23:06:44+00:00",
+      "manifest_sha256": "c414f8cbb7727767b3927bb702b63ee7263497bd0d9feb4f4367b5b2510d11cd",
+      "metrics": {
+        "accuracy": 0.8156333333333333,
+        "confusion_matrix": [
+          [
+            27329,
+            5045
+          ],
+          [
+            11548,
+            46078
+          ]
+        ],
+        "confusion_matrix_labels": [
+          0,
+          1
+        ],
+        "f1": 0.8474192866141298,
+        "false_positive_rate": 0.15583492926422438,
+        "n_samples": 90000,
+        "precision": 0.9013164329166912,
+        "recall": 0.7996043452608198,
+        "roc_auc": 0.9069913311505002,
+        "threshold": 0.5
+      },
+      "mlflow_run_id": "7464381211ec4be1bd2944016913c68d",
+      "model": "mlp",
+      "model_version": "sprint3-20261105T231122Z-c6c9c704-mlp",
+      "run_id": "20261105T231122Z-c6c9c704-mlp",
+      "schema_version": 1,
+      "score_kind": "uncalibrated_probability",
+      "stage": "development",
+      "subset": true,
+      "test_evaluated": false,
+      "train_indices_sha256": "c4e7a21ca96162b256aabbdfbf3f72fda4fc16059dc525147d1db23fe274b769",
+      "train_rows": 10000,
+      "training_seconds": 47.40610700000252,
+      "val_indices_sha256": "2985ad6593bdc8bf796161c334ed9b66b3a29551103c635f59a64611c385ebec",
+      "val_rows": 90000,
+      "validation_operating_point": {
+        "accuracy": 0.8110333333333334,
+        "confusion_matrix": [
+          [
+            18247,
+            14127
+          ],
+          [
+            2880,
+            54746
+          ]
+        ],
+        "confusion_matrix_labels": [
+          0,
+          1
+        ],
+        "f1": 0.8655562494565174,
+        "false_positive_rate": 0.4363686909248162,
+        "n_samples": 90000,
+        "optimistic_validation_estimate": true,
+        "precision": 0.7948833359952376,
+        "recall": 0.9500225592614445,
+        "roc_auc": 0.9069913311505002,
+        "selected_on": "val",
+        "target_tpr": 0.95,
+        "threshold": 0.007758546620607376
+      }
+    }
+  ],
+  "schema_version": 1
+}
