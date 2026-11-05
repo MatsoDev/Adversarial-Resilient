@@ -29,6 +29,13 @@ git --version
 
 ## Setup
 
+For both new and existing team checkouts, the cross-platform bootstrap is
+`python scripts/setup_environment.py` (Python 3.11–3.12). It creates/reuses
+`.venv`, synchronizes all requirement files and checks the installed versions.
+Use `--check-only` to verify without installing. The current HTML dashboard
+runs with `python -m uvicorn api.main:app --port 8000`, at
+<http://localhost:8000/dashboard/>. See [team_handoff.md](team_handoff.md).
+
 ### Linux / macOS (Makefile shortcut)
 
 ```bash
@@ -167,8 +174,7 @@ Then open http://127.0.0.1:5000 in your browser.
 
 ## Run the API and dashboard without Docker
 
-Both commands below block until stopped, so use two separate terminal sessions
-and keep both running while testing.
+The HTML dashboard and API run in one service. The command blocks until stopped.
 
 Terminal 1:
 
@@ -178,16 +184,9 @@ python -m uvicorn api.main:app --reload --port 8000
 
 Open http://127.0.0.1:8000/health — expect `{"status": "ok"}`.
 
-Terminal 2 (same folder, virtual environment activated):
-
-```bash
-python -m streamlit run dashboard/app.py
-# or: make dashboard
-```
-
-Open http://localhost:8501 — expect the placeholder page with a button that
-calls the API `/health`. The dashboard defaults to `http://localhost:8000`;
-set `API_URL` to point it elsewhere.
+Open <http://localhost:8000/dashboard/>. Alternatively, `make dashboard` starts
+the same application on port 8501; open <http://localhost:8501/dashboard/>.
+`dashboard/app.py` is a legacy Streamlit reference, not the primary entry point.
 
 ## Run the Docker stack
 

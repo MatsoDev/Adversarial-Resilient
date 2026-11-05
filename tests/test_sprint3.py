@@ -136,6 +136,19 @@ def test_real_committed_report_contracts():
     assert store.figure("art_samples")["png_base64"]
 
 
+def test_fresh_checkout_reference_results_and_local_dedup(tmp_path):
+    root = Path(__file__).resolve().parents[1]
+    target = tmp_path / "results"
+    target.mkdir()
+    content = (root / "docs/results/baseline_reference.json").read_bytes()
+    (target / "baseline_reference.json").write_bytes(content)
+    store = ArtifactStore(tmp_path)
+    assert len(store.runs()["runs"]) == 4
+    (target / "baselines").mkdir()
+    (target / "baselines/local.json").write_bytes(content)
+    assert len(store.runs()["runs"]) == 4
+
+
 def test_models_page_renders_measured_results(trained, monkeypatch):
     import dashboard.client as client
     from streamlit.testing.v1 import AppTest

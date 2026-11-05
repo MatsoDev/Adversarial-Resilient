@@ -1,5 +1,9 @@
 # Documentation index
 
+**Continuing after Sprint 3?** Start with [team_handoff.md](team_handoff.md) for
+pulling main, synchronizing requirements and opening the HTML dashboard with
+the recorded baseline results.
+
 Start here. The root [`README.md`](../README.md) explains what the project is
 and how to get it running; this page is the map to everything else.
 

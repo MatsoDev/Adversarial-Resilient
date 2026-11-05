@@ -139,6 +139,9 @@ class ArtifactStore:
             files = sorted(folder.glob("*.json"), reverse=True)
         else:
             files = []
+        reference = self.root / "results" / "baseline_reference.json"
+        if reference.is_file():
+            files.append(reference)
         for path in files[:100]:
             try:
                 report = self.json(path.relative_to(self.root).as_posix())
@@ -163,7 +166,8 @@ class ArtifactStore:
                 }
                 if len(identities) > 1 or len({r["model"] for r in batch}) != len(batch):
                     raise ValueError("Incompatible comparison batch")
-                runs.extend(batch)
+                existing = {r["run_id"] for r in runs}
+                runs.extend(r for r in batch if r["run_id"] not in existing)
             except (ArtifactUnavailable, KeyError, TypeError, ValueError):
                 unavailable += 1
         return {

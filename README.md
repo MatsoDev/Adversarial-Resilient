@@ -1,5 +1,11 @@
 # Adversarial-Resilient Security Models
 
+**Team: after pulling main, run `python scripts/setup_environment.py` to sync
+the project environment.** Then start the HTML dashboard using the commands in
+[the team handoff](docs/team_handoff.md). A compact recorded results snapshot
+is included so a fresh checkout shows the same Sprint 3 comparison immediately;
+large datasets and trained models require separate local setup.
+
 The primary UI is now plain **HTML, CSS and JavaScript** served by FastAPI.
 Run `python -m uvicorn api.main:app --host 127.0.0.1 --port 8000` and open
 <http://localhost:8000/dashboard/>. No Streamlit process or frontend build is

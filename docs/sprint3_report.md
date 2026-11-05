@@ -2,7 +2,7 @@
 
 **Date:** 2026-11-06 (Asia/Riyadh)
 
-**Branch:** `sprint3/baselines-dashboard` — unmerged
+**Implementation branch:** `sprint3/baselines-dashboard`
 **Environment:** Windows, Python 3.12.1, CPU torch 2.14.1+cpu,
 scikit-learn 1.5.1, MLflow 3.17.2, Streamlit 1.66.1.
 
@@ -134,6 +134,13 @@ with retries disabled during the update. The corrected image needs a new CI
 build/scan before the deployment gate can be cleared. No scanner exceptions
 or disabled checks were added. See the
 [initial CI run](https://github.com/MatsoDev/Adversarial-Resilient/actions/runs/42128865179).
+
+The subsequent [CI run on 2db8f91](https://github.com/MatsoDev/Adversarial-Resilient/actions/runs/42131250701)
+passed all jobs, including the corrected Docker build and vulnerability scan.
+The primary UI was then migrated to plain HTML/CSS/JavaScript under
+`dashboard/web/`, served at `/dashboard/`. Streamlit details above describe the
+initial Sprint 3 implementation; current startup instructions are in
+[team_handoff.md](team_handoff.md).
 
 Commands:
 
