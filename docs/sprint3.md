@@ -35,15 +35,38 @@ code never downloads data automatically.
 
 ### Required for EMBER baseline training
 
-Obtain the official EMBER2018 v2 **feature dataset** from
-<https://ember.elastic.co/>. Do not use EMBER2024, a pre-cleaned Kaggle copy, or
-the optional pretrained model. The archive is approximately **1.70 GB**; the
-extracted feature files use approximately **9.95 GB**; the full processed
-arrays use approximately **7.71 GB**. Keep around **25 GB free** during download,
-extraction and preprocessing. The data and all derived arrays stay local and
-are ignored by Git.
+Obtain the official EMBER2018 v2 **feature dataset**, archive
+`ember_dataset_2018_2.tar.bz2`. The upstream Elastic README lists this exact
+filename and gives its SHA-256 as
+`b6052eb8d350a49a8d5a5396fbe7d16cf42848b86ff969b77464434cf2997812`
+([upstream download table](https://github.com/elastic/ember#download)).
 
-Extract the archive outside the repository. It must contain
+**Download availability issue (checked 2026-11-05):** the legacy URL
+<https://ember.elastic.co/ember_dataset_2018_2.tar.bz2> currently returns a
+Google Cloud Storage `AccessDenied` response in the browser. The upstream
+repository still documents the archive and checksum, but its README points to
+that same legacy host; we have not verified a working official mirror. Ask the
+team to obtain the exact upstream archive through an institution-approved
+mirror or a working upstream link, and verify the SHA-256 below before using
+it. Do not treat a similarly named dataset as equivalent without confirming
+feature version, schema, source provenance and license with the team.
+
+The upstream archive is approximately **1.70 GB**; the original extracted
+JSONL files in the Sprint 2 full-run manifest total approximately **9.95 GB**;
+the corresponding processed arrays use approximately **7.71 GB**. Allow about
+**25 GB free** during download, extraction and preprocessing. The data and all
+derived arrays stay local and are ignored by Git.
+
+Once the archive has been obtained, verify it in PowerShell before extraction:
+
+```powershell
+$archive = 'D:\Datasets\ember_dataset_2018_2.tar.bz2'
+(Get-FileHash -Algorithm SHA256 $archive).Hash.ToLower()
+# Expected: b6052eb8d350a49a8d5a5396fbe7d16cf42848b86ff969b77464434cf2997812
+```
+
+Proceed only when the printed hash matches. Then extract the archive outside
+the repository. The extracted folder must contain
 `train_features_0.jsonl` through `train_features_5.jsonl` and
 `test_features.jsonl`. Then, in PowerShell, set the location and preprocess:
 
@@ -56,6 +79,14 @@ python scripts\preprocess.py --dataset ember --verify-only
 Replace `D:\Datasets\EMBER-Dataset` with the actual extracted folder. Successful
 preprocessing creates local files under `data/processed/ember2018/` and
 publishes/verifies the compact manifest under `docs/data/manifests/`.
+
+The Kaggle listing described in the team discussion is a third-party
+Parquet-converted dataset, not the source JSONL archive expected by this
+preprocessor. It also states a CC BY-NC-SA 4.0 license, while the Sprint 2
+project data card records the official source release as MIT. Do not download or
+use that Parquet file for this branch's baseline pipeline unless the team first
+reviews its conversion, schema compatibility, provenance and license, and
+implements/tests an explicit conversion path.
 
 Run the default development comparison:
 
