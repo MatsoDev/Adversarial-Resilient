@@ -40,25 +40,28 @@ def test_compose_defaults_are_loopback_and_least_privilege():
     assert "ALL" in services["dashboard"]["cap_drop"]
     assert "@sha256:" in services["mlflow"]["image"]
     assert "MLFLOW_ALLOW_FILE_STORE=true" in services["mlflow"]["environment"]
-    assert services["dashboard"]["volumes"] == ["./dashboard:/app/dashboard:ro"]
+    assert services["dashboard"]["volumes"] == [
+        "./dashboard:/app/dashboard:ro",
+        "./docs:/app/docs:ro",
+    ]
 
 
 def test_compose_dashboard_uses_module_entrypoint_and_script_healthcheck():
     compose = yaml.safe_load((ROOT / "docker-compose.yml").read_text(encoding="utf-8"))
     dashboard = compose["services"]["dashboard"]
-    assert dashboard["command"].startswith("python -m streamlit run dashboard/app.py")
-    assert "--server.scriptHealthCheckEnabled true" in dashboard["command"]
+    assert dashboard["command"].startswith("python -m uvicorn api.main:app")
+    assert "--no-server-header" in dashboard["command"]
 
     healthcheck = dashboard["healthcheck"]["test"]
     probe = healthcheck[-1]
-    assert "/_stcore/script-health-check" in probe
+    assert "/dashboard/" in probe
     assert "/_stcore/health" not in probe
 
 
 def test_makefile_has_dashboard_entrypoint():
     makefile = (ROOT / "Makefile").read_text(encoding="utf-8")
     assert re.search(
-        r"^dashboard:\n\t\$\(PYTHON\) -m streamlit run dashboard/app\.py$",
+        r"^dashboard:\n\t\$\(PYTHON\) -m uvicorn api.main:app --host 127\.0\.0\.1 --port 8501$",
         makefile,
         re.MULTILINE,
     )

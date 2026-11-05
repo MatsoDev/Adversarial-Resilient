@@ -25,6 +25,7 @@ docs/results/baselines/
 notebooks/
 tests/
 *.html
+!dashboard/web/*.html
 *.md
 !docs/**/*.md
 

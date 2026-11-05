@@ -14,6 +14,8 @@ from collections.abc import Awaitable, Callable
 
 from fastapi import FastAPI, Request, Response
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
+from src.config import ROOT
 from src.evaluation.artifacts import ArtifactStore
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
@@ -110,6 +112,9 @@ def create_app(store: ArtifactStore | None = None) -> FastAPI:
     app.add_api_route("/health", health, methods=["GET"], summary="Liveness probe")
     app.add_api_route("/", root, methods=["GET"], summary="Service message")
     app.include_router(artifact_router(store or ArtifactStore()))
+    app.mount(
+        "/dashboard", StaticFiles(directory=ROOT / "dashboard" / "web", html=True), name="dashboard"
+    )
 
     @app.middleware("http")
     async def security_headers(
@@ -121,6 +126,12 @@ def create_app(store: ArtifactStore | None = None) -> FastAPI:
             docs_request=_is_docs_request(request.scope.get("path", "")),
             https=request.url.scheme == "https",
         )
+        if request.url.path.startswith("/dashboard/"):
+            response.headers["Content-Security-Policy"] = (
+                "default-src 'none'; script-src 'self'; style-src 'self'; "
+                "connect-src 'self'; img-src 'self' data:; font-src 'self'; "
+                "frame-ancestors 'none'; base-uri 'none'; form-action 'none'"
+            )
         return response
 
     app.add_exception_handler(Exception, _unhandled_exception)

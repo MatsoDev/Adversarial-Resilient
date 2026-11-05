@@ -1,5 +1,10 @@
 # Adversarial-Resilient Security Models
 
+The primary UI is now plain **HTML, CSS and JavaScript** served by FastAPI.
+Run `python -m uvicorn api.main:app --host 127.0.0.1 --port 8000` and open
+<http://localhost:8000/dashboard/>. No Streamlit process or frontend build is
+needed. See [dashboard/README.md](dashboard/README.md) for details.
+
 Machine-learning detectors for malware and network intrusion, attacked with
 adversarial examples (FGSM, PGD, Carlini-Wagner) and then hardened with
 adversarial training, distillation, ensembles, input sanitization, and

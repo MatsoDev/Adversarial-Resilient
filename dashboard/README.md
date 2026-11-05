@@ -1,4 +1,23 @@
-# dashboard/ — Streamlit UI
+# dashboard/ — HTML research dashboard
+
+## Current UI: HTML / CSS / JavaScript
+
+The primary dashboard is now `dashboard/web/index.html`, `styles.css` and
+`app.js`. It is served by FastAPI at **/dashboard/** and reads `/v1/*` on the
+same origin. Start `python -m uvicorn api.main:app --host 127.0.0.1 --port 8000`
+and open <http://localhost:8000/dashboard/>. `make dashboard` or the Compose
+dashboard service uses <http://localhost:8501/dashboard/>.
+
+No frontend build or third-party CDN is needed. CSS/JavaScript are local files;
+the UI has a separate restrictive self-only CSP, with JSON API headers retained.
+All model numbers come from recorded artifacts, with explicit validation/subset
+labels. Readable cards, grouped charts, dataset pages and model error matrices
+replace raw JSON as the primary presentation.
+
+The Streamlit implementation below is legacy reference only; it is no longer
+the default dashboard entry point.
+
+## Legacy Streamlit interface
 
 Sprint 3 provides a sidebar with Overview, Datasets, Models, MNIST demo and
 Methodology pages. Dataset cards include class charts, split counts, feature
