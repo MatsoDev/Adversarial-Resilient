@@ -1,10 +1,20 @@
 # Security audit — Adversarial-Resilient
 
-## Current follow-up assessment — 2026-11-11
+## Follow-up assessment — 2026-11-11 (Sprint 3 snapshot)
 
-This section supersedes the historical Sprint 2 assessment below for the current
-`main` application. Historical tool results are retained as dated evidence, not
+This section supersedes the historical Sprint 2 assessment below for the
+Sprint 3 application at `2ad0d2e`. Historical tool results are retained as dated evidence, not
 claimed as checks performed again today.
+
+**Integration note:** Sprint 4 subsequently merged into `main` in `6890f89`.
+Its security notes are retained in the Sprint 4 delta below. Statements about
+read-only routes and the absence of prediction/authentication in this assessment
+describe the audited Sprint 3 snapshot, not the merged application's surface.
+The full Sprint 4 security assessment remains outstanding.
+After resolving the integration conflicts, `make lint`, `make test` (**304
+passed, 3 skipped**) and `make security` passed on the merged branch. These
+integration checks do not extend the original audit scope or repeat the image
+build/scan for the merged code.
 
 ### Executive summary
 
@@ -253,6 +263,21 @@ in the checks actually run. A filtered clean scan is not proof of safety.
 | Threat modeling | Verified at documented boundary/STRIDE level; not a full adversarial-ML reassessment |
 
 ---
+
+## Sprint 4 delta (2026-11-11)
+
+The original audit below is historical. Sprint 4 now adds local feature
+prediction behind a configured random bearer token, strict schema and numerical
+bounds, a streamed 2 MiB body limit and per-peer query budgets. Only hash-verified,
+weights-only CPU bundles passing the full-data freeze gate can be loaded;
+HTTP cannot select a model path. Compose mounts model artifacts read-only.
+Regression tests cover unauthorized, disabled, invalid/oversized, rate-limited
+and missing/corrupt model cases. There are still no uploads, accounts, database,
+history, attack or defense endpoints. `make security` passed during Sprint 4.
+The local research token is not multi-user authorization; TLS, external auth,
+proxy-wide quotas and operational monitoring remain prerequisites for sharing.
+See [the exact contract](../sprint4.md#feature-inference) and
+[verification evidence](../sprint4_report.md).
 
 ## Historical assessment — 2026-10-26 (Sprint 2)
 

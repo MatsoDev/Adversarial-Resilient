@@ -34,6 +34,7 @@ datasets. Two optional real-data checks are skipped unless
 |---|---|
 | `tests/data_fixtures.py` | Synthetic EMBER JSONL and CICIDS CSV builders (not a test module) |
 | `tests/test_config.py` | `ensure_dirs()` creates every runtime directory idempotently |
+| `tests/test_sprint4.py` | Disjoint selection/calibration/operating splits, temperature calibration, deterministic MLP/CNN search, freeze gates, bundle integrity, raw/scaled equivalence, prediction auth/limits/errors |
 | `tests/test_data_resolution.py` | Dataset resolution precedence: CLI > env > repo-local > `~/Documents` |
 | `tests/test_seed.py` | `set_seed()` determinism for stdlib, numpy, torch, and `PYTHONHASHSEED` |
 | `tests/test_preprocessing.py` | Scaler statistics, standardisation, stratified/time splits, hashing, atomic writes, manifest verification |

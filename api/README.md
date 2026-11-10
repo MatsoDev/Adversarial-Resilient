@@ -87,3 +87,10 @@ starting the stack; `BIND_ADDR` (default `127.0.0.1`) and `API_PORT` (default
 - [`../docs/configuration.md`](../docs/configuration.md) documents `API_URL`
   (used by the dashboard) and the Compose ports.
 - [`../docs/testing.md`](../docs/testing.md) covers test commands.
+# Sprint 4 prediction
+
+`POST /predict` and `GET /v1/baseline` now provide authenticated, bounded frozen
+feature inference. Both fail closed without a configured local token and a
+genuinely frozen `baseline_v1`. See [the Sprint 4 contract](../docs/sprint4.md)
+for provisioning, exact JSON fields, limits, errors and security restrictions.
+Earlier read-only routes remain unchanged.

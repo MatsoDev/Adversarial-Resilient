@@ -1,5 +1,12 @@
 # Project structure
 
+Sprint 4 additions: reusable tuning and verified inference in
+`src/models/{tuning,frozen}.py`, the CNN in `src/models/tabular.py`, CLI
+`scripts/tune_baseline.py`, HTTP validation/auth/budgets in `api/prediction.py`,
+and feature-entry UI in `dashboard/web/prediction.js` (the primary UI is HTML,
+not the legacy Streamlit app). Regression tests are in `tests/test_sprint4.py`.
+Ignored runtime bundles live under `models/sprint4/`; see [Sprint 4](sprint4.md).
+
 Reference for how this repository is organized and where new work belongs.
 For component behavior and dependency rules see [`architecture.md`](architecture.md).
 
