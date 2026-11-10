@@ -1,5 +1,20 @@
 # Security audit — Adversarial-Resilient
 
+## Sprint 4 delta (2026-11-11)
+
+The original audit below is historical. Sprint 4 now adds local feature
+prediction behind a configured random bearer token, strict schema and numerical
+bounds, a streamed 2 MiB body limit and per-peer query budgets. Only hash-verified,
+weights-only CPU bundles passing the full-data freeze gate can be loaded;
+HTTP cannot select a model path. Compose mounts model artifacts read-only.
+Regression tests cover unauthorized, disabled, invalid/oversized, rate-limited
+and missing/corrupt model cases. There are still no uploads, accounts, database,
+history, attack or defense endpoints. `make security` passed during Sprint 4.
+The local research token is not multi-user authorization; TLS, external auth,
+proxy-wide quotas and operational monitoring remain prerequisites for sharing.
+See [the exact contract](../sprint4.md#feature-inference) and
+[verification evidence](../sprint4_report.md).
+
 **Date:** 2026-10-26
 **Status:** Initial application-security baseline complete; residual risks
 remain (see the end of this report).

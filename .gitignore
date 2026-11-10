@@ -43,6 +43,7 @@ data/**/*.parquet
 models/*.pt
 models/*.pth
 models/baselines/
+models/sprint4/
 results/baselines/
 docs/results/baselines/
 *.joblib

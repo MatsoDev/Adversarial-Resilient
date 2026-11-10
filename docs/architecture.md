@@ -1,5 +1,14 @@
 # Architecture overview
 
+**Sprint 4 update:** the primary UI is plain HTML/CSS/JS in `dashboard/web`,
+served at `/dashboard/` by FastAPI. `src/models/tuning.py` performs CPU model
+selection/calibration and the M1 gate; `src/models/frozen.py` verifies trusted
+local bundles and provides inference. `api/prediction.py` adds token-protected,
+bounded feature prediction, disabled until a genuine frozen baseline exists.
+No database, upload handling, attacks or defenses were added. See
+[Sprint 4](sprint4.md) for the current protocol and contracts; the historical
+Sprint 2 component map below still explains the dependency boundaries.
+
 This document describes how the repository is actually built today (Sprint 2
 state) and the rules that keep it coherent as the project grows.
 

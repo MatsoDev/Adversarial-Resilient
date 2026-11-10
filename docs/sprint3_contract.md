@@ -33,6 +33,10 @@ validation and is explicitly labeled an optimistic validation estimate.
 
 ## Planned Sprint 4 feature prediction
 
+**Implemented contract:** see [Sprint 4](sprint4.md#feature-inference) for exact
+fields, provisioning, freeze gates, authentication, limits and error behavior.
+The text below records the original requirement, not Sprint 4 availability.
+
 `/predict` is intentionally absent in Sprint 3. Sprint 4 must bind prediction
 to a frozen model version and matching feature/preprocessing schema. Inputs
 will be finite numeric feature rows with exact ordering and dimensions (2381
