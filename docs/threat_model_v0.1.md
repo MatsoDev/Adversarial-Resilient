@@ -66,3 +66,30 @@ replace this model: model evasion remains the primary research threat, while
 API authentication, authorization, and rate limiting remain prerequisites before
 the planned `/predict`, `/attack`, and `/defend` endpoints are exposed beyond
 localhost.
+
+## 12. Artifact-service and training trust boundaries (2026-11-11)
+
+- **Assets:** integrity of training inputs and reported metrics, availability
+  of the research API, and confidentiality of files outside the artifact root.
+- **Network boundary:** browsers may request only fixed read-only routes;
+  identifiers are allowlisted, not filesystem paths. Neither API service
+  accepts uploads, trains models, or loads executable checkpoints on `main`.
+- **Filesystem boundary:** locally produced or shared manifests/results cross
+  into parsers and training. Treat them as potentially malformed; contain paths,
+  limit individual and aggregate reads, and bind training hashes to the exact
+  canonical filenames consumed by loaders.
+- **STRIDE:** tampering with manifest filename bindings could bypass input
+  verification; oversized aggregate results and non-regular files could exhaust
+  resources. Regression tests now exercise these cases. Escaping in browser
+  templates and CSP reduce artifact-to-browser injection risk; no exploitable
+  XSS path was established in this review.
+- **Trust assumptions:** source/processed/model/result directories are controlled
+  by trusted operators and must not be concurrently writable by adversaries.
+  Hashes in an unsigned manifest establish consistency, not publisher identity.
+  A writer who can replace both the manifest and inputs can still poison data.
+- **Deployment boundary:** loopback publication is not authentication. Keep
+  MLflow and research reports private behind authenticated TLS for shared use;
+  enforce proxy connection/request budgets before any public exposure.
+
+See the current audit section in
+[`security/SECURITY_AUDIT.md`](security/SECURITY_AUDIT.md) for evidence and limits.

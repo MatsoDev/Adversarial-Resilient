@@ -88,6 +88,44 @@ def test_tampered_data_is_rejected_before_training(processed, tmp_path):
     assert not (tmp_path / "models").exists()
 
 
+@pytest.mark.parametrize("artifact", ["train_X", "val_y", "feature_names"])
+def test_manifest_must_verify_the_actual_training_filename(processed, tmp_path, artifact):
+    manifest_path = processed / "manifest.json"
+    manifest = json.loads(manifest_path.read_text())
+    record = manifest["artifacts"][artifact]
+    # A still-valid hash of a decoy must not stand in for the file the loader opens.
+    decoy = processed / ("decoy-" + record["file"])
+    decoy.write_bytes((processed / record["file"]).read_bytes())
+    record["file"] = decoy.name
+    manifest_path.write_text(json.dumps(manifest))
+    with pytest.raises(ValueError, match="filename"):
+        train_baselines(
+            processed,
+            models=("logistic_regression",),
+            log_mlflow=False,
+            results_dir=tmp_path / "results",
+            model_dir=tmp_path / "models",
+        )
+    assert not (tmp_path / "models").exists()
+
+
+@pytest.mark.parametrize("digest", [None, "", "0" * 63, "z" * 64, 123])
+def test_training_requires_integrity_digest(processed, tmp_path, digest):
+    path = processed / "manifest.json"
+    manifest = json.loads(path.read_text())
+    manifest["artifacts"]["train_X"]["sha256"] = digest
+    path.write_text(json.dumps(manifest))
+    with pytest.raises(ValueError, match="SHA-256"):
+        train_baselines(
+            processed,
+            models=("logistic_regression",),
+            log_mlflow=False,
+            results_dir=tmp_path / "results",
+            model_dir=tmp_path / "models",
+        )
+    assert not (tmp_path / "models").exists()
+
+
 def test_metrics_and_validation_threshold():
     y = np.array([0, 0, 1, 1])
     scores = np.array([0.1, 0.6, 0.4, 0.9])

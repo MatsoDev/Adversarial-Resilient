@@ -1,6 +1,6 @@
 # Sprint 3 — Baselines and Dashboard MVP
 
-**Branch:** [`sprint3/baselines-dashboard`](https://github.com/MatsoDev/Adversarial-Resilient/tree/sprint3/baselines-dashboard)  
+**Branch:** [`sprint3/baselines-dashboard`](https://github.com/MatsoDev/Adversarial-Resilient/tree/sprint3/baselines-dashboard)
 **Status:** Implemented and validated with real EMBER development runs. See [sprint3_report.md](sprint3_report.md) for evidence and [team_handoff.md](team_handoff.md) for continuing from this point, installing requirements and opening the current HTML dashboard.
 
 This sprint adds the first tabular malware baselines and a read-only dashboard

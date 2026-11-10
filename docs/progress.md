@@ -80,7 +80,18 @@ known issues, skipped items).
   `python -m streamlit run ...`; a real-CLI regression test loads the script,
   and the Compose probe uses `/_stcore/script-health-check` instead of the
   runtime-only health endpoint. Rebuilt api/dashboard containers reach
-  `healthy`, and the script probe returns `ok`.
+   `healthy`, and the script probe returns `ok`.
+
+### Security follow-up (2026-11-11)
+
+- [x] Bind training verification to canonical filenames and required SHA-256
+  digests; cap aggregate run responses; reject nonfinite/special-file artifacts.
+- [x] Add 15 security regression cases; full suite **290 passed, 3 skipped**,
+  **89% combined line/branch coverage**. Lint, pip-audit/Bandit, image build and
+  filtered fixed HIGH/CRITICAL Trivy scan passed.
+- [x] Refresh threat boundaries, findings and residual risks in
+  [`security/SECURITY_AUDIT.md`](security/SECURITY_AUDIT.md). No public deployment,
+  browser DAST or Sprint 4 branch assessment performed.
 
 ## Cross-cutting — Test hardening (2026-10-26)
 

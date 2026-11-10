@@ -34,6 +34,12 @@ requirements, or persistent state. Unknown paths return FastAPI's default
   restrictive `Content-Security-Policy`; `/health` is `Cache-Control:
   no-store`. HSTS is added only when the request scheme is HTTPS.
 - The generated docs can be turned off with `API_DOCS_ENABLED=false`.
+- Artifact reads accept regular files only and are capped at 2 MiB each.
+  `/v1/runs` returns at most 100 batches within a 4 MiB aggregate response
+  budget. `truncated: true` indicates either limit; batches remain indivisible.
+  Numeric overflow and nonfinite JSON values are rejected as invalid artifacts.
+  Keep artifact directories writable only by trusted operators: these controls
+  do not make concurrent hostile filesystem mutation safe.
 - Uvicorn is started with `--no-server-header` in the image/Compose stack.
 - There is still no authentication or rate limiting because no sensitive
   endpoint exists yet. `/predict`, `/attack`, and `/defend` must add both
