@@ -67,3 +67,10 @@ Configuration details are in [`../docs/configuration.md`](../docs/configuration.
 setup, troubleshooting, and the full service walkthrough are in
 [`../docs/development.md`](../docs/development.md). The planned dashboard and
 component boundaries are described in [`../docs/architecture.md`](../docs/architecture.md).
+# Sprint 4 feature prediction
+
+The primary HTML dashboard includes a **Frozen baseline · feature prediction**
+panel. Load the frozen identity with a local research token, then submit ordered
+raw or explicitly preprocessed EMBER feature rows. No files, tokens or history
+are saved. Prediction is unavailable until M1 passes. See
+[Sprint 4](../docs/sprint4.md) for setup, limits and interpretation.

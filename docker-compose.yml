@@ -17,6 +17,7 @@ services:
     volumes:
       - ./mlruns:/app/mlruns
       - ./docs:/app/docs:ro
+      - ./models/sprint4:/app/models/sprint4:ro
     healthcheck:
       test:
         - CMD
@@ -47,6 +48,7 @@ services:
     volumes:
       - ./dashboard:/app/dashboard:ro
       - ./docs:/app/docs:ro
+      - ./models/sprint4:/app/models/sprint4:ro
     healthcheck:
       test:
         - CMD

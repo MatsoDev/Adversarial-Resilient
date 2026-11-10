@@ -1,7 +1,7 @@
-"""FastAPI liveness and read-only Sprint 3 research artifact service.
+"""FastAPI research artifacts and gated Sprint 4 feature prediction.
 
-Later sprints add real /predict, /attack, and /defend endpoints. This module
-establishes the HTTP security baseline those endpoints must inherit:
+Later sprints add /attack and /defend endpoints. This module
+establishes the HTTP security baseline all endpoints inherit:
 validated Host headers, no-store/cache-free JSON responses, and standard
 browser security headers.
 """
@@ -20,6 +20,7 @@ from src.evaluation.artifacts import ArtifactStore
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from api.artifacts import artifact_router
+from api.prediction import prediction_router
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -98,7 +99,7 @@ async def _unhandled_exception(request: Request, exc: Exception) -> Response:
     return response
 
 
-def create_app(store: ArtifactStore | None = None) -> FastAPI:
+def create_app(store: ArtifactStore | None = None, *, baseline_dir=None) -> FastAPI:
     """Build the API app from environment settings (factory is test-friendly)."""
     docs_enabled = _env_flag("API_DOCS_ENABLED", default=True)
     app = FastAPI(
@@ -112,6 +113,9 @@ def create_app(store: ArtifactStore | None = None) -> FastAPI:
     app.add_api_route("/health", health, methods=["GET"], summary="Liveness probe")
     app.add_api_route("/", root, methods=["GET"], summary="Service message")
     app.include_router(artifact_router(store or ArtifactStore()))
+    app.include_router(
+        prediction_router() if baseline_dir is None else prediction_router(baseline_dir)
+    )
     app.mount(
         "/dashboard", StaticFiles(directory=ROOT / "dashboard" / "web", html=True), name="dashboard"
     )
