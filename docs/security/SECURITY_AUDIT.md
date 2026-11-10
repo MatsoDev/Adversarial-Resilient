@@ -1,5 +1,261 @@
 # Security audit — Adversarial-Resilient
 
+## Current follow-up assessment — 2026-11-11
+
+This section supersedes the historical Sprint 2 assessment below for the current
+`main` application. Historical tool results are retained as dated evidence, not
+claimed as checks performed again today.
+
+### Executive summary
+
+Assessed the Sprint 3 read-only FastAPI artifact service, HTML/JS dashboard,
+legacy Streamlit client, training/data CLIs, manifests/loaders, dependencies,
+Docker/Compose, CI and existing security tests. Starting point: clean worktree at
+`main` commit `2ad0d2e`; work is on `fix/security-audit-followup` because repository
+instructions prohibit direct pushes to `main`. The initially checked-out Sprint 4
+branch was clean and was not modified or merged; its prediction code is **not**
+covered by this assessment.
+
+No confirmed critical or high remotely exploitable application vulnerability was
+established on this branch. Fixed a training-integrity verification gap, bounded
+aggregate run responses, and improved handling of malformed/non-regular artifacts.
+Added 15 regression cases. Full suite: **290 passed, 3 skipped**, **89% combined
+line/branch coverage**. Lint, dependency audit, medium/high Bandit scan, image
+build and fixed HIGH/CRITICAL container vulnerability scan passed.
+
+Principal remaining risks: unauthenticated research/MLflow services if exposed,
+trusted local artifact writers, unsigned manifests, unresolved dependency
+reproducibility, and the legacy optional CleverHans environment. These fixes do
+not establish production readiness or compliance.
+
+### Scope and methodology
+
+**Architecture:** Python 3.11–3.12, CPU torch, scikit-learn, NumPy/pandas, ART,
+FastAPI/Starlette/Uvicorn, plain HTML/CSS/JS, legacy Streamlit, local MLflow file
+tracking. No application database, accounts, roles, tenants, cookies, login,
+password recovery, JWT/OAuth, webhooks, uploads, or state-changing HTTP routes.
+Training is operator-invoked; the API reads reports, not models or dataset arrays.
+MLflow is a separate, unauthenticated tracking service with write capabilities.
+
+**Reviewed surfaces:** `api/main.py`, `api/artifacts.py`,
+`src/evaluation/{artifacts,binary}.py`, `src/models/{training,tabular}.py`,
+`src/data/` loaders/preprocessing and parsing paths, `src/config.py`,
+`scripts/` CLI/network/subprocess/output paths, `dashboard/client.py`,
+`dashboard/app.py`, `dashboard/web/`, all requirements files, Docker/Compose,
+environment examples, Makefile, pre-commit/CI configuration, tests and security
+documentation. Review combined source inspection, dangerous-operation searches,
+synthetic test execution and local container checks; it is not exhaustive formal
+verification or a live penetration test.
+
+**Trust model:** see [implementation boundaries](../threat_model_v0.1.md).
+Unauthenticated network callers select allowlisted artifacts; locally supplied
+files cross parser and training boundaries. Availability and experiment integrity
+are the important assets. Filesystem writers and operator-selected URLs/tracking
+URIs remain trusted. STRIDE tampering/DoS cases drove the new regressions.
+
+**Official guidance consulted during this review:**
+[OWASP Top 10:2025](https://owasp.org/www-project-top-ten/),
+[ASVS 5.0.0](https://asvs.owasp.org/),
+[OWASP DoS Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Denial_of_Service_Cheat_Sheet.html),
+and [NIST SSDF 1.1](https://csrc.nist.gov/Projects/ssdf).
+Mappings below are category-level; no ASVS certification or invented requirement
+IDs/CVSS scores are asserted.
+
+**Commands actually executed:**
+
+```bash
+git status --short --branch
+git branch -vv
+make lint
+make test
+make coverage
+make security
+.venv/bin/python -m pip check
+.venv/bin/python -m pytest tests/test_artifact_security.py tests/test_sprint3.py \
+  -k 'nonfinite or aggregate_budget or symlink_loop or named_pipe or actual_training_filename' --tb=short
+.venv/bin/python -m pre_commit run --all-files
+node --check dashboard/web/app.js
+git diff --check
+docker build -t adversarial-resilient:security-followup .
+docker run --rm --cap-drop ALL --security-opt no-new-privileges \
+  adversarial-resilient:security-followup python -c \
+  'import os; from api.main import app; print("uid", os.getuid()); print("routes", len(app.routes))'
+docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+  aquasec/trivy@sha256:790fd66d1697395d8693d1acaa1ea702406a20f109b6fc7bac8db623eca6c06c \
+  image --scanners vuln --severity HIGH,CRITICAL --ignore-unfixed \
+  --exit-code 1 --no-progress adversarial-resilient:security-followup
+```
+
+An inline Python regex scan inspected current tracked files for private-key,
+AWS access-key, GitHub-token and Slack-token prefixes, printing filenames/counts
+only: **0 matching files**. This is a limited signature scan, not an entropy,
+generic-password, or renewed Git-history scan. Pre-commit private-key checks
+also passed. No credential was discovered or rotated.
+
+### Findings
+
+| ID | Classification | Severity | Status |
+|---|---|---|---|
+| SEC-16 | Confirmed training-integrity verification weakness | Medium | Fixed and verified |
+| SEC-17 | Confirmed aggregate resource-consumption weakness | Medium | Fixed and verified |
+| SEC-18 | Confirmed malformed/special-file availability weakness | Low | Fixed and verified for tested cases |
+| SEC-02/09 | Unauthenticated shared deployment | High if externally exposed | Mitigated by loopback defaults; operator action required |
+| SEC-10 | Transitive dependency reproducibility | Medium | Identified, not fixed |
+
+#### SEC-16 — Verification was not bound to actual training inputs
+
+- **Affected/root cause:** `src/models/training.py::train_baselines` hashed
+  manifest-selected paths, then loaders opened canonical filenames instead.
+  Required records could also omit `sha256` because the general manifest
+  verifier intentionally treats absent hashes as optional.
+- **Evidence/conditions:** synthetic manifests redirected `train_X`, `val_y`
+  and `feature_names` records to byte-identical decoys. All three training
+  attempts succeeded before the fix instead of rejecting the mismatch. This
+  requires supplying/editing local processed artifacts, not an HTTP request.
+- **Impact:** canonical inputs can differ from what was verified, undermining
+  tamper detection and experiment provenance; no remote code execution claim.
+- **Fix:** require canonical filenames and lowercase 64-character hexadecimal
+  SHA-256 digests for every required input before hashing/loading/training.
+- **Verification:** three decoy cases and five missing/malformed digest cases
+  now reject before creating model outputs; existing training/tampering tests
+  pass, including legitimate four-model training and MLflow logging.
+- **Residual:** hashes are not signatures; replacing the manifest and all data
+  remains possible for a trusted-directory writer. Concurrent file mutation
+  between verification and loading is not solved; restrict directory access.
+- **Mapping:** OWASP A08:2025 Software or Data Integrity Failures.
+
+#### SEC-17 — Per-file limits did not bound aggregate run responses
+
+- **Affected/root cause:** `src/evaluation/artifacts.py::ArtifactStore.runs`
+  collected up to 100 files of up to 2 MiB each and forwarded extra run fields.
+  The count limit did not bound accumulated JSON/serialization memory. Sorting
+  the complete directory also retained every filename in memory.
+- **Evidence/conditions:** five valid synthetic reports with 900,000-byte extra
+  fields produced a **4,543,861-byte** HTTP response, exceeding the existing
+  Streamlit client's 4 MiB limit. Larger local result histories amplify each
+  unauthenticated request's memory/CPU cost. No exhaustion attack was run.
+- **Impact:** avoidable response/memory amplification and legitimate dashboard
+  failures. Exploitability depends on result sizes/history or local artifact
+  write access; this is not arbitrary remote file injection.
+- **Fix:** conservative 4 MiB serialized-response budget, whole-batch
+  truncation with the existing `truncated` field, and bounded-memory selection
+  of the newest filenames. Existing per-file and batch-count caps remain.
+- **Verification:** the same fixture returns valid nonempty results within
+  4 MiB and `truncated: true`; existing reference/dedup/dashboard tests pass.
+- **Residual:** enumeration and repeated invalid-batch parsing still consume
+  resources. Public deployment needs proxy request/concurrency budgets and
+  possibly caching/pagination, not only this per-response control.
+- **Mapping:** OWASP A06:2025 Insecure Design; CWE-400.
+
+#### SEC-18 — Numeric overflow and special filesystem artifacts
+
+- **Affected/root cause:** `ArtifactStore.json/read` rejected `NaN` but not
+  finite-looking exponent literals such as `1e999` that Python parses as
+  infinity. Opening a FIFO could block before the byte cap applied; path
+  resolution of symlink loops escaped the expected artifact error handling.
+- **Evidence/conditions:** before fixes, positive/negative exponent overflow
+  reached JSON response serialization and raised a server error; a guarded
+  FIFO test detected an attempted blocking open (no actual hang induced),
+  and a self-link raised `RuntimeError`. Requires malformed local artifacts.
+- **Impact:** individual artifact unavailability, repeated error logging, and
+  potential worker starvation when non-regular files are present.
+- **Fix:** finite float parsing at all JSON nesting levels, regular-file
+  checks before opening, and normalization of resolution errors.
+- **Verification:** seven cases cover overflow, existing NaN/Infinity rejection,
+  FIFO and symlink-loop handling; overflow now returns generic HTTP 503.
+- **Residual:** trusted-directory assumption remains, including stat/open races;
+  no claim that arbitrary hostile concurrent filesystem mutation is safe.
+- **Mapping:** OWASP A10:2025 Mishandling of Exceptional Conditions; CWE-400.
+
+### Changes implemented
+
+- `src/models/training.py`, `tests/test_sprint3.py`: input identity/digest
+  requirements and eight training regression cases.
+- `src/evaluation/artifacts.py`, `tests/test_artifact_security.py`: aggregate
+  response budget, bounded filename selection, finite-number and special-file
+  rejection, seven artifact regression cases.
+- `api/README.md`, `docs/threat_model_v0.1.md`, `docs/progress.md`, this report: limits, trust
+  assumptions, current scope and verification evidence. Pre-commit removed
+  pre-existing trailing whitespace from `docs/sprint3.md`.
+- No dependencies, environment variables, endpoints, schemas, migrations or
+  deployment privileges changed. Existing valid canonical manifests work;
+  hand-authored training manifests lacking hashes or using alternate filenames
+  now deliberately fail closed. Large run lists use the existing truncation
+  signal rather than failing the entire dashboard response.
+- New tests run automatically in the existing CI pytest/coverage job. Existing
+  pip-audit, Bandit and container-scan gates were retained without suppressions.
+
+### Verification results
+
+| Check | Actual result |
+|---|---|
+| Baseline lint/tests | Passed; 275 passed, 3 skipped; existing third-party deprecation warnings |
+| Pre-fix targeted regressions | 8 failed, 2 passed (existing NaN/Infinity controls); safe synthetic reproduction |
+| Final full coverage suite | Passed; 290 passed, 3 skipped; 89% combined line/branch coverage |
+| Lint and formatting | Passed |
+| `make security` | Passed before/after; pip-audit requirements resolution: no known vulnerabilities; Bandit: no medium/high findings |
+| Installed dependency consistency | `pip check` passed |
+| JS syntax | `node --check` passed; not a browser execution test |
+| Pre-commit | Initial run corrected pre-existing trailing whitespace in `docs/sprint3.md`; final all-files run passed all hooks |
+| Focused final tests | Documentation links and artifact/training suites: 65 passed after documentation edits |
+| Secrets | Limited current-tree signature scan: 0 matches; private-key hook passed |
+| Container build/startup | Passed; install layers cached, current source copied; import runs as UID 1000 with capabilities dropped |
+| Trivy fixed HIGH/CRITICAL | Passed; Debian 13.7 and Python packages including CPU torch/torchvision: 0 in this filtered scan |
+| Optional real-data tests | 3 skipped, not exercised |
+| Raw/unfixed image scan | Not repeated; historical unfixed counts below are not current counts |
+| Public infrastructure, TLS/auth proxy, full Compose workflows, browser DAST, sustained load, remote CI | Not assessed in this follow-up |
+
+The default pip-audit requirements do not include optional CleverHans or CPU
+torch requirements; installed CPU wheels were covered by the image scan, not a
+renewed OSV query. No new dependency advisory requiring a pin change was found
+in the checks actually run. A filtered clean scan is not proof of safety.
+
+### Remaining risks and action items
+
+1. **Mitigated, not resolved — shared exposure (operator):** retain loopback
+   bindings. Before remote access, protect **both** API/dashboard ports and
+   MLflow with authenticated TLS, resource budgets and access logs. Verify from
+   another host that unauthenticated artifact and MLflow requests are denied.
+   Host validation is not authorization; reports may contain local provenance.
+2. **Identified, not fixed — artifact trust (operator/data owner):** restrict
+   write permissions on source, processed, model, docs/results and MLflow
+   directories. Validate provenance out of band. Do not load untrusted joblib
+   checkpoints; this branch writes them but does not load them over HTTP.
+3. **Identified, not fixed — supply chain (maintainers):** transitive packages
+   lack a hash-pinned lock; CPU index installation still resolves dependencies
+   across configured indexes. Evaluate platform-specific locks/approved wheel
+   mirrors. Re-run audits on updates; no silent wholesale upgrades were made.
+4. **Previously identified, not re-audited — CleverHans:** isolated optional
+   TensorFlow/Keras environment has historical advisories. Keep it off network
+   services and untrusted inputs; replace/update only with compatibility tests.
+5. **Partially verified — operations:** official MLflow image remains privileged
+   relative to the API (root, no capability drop); monitoring, retention,
+   backups, TLS termination and production configuration were not inspected.
+6. **Not assessed — other branches:** separately audit Sprint 4 authentication,
+   prediction/model-loading and compute controls before merging/exposing them.
+
+### Security verification checklist
+
+| Area | Status and evidence |
+|---|---|
+| Identity, roles, tenants, sessions | Not applicable to current read-only application; MLflow exposure remains operational risk |
+| Authorization | Partially verified: identifier allowlists/path containment tested; no identity boundary for private deployments |
+| Injection/browser | Partially verified: template escaping/CSP reviewed and header tests pass; no shell/SQL sink from requests; no browser DAST |
+| API/HTTP | Verified for tested Host/header/404/405/500, fixed identifiers and aggregate-budget cases; public abuse limits not verified |
+| Database | Not applicable: no application DB or migrations |
+| Secrets/crypto | Partially verified: limited signature/private-key scans; no custom authentication crypto; history not rescanned |
+| File handling | Partially verified: containment/special files/finite JSON tested; concurrent hostile writers excluded |
+| Training integrity | Verified for canonical input/digest regressions; unsigned publisher trust unresolved |
+| Dependencies | Partially verified: requirements audit and filtered image scan passed; optional environment/unfixed CVEs not rechecked |
+| Infrastructure/CI | Partially verified: non-root image import and existing configuration tests; remote deployment/CI not observed |
+| Logging/error handling | Partially verified: generic API errors tested; centralized monitoring absent |
+| Business logic | Partially verified: training provenance tested; no payments/accounts/transactions |
+| Threat modeling | Verified at documented boundary/STRIDE level; not a full adversarial-ML reassessment |
+
+---
+
+## Historical assessment — 2026-10-26 (Sprint 2)
+
 **Date:** 2026-10-26
 **Status:** Initial application-security baseline complete; residual risks
 remain (see the end of this report).
