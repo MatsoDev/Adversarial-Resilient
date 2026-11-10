@@ -1,8 +1,20 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Sentinel — Adversarial Resilience Lab</title><link rel="stylesheet" href="styles.css"><script src="app.js" defer></script></head>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Sentinel — Adversarial Resilience Lab</title><link rel="stylesheet" href="styles.css"><script src="app.js" defer></script><script src="prediction.js" defer></script></head>
 <body>
 <aside><a class="brand official-brand" href="#overview" aria-label="ARSM — Adversarial-Resilient Security Models"><img class="official-logo" src="arsm-logo.png" alt="ARSM — Adversarial-Resilient Security Models" width="1254" height="1254"></a><div class="nav-label">WORKSPACE</div><nav aria-label="Main navigation"><button data-page="overview" class="active">◈ <span>Overview</span></button><button data-page="models">▥ <span>Model performance</span></button><button data-page="datasets">▦ <span>Dataset explorer</span></button><button data-page="methodology">◎ <span>Methodology</span></button><button data-page="demo">↗ <span>Tooling demo</span></button></nav><div class="sidebar-bottom"><div class="lab-badge">RESEARCH ENVIRONMENT</div><p>Build. Challenge. Defend.</p><small>Sprint 03 · EMBER2018 v2</small></div></aside>
 <main><header><div class="breadcrumb">Workspace <span>/</span> <strong id="crumb">Overview</strong></div><div class="toolbar"><span id="connection" class="status">Connecting</span><button id="refresh">↻ Refresh data</button></div></header>
 <div class="content"><div class="page-heading"><div><div class="eyebrow">SECURITY INTELLIGENCE / SPRINT 03</div><h1 id="page-title">Resilience starts with visibility.</h1><p id="subtitle">A clear view of your data, baseline models and measured results.</p></div><span class="phase">DEVELOPMENT PHASE</span></div>
 <div id="notice" role="status" hidden></div><div id="view" aria-live="polite"><div class="loading">Loading research results…</div></div>
+<section class="panel"><details><summary>Frozen baseline · feature prediction (Sprint 4)</summary>
+<p>The comparison tables above retain Sprint 3 validation-only results. For Sprint 4 evaluation and M1 status, open Methodology → sprint4, or load the frozen identity below.</p>
+<p>Public EMBER2018 v2 feature rows only. No executable or PCAP uploads. Scores are research estimates, not file-safety guarantees. Prediction remains unavailable until M1 passes.</p>
+<p><label for="prediction-token">Prediction access token (not saved)</label> <input id="prediction-token" type="password" autocomplete="off"></p>
+<button id="baseline-load" type="button">Load frozen model identity</button>
+<pre id="baseline-info">No frozen model loaded.</pre>
+<p><label for="prediction-representation">Feature representation</label> <select id="prediction-representation"><option value="raw">Raw EMBER feature values</option><option value="scaled">Already signed-log1p standardized with this model's scaler</option></select></p>
+<p><label for="prediction-rows">Ordered numeric rows as JSON (1–32 rows × 2381 features)</label></p>
+<textarea id="prediction-rows" rows="6" cols="60" spellcheck="false" placeholder="[[...2381 numeric values...]]"></textarea>
+<p><button id="prediction-submit" type="button" disabled>Predict features</button></p>
+<pre id="prediction-result" role="status">Load a verified frozen baseline first.</pre>
+</details></section>
 <footer><span>Sentinel / Adversarial-Resilient Security Models</span><span id="updated">Connecting to research API…</span></footer></div></main></body></html>

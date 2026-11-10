@@ -43,7 +43,10 @@ Works today:
 Sprint 3 adds Logistic Regression, Random Forest, Linear SVM and PyTorch MLP
 training with reproducible validation reports and MLflow tracking. Follow
 [`docs/sprint3.md`](docs/sprint3.md) for local data setup and commands.
-Next: tune/freeze the baseline in Sprint 4, then FGSM/PGD/CW attacks and defenses.
+Sprint 4 adds CPU MLP/CNN tuning, calibration, gated freezing and authenticated
+feature prediction. See [`docs/sprint4.md`](docs/sprint4.md) and the
+[Sprint 4 report](docs/sprint4_report.md) for measured results and M1 status.
+Attacks must wait until M1 passes; defenses remain later-sprint work.
 Sprint-by-sprint status is tracked in
 [`docs/progress.md`](docs/progress.md); scope and schedule are in
 [`docs/project_plan.md`](docs/project_plan.md).

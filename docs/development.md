@@ -216,6 +216,9 @@ so the same app works inside Docker and locally.
 
 ## Data pipeline and EDA
 
+Sprint 4 training/freezing and feature prediction are documented in
+[`sprint4.md`](sprint4.md), including the data-quality gate and fail-closed API.
+
 See the data guide: [`data/README.md`](data/README.md). It covers dataset
 locations, preprocessing/EDA commands, expected runtime and outputs, and the
 processed-data loaders.

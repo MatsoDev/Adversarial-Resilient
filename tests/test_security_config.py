@@ -43,7 +43,9 @@ def test_compose_defaults_are_loopback_and_least_privilege():
     assert services["dashboard"]["volumes"] == [
         "./dashboard:/app/dashboard:ro",
         "./docs:/app/docs:ro",
+        "./models/sprint4:/app/models/sprint4:ro",
     ]
+    assert "./models/sprint4:/app/models/sprint4:ro" in services["api"]["volumes"]
 
 
 def test_compose_dashboard_uses_module_entrypoint_and_script_healthcheck():

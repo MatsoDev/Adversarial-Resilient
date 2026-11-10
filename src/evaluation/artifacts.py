@@ -21,6 +21,7 @@ REPORTS = {
     "feasibility": "feature_feasibility.md",
     "sprint1": "sprint1_report.md",
     "sprint2": "sprint2_report.md",
+    "sprint4": "sprint4_report.md",
     "ember-literature": "literature/anderson_2018_ember.md",
     "cicids-literature": "literature/sharafaldin_2018_cicids2017.md",
 }

@@ -1,5 +1,24 @@
 # Decisions log
 
+## Sprint 4 — baseline protocol and local prediction (2026-11-11)
+
+- Treat the plan's 93% checkpoint as a real gate, not a reason to invent a
+  successful freeze. Full training/validation coverage and test accuracy >=93%
+  are required for `baseline_v1`; 95–97% stays a target. Subset candidates are
+  retained as evidence but cannot be served as frozen models.
+- Split time-held-out validation 50/25/25 for model selection, temperature
+  calibration and operating-point evaluation; never tune on the official test.
+  Minimize selection NLL, transfer the validation-selected 95%-TPR threshold to
+  test and report actual test recall/FPR. A revealed test failure requires team
+  review rather than repeated test-driven tuning.
+- Investigate extreme Sprint 3 BCE using signed-log1p followed by train-only
+  scaling, consistently frozen for inference. This is numerical preprocessing,
+  not a claimed adversarial defense; no clipping or sanitization was added.
+- Keep the approved prediction feature local and fail-closed: trusted local
+  hash-verified weights-only neural bundles, a random bearer token, bounded
+  JSON feature rows and per-peer query budgets. No uploads, persistence,
+  multi-user identity service or attack endpoints. Details: [sprint4.md](sprint4.md).
+
 ## Sprint 3 — Dashboard and baseline validation (2026-11-06)
 
 - The team approved dashboard development from Sprint 3 onward. Reuse

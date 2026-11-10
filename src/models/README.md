@@ -26,3 +26,11 @@ Planned:
 
 New reusable model code belongs here; training loops that wire models to data
 and attacks should live in `src/` modules or runnable `scripts/`.
+# Sprint 4
+
+`tuning.py` implements the primary EMBER MLP/CNN search, independent temperature
+calibration and full-data accuracy gates. `frozen.py` verifies immutable local
+bundles and performs explicitly raw/scaled feature inference. Run
+`python scripts/tune_baseline.py --help`; see the
+[reproduction/protocol guide](../../docs/sprint4.md). Existing Sprint 3 training
+remains validation-only and unchanged.
