@@ -169,6 +169,20 @@ def train_baselines(
     artifacts = manifest.get("artifacts", {})
     if any(name not in artifacts for name in required):
         raise ValueError("Manifest lacks required training artifacts")
+    # The loaders use canonical names, not manifest-supplied paths. Bind each
+    # integrity record to that exact input so a valid decoy cannot bypass hashing.
+    for name in required:
+        expected = f"{name}.json" if name in {"feature_names", "label_mapping"} else f"{name}.npy"
+        record = artifacts[name]
+        if not isinstance(record, dict) or record.get("file") != expected:
+            raise ValueError(f"Training artifact filename must be {expected}")
+        digest = record.get("sha256")
+        if (
+            not isinstance(digest, str)
+            or len(digest) != 64
+            or any(char not in "0123456789abcdef" for char in digest)
+        ):
+            raise ValueError(f"Training artifact {name} needs a SHA-256 digest")
     failures = verify_manifest_artifacts(
         {"artifacts": {k: artifacts[k] for k in required}}, data_root
     )
