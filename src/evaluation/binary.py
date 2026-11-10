@@ -46,5 +46,7 @@ def threshold_at_tpr(y: np.ndarray, scores: np.ndarray, target: float = 0.95) ->
     """Select the highest threshold reaching target TPR on validation only."""
     if not 0 < target <= 1 or len(np.unique(y)) != 2:
         raise ValueError("TPR selection requires both classes and target in (0, 1]")
-    _, tpr, thresholds = roc_curve(y, scores)
+    # Plot simplification can remove the highest threshold meeting the target,
+    # especially inside vertical ROC segments. Operating points need every score.
+    _, tpr, thresholds = roc_curve(y, scores, drop_intermediate=False)
     return float(thresholds[np.flatnonzero(tpr >= target)[0]])
