@@ -10,11 +10,14 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-# Debian trixie's apt 3.0.3 is affected by CVE-2026-109518. Disable retries
-# while obtaining the security update, then require the fixed package version.
+# Debian trixie's apt 3.0.3 is affected by CVE-2026-109518 and zlib1g
+# 1.3.dfsg+really1.3.1-1+b1 by CVE-2026-76844/CVE-2026-85091. Disable retries
+# while obtaining the security updates, then require the fixed package versions.
 RUN apt-get -o Acquire::Retries=0 update \
-    && apt-get -o Acquire::Retries=0 install -y --no-install-recommends --only-upgrade apt libapt-pkg7.0 \
+    && apt-get -o Acquire::Retries=0 install -y --no-install-recommends --only-upgrade \
+        apt libapt-pkg7.0 zlib1g \
     && dpkg --compare-versions "$(dpkg-query -W -f='${Version}' apt)" ge 3.0.4 \
+    && dpkg --compare-versions "$(dpkg-query -W -f='${Version}' zlib1g)" ge 1:1.3.dfsg+really1.3.1-1+deb13u1 \
     && rm -rf /var/lib/apt/lists/*
 
 # The pinned runtime packages ship manylinux wheels; no compiler toolchain is
