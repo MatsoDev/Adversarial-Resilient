@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import base64
 import hashlib
+import heapq
 import json
+import math
 from pathlib import Path
 from typing import Literal
 
@@ -36,6 +38,8 @@ FIGURES = (
     "data_cicids_per_file",
 )
 LIMIT = 2 * 1024 * 1024
+RUN_RESPONSE_LIMIT = 4 * 1024 * 1024
+MAX_BATCHES = 100
 
 
 class Metrics(BaseModel):
@@ -80,13 +84,17 @@ class ArtifactStore:
         self.root = root.resolve()
 
     def read(self, relative: str, limit: int = LIMIT) -> bytes:
-        path = (self.root / relative).resolve()
-        if not path.is_relative_to(self.root):
-            raise ArtifactUnavailable("Artifact is outside the configured root")
         try:
+            path = (self.root / relative).resolve()
+            if not path.is_relative_to(self.root):
+                raise ArtifactUnavailable("Artifact is outside the configured root")
+            # Byte limits do not prevent a FIFO open from blocking indefinitely.
+            # Artifact directories must remain trusted against concurrent writers.
+            if not path.is_file():
+                raise ArtifactUnavailable("Artifact is not a regular file")
             with path.open("rb") as handle:
                 content = handle.read(limit + 1)
-        except OSError as error:
+        except (OSError, RuntimeError) as error:
             raise ArtifactUnavailable("Artifact not available") from error
         if len(content) > limit:
             raise ArtifactUnavailable("Artifact exceeds size limit")
@@ -98,7 +106,15 @@ class ArtifactStore:
             def reject_constant(value):
                 raise ValueError("Nonfinite JSON value")
 
-            data = json.loads(self.read(relative), parse_constant=reject_constant)
+            def finite_float(value):
+                number = float(value)
+                if not math.isfinite(number):
+                    raise ValueError("Nonfinite JSON value")
+                return number
+
+            data = json.loads(
+                self.read(relative), parse_constant=reject_constant, parse_float=finite_float
+            )
             if not isinstance(data, dict):
                 raise ValueError("Expected JSON object")
             return data
@@ -134,15 +150,19 @@ class ArtifactStore:
 
     def runs(self) -> dict:
         runs, unavailable = [], 0
+        # Reserve space for the response envelope; conservatively count ASCII
+        # serialization, which is at least as large as the UTF-8 HTTP response.
+        remaining = RUN_RESPONSE_LIMIT - 256
         folder = self.root / "results" / "baselines"
         if folder.resolve().is_relative_to(self.root):
-            files = sorted(folder.glob("*.json"), reverse=True)
+            files = heapq.nlargest(MAX_BATCHES + 1, folder.glob("*.json"))
         else:
             files = []
         reference = self.root / "results" / "baseline_reference.json"
         if reference.is_file():
             files.append(reference)
-        for path in files[:100]:
+        truncated = len(files) > MAX_BATCHES
+        for path in files[:MAX_BATCHES]:
             try:
                 report = self.json(path.relative_to(self.root).as_posix())
                 batch = report["runs"]
@@ -167,14 +187,20 @@ class ArtifactStore:
                 if len(identities) > 1 or len({r["model"] for r in batch}) != len(batch):
                     raise ValueError("Incompatible comparison batch")
                 existing = {r["run_id"] for r in runs}
-                runs.extend(r for r in batch if r["run_id"] not in existing)
+                selected = [r for r in batch if r["run_id"] not in existing]
+                size = len(json.dumps(selected, allow_nan=False).encode("utf-8"))
+                if size > remaining:
+                    truncated = True
+                    break
+                runs.extend(selected)
+                remaining -= size
             except (ArtifactUnavailable, KeyError, TypeError, ValueError):
                 unavailable += 1
         return {
             "schema_version": 1,
             "runs": runs,
             "unavailable_batches": unavailable,
-            "truncated": len(files) > 100,
+            "truncated": truncated,
         }
 
     def demo(self) -> dict:
