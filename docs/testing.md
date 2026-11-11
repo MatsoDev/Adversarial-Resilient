@@ -33,6 +33,9 @@ datasets. Three optional real-data checks are skipped unless
 | File | Covers |
 |---|---|
 | `tests/data_fixtures.py` | Synthetic EMBER JSONL and CICIDS CSV builders (not a test module) |
+| `tests/test_architecture.py` | Static Python dependency direction between library, API and dashboard |
+| `tests/test_repository_hygiene.py` | Git ignore semantics for secrets, runtime outputs, templates and committed evidence |
+| `tests/test_model_sampling.py` | Shared deterministic selection, stratification, selected-only feature access and index-hash format |
 | `tests/test_config.py` | `ensure_dirs()` creates every runtime directory idempotently |
 | `tests/test_sprint4.py` | Disjoint selection/calibration/operating splits, temperature calibration, deterministic MLP/CNN search, freeze gates, bundle integrity, raw/scaled equivalence, prediction auth/limits/errors |
 | `tests/test_binary_metrics.py` | Hand-computed metrics, decision margins, undefined single-class metrics, tied scores, highest-threshold TPR selection and invalid inputs |
@@ -61,7 +64,7 @@ datasets. Three optional real-data checks are skipped unless
 | `tests/test_eda_cli.py` | EDA CLI end-to-end JSON/report/figure generation, sampling, and argument validation |
 | `tests/test_data_loader.py` | Loader API, standardisation, shape/scaler validation, missing-artifact errors |
 | `tests/test_data_real_optional.py` | Local dataset availability only; skipped by default |
-| `tests/test_docs_links.py` | Relative Markdown links in the root docs and component READMEs resolve |
+| `tests/test_docs_links.py` | Relative links in root docs, GitHub templates, docs and component READMEs; all docs pages reachable from the index; checker regressions |
 
 The suite is flat: add new tests as `tests/test_<area>.py` rather than creating
 nested test packages.
@@ -83,10 +86,11 @@ nested test packages.
   `pytest.mark.skipif(os.environ.get("RUN_REAL_DATA_TESTS") != "1", ...)`;
   tests run only when the user opts in and has the datasets locally.
 - **Docs are part of the contract.** When you add or move a Markdown file,
-  update its links; `tests/test_docs_links.py` checks relative file targets.
-  It intentionally skips fenced/inline code and does not validate heading
-  anchors or external URLs. Links whose labels are inline code are also outside
-  its current coverage; review those paths explicitly. No Markdown linter,
+  update its links; `tests/test_docs_links.py` checks relative file targets,
+  including links with code-formatted labels, and reachability from the index.
+  It skips fenced/inline code examples and does not validate heading anchors,
+  external URLs or reference-style links. It is a lightweight inline-link check,
+  not a full Markdown parser. No Markdown linter,
   static-site generator or generated API-doc build is configured. FastAPI's
   runtime `/openapi.json` is the machine-readable route/request-schema reference.
 
@@ -157,6 +161,8 @@ These file-based groups overlap; the repository does not currently have separate
 unit/integration markers. From the repository root:
 
 ```bash
+# Repository boundaries, navigation and ignore policy (no datasets/services)
+.venv/bin/python -m pytest tests/test_architecture.py tests/test_docs_links.py tests/test_repository_hygiene.py -q
 # Fast metrics and manifest unit tests
 .venv/bin/python -m pytest tests/test_binary_metrics.py tests/test_manifest_security.py -q
 # Synthetic training -> bundle verification -> HTTP inference, plus ASGI streaming
@@ -175,6 +181,11 @@ SHA-256 verification at Sprint 4 training, held-out test and inference boundarie
 The Node test uses a minimal DOM, not a real browser; there is no browser
 end-to-end runner. No separate type checker is configured. Ruff, pytest coverage,
 Bandit, dependency auditing and the Docker build remain the existing quality gates.
+
+The architecture check inspects static absolute imports, including deferred and
+type-checking imports; it does not police dynamic imports or filesystem access.
+The ignore-policy test uses an isolated temporary Git repository and skips when
+Git is absent. Both run as part of the existing pytest/CI suite, with no new tools.
 
 See [the test-hardening report](testing_hardening_report.md) for measured baseline,
 regression reproductions, verification results and remaining gaps.

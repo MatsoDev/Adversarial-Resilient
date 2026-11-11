@@ -36,6 +36,9 @@ against the real detectors and defenses remain later-sprint work.
 11. [`docs/security/SECURITY_AUDIT.md`](docs/security/SECURITY_AUDIT.md) —
     security baseline, fixed findings, verification, and residual risks.
 
+For maintenance context, see [`docs/repository_audit.md`](docs/repository_audit.md):
+cleanup evidence, deliberately retained legacy/history files, and validation limits.
+
 ## Commands (run from the repo root)
 
 ```bash
@@ -49,6 +52,7 @@ make docker-build docker-scan  # build + Trivy scan of fixed HIGH/CRITICAL
 make format             # rewrite files with ruff format
 make demo               # scripts/art_quickstart.py --fast (real MNIST, minutes)
 python -m pytest tests/test_art_quickstart_smoke.py  # isolated synthetic demo check
+python -m pytest tests/test_architecture.py tests/test_docs_links.py tests/test_repository_hygiene.py -q
 make data               # full EMBER + CICIDS preprocessing (needs local raw data)
 make data-smoke         # deterministic 2000-row subset into /tmp
 make eda                # regenerate docs/results/data_eda.json + figures/report
@@ -73,8 +77,12 @@ formatting, so run it before every commit.
   `defenses`, `evaluation`, `utils`). **New runnable demos** → `scripts/`.
   **New tests** → `tests/test_<area>.py` (flat), use `tmp_path` for outputs.
 - **Docs** → `docs/`; link new documents from `docs/README.md`. Relative
-  Markdown links are checked by `tests/test_docs_links.py`, so update links
-  when moving files.
+  Markdown targets and discoverability from the index are checked by
+  `tests/test_docs_links.py`; update links when moving files. Heading anchors
+  and external/reference-style links still need manual review.
+- **Shared experiment sampling** → `src/models/sampling.py`; do not import
+  private helpers from another training pipeline. Keep canonical filename and
+  mandatory-hash checks at training/inference boundaries.
 - Stay within the sprint scope: do not implement speculative abstractions in
   placeholder packages.
 
@@ -82,13 +90,18 @@ formatting, so run it before every commit.
 
 - **Python 3.11–3.12 only** (CI: 3.11); CPU-only, no CUDA assumptions.
 - **Never commit** datasets, model weights, `.env`, or `mlruns/`; check
-  `git status` before committing.
+  `git status` before committing. Model metadata is runtime output too;
+  `models/` contents and local `.env.*` are ignored except tracked placeholders
+  and the root `.env.example` template. Do not change ignore rules to hide source.
 - **Generated files — never hand-edit:** `docs/results/art_quickstart_results.json`
   and `docs/figures/art_*.png` are produced by `scripts/art_quickstart.py`
   (`make demo`). `docs/results/data_eda.json`, `docs/figures/data_*.png`,
   `docs/data/eda_report.md`, and `docs/data/manifests/*.json` are produced by
   `scripts/eda_datasets.py` / full `scripts/preprocess.py` runs. All are
   intentionally committed; regenerate, don't edit.
+- `docs/results/baseline_reference.json` is committed measured evidence, not a
+  scratch output. Preserve its scores/provenance; local comparison JSON belongs
+  in ignored `docs/results/baselines/`.
 - **Tests must not write into `docs/`**: pass `output_dir` to
   `run_demo()`, `--output-dir` to the data CLIs, and use synthetic fixtures.
   Real-data tests are skipped unless `RUN_REAL_DATA_TESTS=1`.
@@ -96,6 +109,8 @@ formatting, so run it before every commit.
   print in library code; Windows/Linux/macOS compatible paths.
 - **Git:** Conventional Commits; branch naming and PR rules in
   [`CONTRIBUTING.md`](CONTRIBUTING.md). Never push to `main` directly.
+  Inspect staged/unstaged/untracked work first; never commit or push unrelated
+  user changes. Verify the remote base before selecting a task branch.
 - **Data:** raw datasets are read in place (CLI `--source` > `EMBER_DATA_DIR` /
   `CICIDS_DATA_DIR` > `data/raw/<name>` > `~/Documents/<name>`); never copy or
   commit them. Versioning is manifest-based (SHA-256/counts/config), not

@@ -1,5 +1,11 @@
 # Documentation audit — 2026-11-11
 
+**Follow-up clarification:** code-labelled links were already checked by the
+original file-link test; this report initially overstated that limitation.
+[Repository maintenance](repository_audit.md) adds tested fence/empty-target
+handling, index discoverability and GitHub-template coverage. The dated results
+below describe this earlier documentation-only pass.
+
 ## Scope and approach
 
 Documentation-only audit of `main` at `6de64ad`: onboarding, environment/dependency
@@ -71,8 +77,8 @@ services; historical successful results are not claimed as repeated here.
   responses/error models and bearer security are not fully declared. Future code
   work can add response/security schemas to reduce manual duplication; this
   documentation task intentionally does not change contracts or tests.
-- **Documentation validation:** existing pytest links omit anchors, external
-  URLs and inline-code labels. A supplemental local review checks changed docs;
+- **Documentation validation:** the original pytest check omitted anchors and
+  external URLs, but did check inline-code labels. A supplemental local review checked changed docs;
   no persistent Markdown/anchor checker or rendered-Mermaid build is introduced.
 - **Security/operations:** the full Sprint 4 security assessment, real browser
   end-to-end flow, sustained load, shared TLS/authz deployment and recovery/

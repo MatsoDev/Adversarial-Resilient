@@ -227,8 +227,8 @@ authentication in front of the stack. MLflow and the research dashboard
 have no built-in authentication.
 
 Both `api` and `dashboard` run the same FastAPI app on different ports. The
-HTML client uses its own origin; Compose's `API_URL=http://api:8000` entry is
-unused by this UI. Each process has its own prediction cache/query budget.
+HTML client uses its own origin; no inter-service `API_URL` is needed.
+Each process has its own prediction cache/query budget.
 Compose mounts `docs/` and `models/sprint4/` read-only into both services;
 raw/processed datasets are not required to browse reports. Check service state
 and logs with `docker compose ps` and `docker compose logs api dashboard mlflow`.

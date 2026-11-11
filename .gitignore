@@ -15,7 +15,8 @@ pip-wheel-metadata/
 
 # Env / secrets
 .env
-.env.local
+.env.*
+!/.env.example
 
 # Data & models (never commit datasets or weights)
 ember_dataset_*.tar.bz2
@@ -28,8 +29,6 @@ data/adversarial/*
 !data/adversarial/.gitkeep
 data/external/*
 !data/external/.gitkeep
-data/raw/EMBER-Dataset/
-data/raw/CIC-IDS-Dataset/
 data/**/*.jsonl
 data/**/*.csv
 data/**/*.npy
@@ -40,14 +39,11 @@ data/**/*.parquet
 *.onnx
 *.pkl
 *.h5
-models/*.pt
-models/*.pth
-models/baselines/
-models/sprint4/
+models/*
+!models/.gitkeep
 results/baselines/
 docs/results/baselines/
 *.joblib
-!models/.gitkeep
 
 # MLflow
 mlruns/
@@ -56,7 +52,7 @@ mlartifacts/
 # Notebooks
 .ipynb_checkpoints/
 
-# Node (dashboard future)
+# Optional local JavaScript tooling (the HTML dashboard has no Node runtime)
 node_modules/
 
 # OS / IDE
@@ -74,6 +70,7 @@ Thumbs.db
 .pytest_cache/
 .coverage
 .coverage.*
+coverage.xml
 coverage/
 htmlcov/
 dist/

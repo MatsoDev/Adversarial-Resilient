@@ -1,4 +1,4 @@
-# Published ports bind to 127.0.0.1 by default. MLflow and the placeholder
+# Published ports bind to 127.0.0.1 by default. MLflow and the research
 # dashboard have no authentication; use a TLS reverse proxy with auth before
 # setting BIND_ADDR=0.0.0.0.
 services:
@@ -34,8 +34,6 @@ services:
     command: python -m uvicorn api.main:app --port 8501 --host 0.0.0.0 --no-server-header
     ports:
       - "${BIND_ADDR:-127.0.0.1}:${DASHBOARD_PORT:-8501}:8501"
-    environment:
-      - API_URL=http://api:8000
     env_file:
       - .env
     depends_on:

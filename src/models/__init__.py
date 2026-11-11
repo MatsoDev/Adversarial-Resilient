@@ -1,4 +1,4 @@
-"""Model architectures: tabular baseline skeleton plus the MNIST demo CNN."""
+"""Demo-era model exports; training/tuning modules expose their own interfaces."""
 
 from src.models.baseline_mlp import BaselineMLP, SmallCNN
 

@@ -1,5 +1,5 @@
-# Keep the build context small: the image only needs requirements.txt,
-# src/, api/, dashboard/ and scripts/ (see Dockerfile).
+# Keep the build context small: the image copies runtime requirements,
+# src/, api/, dashboard/, scripts/ and committed docs/ artifacts (see Dockerfile).
 
 .git
 .gitignore
@@ -14,6 +14,13 @@ __pycache__/
 .pytest_cache/
 .ruff_cache/
 .mypy_cache/
+.coverage
+.coverage.*
+coverage.xml
+coverage/
+htmlcov/
+build/
+dist/
 
 # Runtime data / outputs (never needed to build)
 data/

@@ -76,8 +76,10 @@ Reproduce the audit by streaming 512-row training chunks into
 maximum absolute standardized values on all validation chunks. Compare with
 `scaler_mean.npy` / `scaler_scale.npy` from the same processed directory;
 `src.models.frozen.transform` implements the signed-log version. Recreate the
-Sprint 3 scaler with `_sample(train.X, train.y, 10000, 42)` from
-`src.models.training`, then `StandardScaler.fit` on those selected raw rows.
+Sprint 3 scaler with `sample_rows(train.X, train.y, 10000, 42)` from
+`src.models.sampling`, then `StandardScaler.fit` on those selected raw rows.
+This helper was extracted from `src.models.training._sample` during the
+repository audit; row selection and index-hash formats are unchanged.
 Neither audit
 nor hyperparameter selection evaluates official test labels.
 

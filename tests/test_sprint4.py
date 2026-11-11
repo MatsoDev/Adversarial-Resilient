@@ -1,6 +1,7 @@
 """Synthetic Sprint 4 protocol, freeze, integrity and bounded HTTP regression tests."""
 
 import json
+from pathlib import Path
 
 import numpy as np
 import pytest
@@ -80,6 +81,11 @@ def test_subset_search_never_opens_test_and_reproduces(ember, tmp_path):
     assert first["temperature"] == second["temperature"]
     assert first["calibration"]["after"]["log_loss"] <= first["calibration"]["before"]["log_loss"]
     assert first["train_raw_max_abs"] > 1e20
+    sampling_path = "src/models/sampling.py"
+    assert first["source_code_sha256"][sampling_path] == sha256_file(
+        Path(__file__).resolve().parents[1] / sampling_path
+    )
+    assert "src/models/training.py" not in first["source_code_sha256"]
     with pytest.raises(ValueError, match="No frozen"):
         FrozenBaseline(tmp_path / "first")
     candidate = FrozenBaseline(tmp_path / "first", require_frozen=False)

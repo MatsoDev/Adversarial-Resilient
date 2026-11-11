@@ -123,6 +123,16 @@ known issues, skipped items).
   [`testing_hardening_report.md`](testing_hardening_report.md). No research
   results were regenerated and M1 status is unchanged.
 
+## Cross-cutting — Repository maintenance (2026-11-11)
+
+- [x] Audit structure, tracked/ignored artifacts, dependencies and documentation;
+  preserve stable paths and supported legacy/reference workflows.
+- [x] Extract shared experiment sampling, reuse mandatory digest validation,
+  tighten runtime/build ignore policy and remove verified redundant configuration.
+- [x] Add pytest guards for layer boundaries, documentation navigation and ignore
+  semantics; update the contributor/agent map. Research milestone status is unchanged.
+- Evidence and verification: [repository audit](repository_audit.md).
+
 ## How to update this file
 
 - Tick checklist items as they land and add a one-line pointer to the

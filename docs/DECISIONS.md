@@ -1,5 +1,35 @@
 # Decisions log
 
+## Repository maintenance — 2026-11-11
+
+- **Keep the top-level boundaries and stable paths.** The audit found no static
+  layer violations or nonempty byte-identical tracked files. Wholesale moves,
+  removal of the tested legacy Streamlit UI, and removal of planned research
+  boundaries would add risk without improving ownership. See the
+  [audit evidence](repository_audit.md) and [placement reference](project-structure.md).
+- **Shared experiment sampling has a neutral owner.** Extract row selection and
+  provenance hashing into `src/models/sampling.py`, so Sprint 4 no longer imports
+  private Sprint 3 training helpers or materializes a dummy feature array.
+  Preserve stratification, sorted indices, seeds, float32 selected rows and the
+  little-endian int64 hash format. Update tuning's source-provenance file list.
+- **Reuse mandatory digest validation.** Sprint 3 now opts into the existing
+  manifest verifier's `require_hashes=True`, like tuning/frozen loading, instead
+  of maintaining a duplicate digest-format check. Keep input filename checks
+  and all freeze/test gates unchanged.
+- **Enforce the map using existing pytest.** Add static layer-boundary checks,
+  index reachability and isolated Git-ignore checks. Correct the link checker's
+  tilde/variable-length fence handling and empty targets. No new tooling or
+  documentation framework is needed; anchors/external/reference-style links
+  are still outside the lightweight checker's scope.
+- **Remove only demonstrated clutter.** The parent `data/.gitkeep` is redundant
+  with four tracked child placeholders. Unused MNIST mean/std constants conflict
+  with the demo's intentional `ToTensor()`-only normalization. Compose's HTML
+  service does not read the removed legacy `API_URL` entry. Ignore all local model
+  metadata and `.env.*` variants, retaining `.env.example` and reference evidence.
+- **Do not resurrect intentionally removed automation.** Dependabot configuration
+  was removed in `557b34b`; correct current docs and annotate historical claims
+  rather than silently restoring it. Dependency updates require maintainer review.
+
 ## Sprint 4 — baseline protocol and local prediction (2026-11-11)
 
 - Treat the plan's 93% checkpoint as a real gate, not a reason to invent a

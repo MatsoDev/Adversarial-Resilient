@@ -1,16 +1,5 @@
 # Adversarial-Resilient Security Models
 
-**Team: after pulling main, run `python scripts/setup_environment.py` to sync
-the project environment.** Then start the HTML dashboard using the commands in
-[the team handoff](docs/team_handoff.md). A compact recorded results snapshot
-is included so a fresh checkout shows the same Sprint 3 comparison immediately;
-large datasets and trained models require separate local setup.
-
-The primary UI is now plain **HTML, CSS and JavaScript** served by FastAPI.
-With `.venv` active, run `python -m uvicorn api.main:app --host 127.0.0.1 --port 8000` and open
-<http://localhost:8000/dashboard/>. No Streamlit process or frontend build is
-needed. See [dashboard/README.md](dashboard/README.md) for details.
-
 Defensive ML research for developers and researchers building malware and
 network-intrusion detectors. The repository implements dataset preprocessing,
 baseline training, evaluation, and a research dashboard. Attacks against the
@@ -18,6 +7,11 @@ real detectors and adversarial defenses are planned, not implemented.
 
 The MNIST demo in this repo is only an environment check that proves the attack
 tooling works — it is not the project's security result.
+
+The primary UI is plain **HTML, CSS and JavaScript** served by FastAPI; no
+frontend build or Streamlit process is needed. A fresh checkout includes recorded
+comparison results, not datasets or trained models. Start with [Quick start](#quick-start),
+or follow [the team handoff](docs/team_handoff.md) to synchronize an existing checkout.
 
 ## Current status
 
@@ -134,6 +128,8 @@ Highlights:
   rules, and data flows.
 - [`docs/project-structure.md`](docs/project-structure.md) — directory
   responsibilities and where new code belongs.
+- [`docs/repository_audit.md`](docs/repository_audit.md) — maintenance findings,
+  cleanup evidence, verification and intentionally retained files.
 - [`docs/data/README.md`](docs/data/README.md) — dataset locations,
   preprocessing/EDA commands, and loaders.
 - [`api/README.md`](api/README.md) — HTTP endpoints, responses, and OpenAPI
@@ -169,9 +165,9 @@ Full reference: [`docs/project-structure.md`](docs/project-structure.md).
 
 ## Working with Git
 
-- Branch names: `feat/<topic>`, `fix/<topic>`, `docs/<topic>` (or
+- Branch names: `feat/<topic>`, `fix/<topic>`, `docs/<topic>`, `chore/<topic>` (or
   `sprint<N>/<topic>`).
-- Commits use Conventional Commits: `feat:`, `fix:`, `docs:`, `chore:`,
+- Commits use Conventional Commits: `feat:`, `fix:`, `refactor:`, `docs:`, `chore:`,
   `test:`, `ci:`.
 - Open a pull request into `main`; never push directly to `main`.
 - Never commit datasets, model weights, `.env`, or `mlruns/`. Check `git status`

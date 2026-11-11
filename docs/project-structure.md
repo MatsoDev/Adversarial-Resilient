@@ -1,229 +1,175 @@
 # Project structure
 
-Sprint 4 additions: reusable tuning and verified inference in
-`src/models/{tuning,frozen}.py`, the CNN in `src/models/tabular.py`, CLI
-`scripts/tune_baseline.py`, HTTP validation/auth/budgets in `api/prediction.py`,
-and feature-entry UI in `dashboard/web/prediction.js` (the primary UI is HTML,
-not the legacy Streamlit app). Regression tests are in `tests/test_sprint4.py`.
-Ignored runtime bundles live under `models/sprint4/`; see [Sprint 4](sprint4.md).
-
-Reference for how this repository is organized and where new work belongs.
-For component behavior and dependency rules see [`architecture.md`](architecture.md).
-The tree highlights important files, not every file; the [testing guide](testing.md)
-maps the test suites.
+The stable placement reference for contributors and coding agents. Start with
+[the documentation index](README.md); [architecture](architecture.md) explains
+the components and data flows, and [testing](testing.md) maps individual suites.
+This tree highlights boundaries and entry points, not every file.
 
 ## Repository tree
 
 ```text
 Adversarial-Resilient/
-├── README.md                    # overview, status, quick start, docs index
-├── CONTRIBUTING.md              # branching, commit style, PR checklist
-├── AGENTS.md                    # short navigation map for AI agents
-├── LICENSE                      # MIT
-├── Makefile                     # setup / lint / format / test / security / check / demo / data / docker / clean
-├── pyproject.toml               # ruff + pytest configuration (tooling only, no packaging)
-├── requirements.txt             # pinned non-torch runtime dependencies
-├── requirements-torch.txt       # CPU-only torch/torchvision (scoped PyTorch index)
-├── requirements-dev.txt         # runtime + pytest/ruff/pre-commit/security tools
-├── requirements-cleverhans.txt  # optional isolated env for the CH cross-check
-├── Dockerfile                   # dev image; CMD runs the FastAPI app
-├── docker-compose.yml           # api + dashboard + mlflow services
-├── .env.example                 # compose host-port template
-├── .pre-commit-config.yaml      # ruff + whitespace/hygiene hooks
-├── .github/
-│   ├── workflows/ci.yml         # lint + tests + security scan (py3.11), docker build
-│   ├── dependabot.yml           # weekly pip/actions/docker update PRs
-│   ├── ISSUE_TEMPLATE/          # bug.md, task.md
-│   └── PULL_REQUEST_TEMPLATE.md
-├── api/                         # FastAPI service (importable as `api.*`)
-│   ├── main.py                  # app factory, middleware, static /dashboard mount
-│   ├── artifacts.py             # read-only research routes
-│   ├── prediction.py            # gated feature inference, auth and request budgets
-│   └── README.md
-├── dashboard/                   # primary HTML UI + legacy Streamlit reference
-│   ├── web/                     # index.html, styles.css, app.js, prediction.js, logo
-│   ├── app.py                   # legacy Streamlit research pages
-│   ├── client.py                # validated/bounded legacy HTTP artifact client
-│   └── README.md
-├── src/                         # shared library (importable as `src.*`)
-│   ├── config.py                # central paths, seed, dataset resolvers
-│   ├── utils/seed.py            # deterministic seeding (python/numpy/torch)
-│   ├── models/baseline_mlp.py   # BaselineMLP, SmallCNN
-│   ├── models/tabular.py        # TabularMLP, TabularCNN binary logits
-│   ├── models/training.py       # classical/MLP validation-only comparison
-│   ├── models/tuning.py         # CPU search, calibration, held-out test gate
-│   ├── models/frozen.py         # verified local bundles, raw/scaled inference
-│   ├── data/                    # EMBER/CICIDS loading + preprocessing (Sprint 2)
-│   │   ├── ember.py             # 2381-dim clean-room vectoriser, time split
-│   │   ├── cicids2017.py        # cleaning, labels, dedup, stratified split
-│   │   ├── preprocessing.py     # hashes/manifests/scalers/split helpers
-│   │   └── loader.py            # load_ember / load_cicids2017
-│   ├── attacks/                 # FGSM/PGD/CW wrappers (later sprints)
-│   ├── defenses/                # hardening methods (later sprints)
-│   └── evaluation/              # binary.py metrics, artifacts.py bounded readers
-├── scripts/                     # runnable demos / utilities
-│   ├── art_quickstart.py        # end-to-end ART demo on MNIST
-│   ├── preprocess.py            # reproducible EMBER/CICIDS data pipeline
-│   ├── eda_datasets.py          # EDA JSON + figures + generated report
-│   ├── setup_environment.py     # sync/check .venv requirements; no hooks or data
-│   ├── train_baselines.py       # development comparison CLI
-│   └── tune_baseline.py         # tune/calibrate/evaluate/freeze CLI
-├── tests/                       # pytest suite (flat, one file per area)
-│   ├── data_fixtures.py         # synthetic EMBER/CICIDS fixtures
-│   ├── test_config.py
-│   ├── test_seed.py
-│   ├── test_api_health.py
-│   ├── test_api_security.py     # HTTP headers, Host allowlist, docs switch
-│   ├── test_dashboard_security.py  # API_URL validation + bounded responses
-│   ├── test_manifest_security.py   # manifest path containment
-│   ├── test_security_config.py     # Docker/CI/dependency security invariants
-│   ├── test_docs_links.py       # relative Markdown links resolve (docs + component READMEs)
-│   ├── test_art_quickstart_smoke.py
-│   ├── test_data_ember.py
-│   ├── test_data_cicids.py
-│   ├── test_preprocess_cli.py
-│   ├── test_data_loader.py
-│   ├── test_data_real_optional.py  # skipped unless RUN_REAL_DATA_TESTS=1
-│   ├── test_sprint3.py          # synthetic training/artifact contracts
-│   ├── test_sprint3_real.py     # opt-in processed EMBER checks
-│   ├── test_sprint4.py          # tuning, bundle integrity and prediction
-│   ├── test_binary_metrics.py   # metric and operating-threshold semantics
-│   ├── test_artifact_security.py  # artifact size/type/numeric limits
-│   ├── test_prediction_streaming.py  # ASGI streamed-body boundaries
-│   ├── test_html_dashboard.py   # HTML/assets/CSP
-│   └── test_sprint4_ui.py       # Node-backed prediction component test
-├── docs/                        # see docs/README.md for the documentation index
-│   ├── README.md                # documentation index
-│   ├── development.md           # setup, verification, demo, services, troubleshooting
-│   ├── configuration.md         # environment variables, data paths, Compose ports
-│   ├── testing.md               # test layout, commands, fixtures, optional checks
-│   ├── architecture.md          # components, data flows, dependency rules
-│   ├── project-structure.md     # this file
-│   ├── threat_model_v0.1.md     # security scope and attacker model
-│   ├── security/                # application security audit + residual risks
-│   ├── project_plan.md          # canonical scope/schedule baseline
-│   ├── progress.md              # living sprint/milestone tracker
-│   ├── DECISIONS.md             # log of non-obvious decisions
-│   ├── reading_list.md          # papers and why they matter
-│   ├── sprint1_report.md        # Sprint 1 report (history)
-│   ├── sprint2_report.md        # Sprint 2 report (data pipeline evidence)
-│   ├── PR_sprint1.md            # Sprint 1 PR description snapshot (history)
-│   ├── literature/              # paper notes + templates
-│   ├── data/                    # data guide, data docs, committed manifests
-│   │   ├── README.md            # locations, commands, outputs, loaders
-│   │   ├── ember_feature_layout.md
-│   │   ├── eda_report.md        # generated by scripts/eda_datasets.py
-│   │   └── manifests/           # ember2018.json, cicids2017.json
-│   ├── data_cards/              # ember2018.md, cicids2017.md
-│   ├── figures/                 # demo + data EDA plots (committed on purpose)
-│   └── results/                 # demo/data JSON (committed on purpose)
-├── data/                        # runtime datasets; gitignored except .gitkeep
-│   ├── external/               # optional third-party data (gitignored except .gitkeep)
-│   ├── raw/                     # downloads + in-place dataset links (gitignored)
-│   ├── processed/               # cleaned/split datasets (gitignored)
-│   └── adversarial/             # generated adversarial datasets (later sprints)
-├── models/                      # ignored baselines/ and sprint4/ local bundles
-└── notebooks/                   # exploratory notebooks (empty for now)
+├── README.md, AGENTS.md          # orientation and agent navigation
+├── CONTRIBUTING.md, LICENSE      # contribution workflow and MIT license
+├── Makefile                     # canonical setup/check/service/data commands
+├── pyproject.toml               # Ruff, pytest and coverage; no package build
+├── requirements*.txt            # runtime, dev, CPU torch, isolated CleverHans
+├── Dockerfile, docker-compose.yml
+├── .env.example                 # safe local/Compose settings template
+├── .gitignore, .dockerignore, .gitattributes
+├── .pre-commit-config.yaml       # formatting and hygiene hooks
+├── .github/                     # CI workflow, issue and PR templates
+├── api/
+│   ├── main.py                  # app factory, middleware, /dashboard mount
+│   ├── artifacts.py             # read-only /v1 research routes
+│   └── prediction.py            # authenticated metadata/inference and budgets
+├── dashboard/
+│   ├── web/                     # primary HTML/CSS/JS and logo; no build step
+│   ├── app.py                   # supported legacy Streamlit reference
+│   └── client.py                # bounded/validated legacy HTTP client
+├── src/                         # shared library, imported as src.*
+│   ├── config.py                # central paths, default seed, dataset resolvers
+│   ├── utils/seed.py            # deterministic Python/NumPy/torch seeding
+│   ├── data/
+│   │   ├── ember.py             # EMBER v2 vectorization and time split
+│   │   ├── cicids2017.py        # CSV cleaning, labels, deduplication and split
+│   │   ├── preprocessing.py     # atomic writes, hashes/manifests, scalers/splits
+│   │   └── loader.py            # processed data interfaces
+│   ├── models/
+│   │   ├── baseline_mlp.py      # demo-era BaselineMLP and MNIST SmallCNN
+│   │   ├── tabular.py           # binary TabularMLP and TabularCNN logits
+│   │   ├── sampling.py          # shared stratified indices/rows and index hashes
+│   │   ├── training.py          # classical/MLP validation-only comparison
+│   │   ├── tuning.py            # CPU search, calibration and held-out test gate
+│   │   └── frozen.py            # verified bundles and raw/scaled inference
+│   ├── evaluation/              # binary metrics and bounded artifact readers
+│   ├── attacks/                 # reserved boundary; no real-detector attacks yet
+│   └── defenses/                # reserved boundary; no defense implementation yet
+├── scripts/                     # runnable operator entry points
+│   ├── setup_environment.py     # synchronize/check .venv; no data or hooks
+│   ├── art_quickstart.py        # ART MNIST environment demo
+│   ├── preprocess.py            # dataset pipeline and verification CLI
+│   ├── eda_datasets.py          # EDA JSON/figures/report generator
+│   ├── train_baselines.py       # Sprint 3 comparison CLI
+│   └── tune_baseline.py         # Sprint 4 tune/calibrate/evaluate/freeze CLI
+├── tests/                       # flat pytest suite; see docs/testing.md
+│   ├── conftest.py              # Windows torch import-order workaround
+│   └── data_fixtures.py         # reusable synthetic inputs
+├── docs/                        # indexed guides, contracts and dated evidence
+│   ├── data/                   # guide, feature layout, generated EDA/manifests
+│   ├── data_cards/             # dataset composition, license and limitations
+│   ├── literature/             # linked paper notes and templates
+│   ├── security/               # dated audit and residual risks
+│   ├── figures/                # intentionally committed reference PNGs
+│   └── results/                # committed reference JSON; local baselines/ ignored
+├── data/                        # runtime data, contents ignored except .gitkeep
+│   ├── raw/                    # downloaded MNIST and optional dataset links
+│   ├── processed/              # derived arrays, metadata, scalers and manifests
+│   ├── adversarial/            # reserved later-sprint outputs
+│   └── external/               # optional third-party data
+├── models/                      # ignored checkpoints/bundles, tracked .gitkeep only
+└── notebooks/                   # reserved exploration directory; .gitkeep only
 ```
 
-## Directory responsibilities
+Each application/library component has a local README linked from the index.
+The repository is **not installed as a Python package**. Run commands from the
+root; direct script entry points bootstrap the root import path. Keep that small
+bootstrap exception local to CLIs, not reusable modules. `setup_environment.py`
+uses only the standard library so it can run before dependencies are installed.
 
-| Directory | Contains | Must not contain |
+## Ownership and where new work belongs
+
+| Location | Owns | Does not own |
 |---|---|---|
-| `src/` | Reusable library code, grouped by concern; importable as `src.*` | Scripts with side effects, notebooks, tests |
-| `scripts/` | Runnable entry points (`python scripts/<name>.py`), including `preprocess.py` and `eda_datasets.py` | Reusable library code (put it in `src/`) |
-| `api/` | FastAPI app and HTTP concerns | Model/training logic (import it from `src/`) |
-| `dashboard/` | Primary HTML/CSS/JS in `web/`, legacy Streamlit UI/client | Business logic (call the API instead) |
-| `tests/` | pytest tests, fixtures, helpers | Production code |
-| `docs/` | Documentation + intentionally committed demo artifacts | Runtime data, model weights |
-| `data/` | Runtime datasets and derived data (gitignored) | Code, docs, committed data files |
-| `models/` | Trained checkpoints (gitignored) | Code |
-| `notebooks/` | Exploratory notebooks | Anything the project depends on |
+| `src/data/` | Reusable parsing, preprocessing, loaders, artifact integrity | Training/model choice or HTTP |
+| `src/models/` | Architectures, shared experiment sampling, training, tuning, verified inference | Routes, browser UI or CLI parsing |
+| `src/evaluation/` | Metrics, thresholds, bounded research-artifact readers | API transport or training orchestration |
+| `src/utils/` | Small genuinely shared helpers such as seeding | A catch-all for domain logic |
+| `api/` | HTTP routing, validation, authentication, middleware, static serving | Training or dataset processing |
+| `dashboard/web/` | Primary browser UI, static assets and same-origin HTTP calls | Local model/array loading or a frontend build |
+| `dashboard/app.py`, `client.py` | Legacy Streamlit views and HTTP client | Primary UI entry point |
+| `scripts/` | Runnable operator tools and CLI orchestration | Shared library APIs; extract only demonstrated reuse |
+| `tests/` | Flat `test_<area>.py`, synthetic fixtures and helpers | Runtime outputs or production logic |
+| `docs/` | Guides, references, decisions and compact research evidence | Datasets, weights, secrets or local tracking stores |
+| `data/`, `models/`, `mlruns/` | Ignored runtime artifacts | Source code or hand-maintained documentation |
+| `notebooks/` | Optional exploration | Anything a supported workflow depends on |
 
-## Root files
+- **Paths/defaults:** `src/config.py`; random seeding: `src/utils/seed.py`.
+  Keep settings in the existing [configuration reference](configuration.md) and
+  add safe placeholders to `.env.example` when applicable.
+- **Tests:** add `tests/test_<area>.py`, not a parallel nested test hierarchy.
+  Share synthetic data through `tests/data_fixtures.py`; write only to `tmp_path`.
+- **Documentation:** operations in `development.md`, settings in
+  `configuration.md`, verification in `testing.md`, data work in `docs/data/`,
+  paper notes in `docs/literature/`, API contracts in `api/README.md`.
+  Link new pages from the index or an already indexed guide.
+- **Status vs evidence:** change [progress](progress.md) for status,
+  [the plan](project_plan.md) only for deliberate scope/schedule changes,
+  [decisions](DECISIONS.md) for rationale, and dated reports for measured results.
+
+## Important root configuration
 
 | File | Purpose |
 |---|---|
-| `Makefile` | Canonical developer commands; mirrors what CI runs (`lint`, `test`, `security`, `docker-scan`, `check`) |
-| `pyproject.toml` | ruff (lint/format) and pytest settings; the project is not packaged |
-| `requirements*.txt` | Pinned dependencies; `-torch` is the CPU index scope, `-dev` adds test/lint/security tooling, `-cleverhans` is isolated |
-| `Dockerfile`, `docker-compose.yml`, `.dockerignore`, `.env.example` | Container stack and its configuration template |
-| `.pre-commit-config.yaml` | Formatting/hygiene hooks installed by `make setup` |
-| `.gitattributes`, `.gitignore` | Line-ending normalization and ignore policy |
+| `Makefile` | Canonical commands; CI calls `lint`, `coverage`, `security`, `docker-scan` |
+| `pyproject.toml` | Ruff lint/format, pytest discovery and line/branch coverage; no separate type checker |
+| `requirements.txt` | Pinned non-torch runtime requirements; not a transitive lockfile |
+| `requirements-dev.txt` | Runtime plus tests, formatting, hooks and security tooling |
+| `requirements-torch.txt` | CPU-only wheels with the PyTorch index scoped to this file |
+| `requirements-cleverhans.txt` | Optional isolated legacy cross-check; not default setup |
+| `Dockerfile`, `docker-compose.yml` | Non-root app image; two same-app instances plus local MLflow |
+| `.env.example` | Local settings template; `.env` and local `.env.*` remain ignored |
+| `.gitignore`, `.dockerignore` | Separate version-control and container-build-context policies |
+| `.gitattributes` | Text normalization and binary/runtime-data diff policy |
+| `.pre-commit-config.yaml` | Existing Ruff and file-hygiene hooks |
 
-## Where do I put ...?
+Dependency-update automation is not configured: `.github/dependabot.yml` was
+intentionally removed in `557b34b`. Dated reports mention its earlier presence;
+do not assume automatic version-update PRs are currently enabled.
 
-- **New reusable code:** a module or package under `src/<concern>/`
-  (`data`, `models`, `attacks`, `defenses`, `evaluation`, or `utils`). Add it
-  only when it is actually used; do not create speculative abstractions.
-- **New runnable demo or one-off tool:** `scripts/<name>.py`, importable by
-  tests as `scripts.<name>`.
-- **New tests:** `tests/test_<area>.py`, flat in the tests directory. Use
-  `tmp_path` for any file output so the committed `docs/` artifacts are never
-  touched by test runs. Fast, dependency-light tests are preferred; data tests
-  use synthetic fixtures (`tests/data_fixtures.py`), and real-data checks are
-  skipped unless `RUN_REAL_DATA_TESTS=1`.
-- **Paths or seeds:** add to `src/config.py` / use `src/utils/seed.py` rather
-  than hard-coding relative paths in modules.
-- **Documentation:** general docs in `docs/` (setup/operations in
-  `docs/development.md`; environment settings in `docs/configuration.md`; test
-  conventions in `docs/testing.md`; data work in `docs/data/`), paper notes in
-  `docs/literature/` (copy a template there), non-obvious decisions logged in
-  `docs/DECISIONS.md`, then link new docs from `docs/README.md`.
-- **Datasets / weights:** never commit; raw data is read in place from
-  `EMBER_DATA_DIR` / `CICIDS_DATA_DIR`, repo-local `data/raw/`, or
-  `~/Documents/`, and processed arrays go under `data/processed/` (gitignored).
-  Only compact manifests and generated EDA/report artifacts are committed.
-- **Configuration for the stack:** `.env.example` + `docker-compose.yml`;
-  do not commit a real `.env`.
+## Generated vs maintained
 
-## Generated vs maintained files
+| Path | Producer / handling |
+|---|---|
+| `docs/results/art_quickstart_results.json`, `docs/figures/art_*.png` | `scripts/art_quickstart.py` / `make demo`; intentionally committed, never hand-edit |
+| `docs/data/manifests/*.json` | Full default-output `scripts/preprocess.py` runs; intentionally committed |
+| `docs/data/eda_report.md`, `docs/results/data_eda.json`, `docs/figures/data_*.png` | `scripts/eda_datasets.py` / `make eda`; intentionally committed |
+| `docs/results/baseline_reference.json` | Compact measured Sprint 3 snapshot; preserve scores/provenance, see [handoff](team_handoff.md) |
+| `docs/results/baselines/` | Ignored local Sprint 3 comparison JSON |
+| `data/`, `models/`, `mlruns/`, `mlartifacts/` contents | Ignored runtime data/checkpoints/tracking; retain tracked directory placeholders |
+| `.venv/`, `__pycache__/`, `.pytest_cache/`, `.ruff_cache/`, coverage outputs | Local environment/tool artifacts, not source |
 
-**Generated (do not hand-edit):**
+Everything else is maintained by developers, including the generator scripts.
+The demo CLI has no output-redirection flag: use its isolated pytest smoke test
+or Python `run_demo(output_dir=...)` for checks that must not replace evidence.
+`make clean` removes caches **and `mlruns/`**; it is not a harmless validation step.
 
-- `docs/results/art_quickstart_results.json`, `docs/figures/art_*.png` —
-  written by `scripts/art_quickstart.py` (`make demo`); committed on purpose
-  as the reference demo output.
-- `docs/data/manifests/*.json`, `docs/data/eda_report.md`,
-  `docs/results/data_eda.json`, and `docs/figures/data_*.png` — written by
-  `scripts/preprocess.py` (full runs) and `scripts/eda_datasets.py`; regenerate,
-  do not hand-edit.
-- `docs/results/baseline_reference.json` — committed compact Sprint 3 run
-  evidence; local comparison outputs in `docs/results/baselines/` are ignored.
-  Do not hand-edit measured scores; see [the handoff](team_handoff.md).
-- `mlruns/`, `data/raw/MNIST/`, `data/processed/`, `models/` bundles — runtime
-  outputs, gitignored.
-- `__pycache__/`, `.pytest_cache/`, `.ruff_cache/` — tool caches, gitignored;
-  `make clean` removes them.
+## Dependency and naming conventions
 
-**Maintained by developers:** everything else, including the committed demo
-artifacts' generator (`scripts/art_quickstart.py`).
+- `src/` must not import `api/`, `dashboard/`, `scripts/` or `tests/`.
+  API/dashboard/CLI layers may import `src/`; API and dashboard communicate over
+  HTTP, never mutual Python imports. Static asset serving is not a Python import.
+- Share sampling through `src/models/sampling.py`, not private helpers in a
+  sibling training pipeline. Keep integrity verification in `src/data/preprocessing.py`.
+- Python modules use `snake_case`; tests use `test_<area>.py`. Preserve existing
+  document names/URLs (including `project-structure.md`, uppercase READMEs,
+  `DECISIONS.md` and historical `PR_sprint1.md`); new general docs use
+  `lower_snake_case.md`. Avoid cosmetic renames of stable links.
+- Ruff is the formatter (`line-length = 100`); use logging in library code.
+  Python 3.11–3.12 and CPU-only operation remain required.
+- [Contribution rules](../CONTRIBUTING.md) own branching/commits/PR review.
+  `main` receives changes through PRs, not direct pushes.
 
-## Conventions
+## Deliberate exceptions and retained history
 
-- **Naming:** `snake_case` for Python modules, `test_<area>.py` for tests, and
-  `lower_snake_case.md` for docs (with two established exceptions:
-  `DECISIONS.md` and the `sprint<N>_report.md` pattern). Relative Markdown
-  links are checked by `tests/test_docs_links.py`.
-- **Imports:** `from src.config import ...`, `from scripts.art_quickstart
-  import ...` (the repo root works as the import base because tests and
-  scripts run from the root).
-- **Style:** ruff with `line-length = 100`; `ruff format` is the formatter
-  (enforced by pre-commit). No `print` in library code — use `logging`.
-- **Commits/branches:** see [`../CONTRIBUTING.md`](../CONTRIBUTING.md).
-- **Generated demo artifacts:** regenerate with `make demo`; never edit them
-  by hand.
+The legacy Streamlit UI still has documented commands and real process tests;
+it is not unused code. `src/attacks/`, `src/defenses/` and `notebooks/` reserve
+explicit plan boundaries; do not implement speculative abstractions to fill them.
+Historical reports/PR snapshots remain evidence, not current setup manuals.
+The original project-plan HTML export is available in Git history (`c8a9d0a`);
+the maintained scope document is Markdown. Existing runtime bundle directories
+do not prove that a qualifying freeze exists or that M1 passed.
 
-## Notes and exceptions
-
-- `data/raw/MNIST/` appears after the first demo run; it is downloaded by
-  torchvision and is not part of the repository.
-- `docs/PR_sprint1.md` is a historical snapshot of the merged Sprint 1 pull
-  request; it is kept for the project record, not as live documentation.
-- `docs/project_plan.md` is the Markdown conversion of the official plan HTML
-  export; the original HTML is preserved in git history (commit `c8a9d0a`)
-  if the exact export is ever needed.
-- `src/data`, `src/models` and `src/evaluation` contain working implementations.
-  Only `src/attacks` and `src/defenses` remain reserved boundaries with no logic.
-- `notebooks/` has only `.gitkeep`. Model artifacts may exist locally but are
-  not distributed in Git; directory existence is not proof of a qualifying freeze.
+The [repository audit](repository_audit.md) records cleanup evidence and retained
+exceptions. Boundary, navigation and ignore-policy regression checks are part
+of the normal pytest suite; see [testing](testing.md).
