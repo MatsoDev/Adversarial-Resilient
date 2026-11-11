@@ -33,7 +33,7 @@ from src.data.preprocessing import (
 )
 from src.evaluation.binary import binary_metrics, threshold_at_tpr
 from src.models.frozen import BUNDLE_FILES, PREPROCESSING, make_model, transform
-from src.models.training import _index_hash, _sample
+from src.models.sampling import index_hash, sample_indices
 from src.utils.seed import set_seed
 
 logger = logging.getLogger(__name__)
@@ -222,11 +222,8 @@ def tune_baseline(
             raise ValueError("Both binary classes required")
 
     # Select indices without materializing the multi-gigabyte train matrix.
-    def sample_indices(y, limit):
-        _, _, indices = _sample(np.arange(len(y))[:, None], y, limit, seed)
-        return indices
-
-    train_indices, val_indices = sample_indices(train.y, max_train), sample_indices(val.y, max_val)
+    train_indices = sample_indices(train.y, max_train, seed)
+    val_indices = sample_indices(val.y, max_val, seed)
     selection, calibration, operating = validation_partitions(val.y[val_indices], seed)
     selection, calibration, operating = (
         val_indices[p] for p in (selection, calibration, operating)
@@ -312,7 +309,7 @@ def tune_baseline(
             filename: sha256_file(ROOT / filename)
             for filename in (
                 "src/models/tuning.py",
-                "src/models/training.py",
+                "src/models/sampling.py",
                 "src/models/frozen.py",
                 "src/models/tabular.py",
                 "src/evaluation/binary.py",
@@ -328,7 +325,7 @@ def tune_baseline(
         "train_rows": len(train_indices),
         "val_rows": len(val_indices),
         "partitions": {
-            name: {"rows": len(indices), "indices_sha256": _index_hash(indices)}
+            name: {"rows": len(indices), "indices_sha256": index_hash(indices)}
             for name, indices in (
                 ("train", train_indices),
                 ("selection", selection),

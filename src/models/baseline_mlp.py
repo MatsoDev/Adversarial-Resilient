@@ -1,8 +1,7 @@
-"""Baseline classifiers (MNIST demo + future EMBER tabular baseline).
+"""Small demo-era classifiers, separate from the trained tabular architectures.
 
-Kept deliberately small so students can read them in one sitting. Real
-training pipelines arrive with the Sprint 3 baselines; the Sprint 1 demo
-trains SmallCNN on MNIST.
+Kept deliberately small so students can read them in one sitting. The MNIST
+demo trains SmallCNN; Sprint 3/4 baselines use src.models.tabular instead.
 """
 
 from __future__ import annotations

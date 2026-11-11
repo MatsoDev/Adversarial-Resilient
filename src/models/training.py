@@ -6,7 +6,6 @@ Never opens the held-out test split. Models and scalers stay outside Git.
 from __future__ import annotations
 
 import copy
-import hashlib
 import json
 import logging
 import os
@@ -23,7 +22,6 @@ import torch
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.exceptions import ConvergenceWarning
 from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import LinearSVC
 from torch import nn
@@ -38,6 +36,7 @@ from src.data.preprocessing import (
     write_json_atomic,
 )
 from src.evaluation.binary import binary_metrics, threshold_at_tpr
+from src.models.sampling import index_hash, sample_rows
 from src.models.tabular import TabularMLP
 from src.utils.seed import set_seed
 
@@ -76,18 +75,6 @@ class TrainingConfig:
             or self.learning_rate <= 0
         ):
             raise ValueError("Invalid dropout or learning rate")
-
-
-def _sample(X, y, limit, seed):
-    indices = np.arange(len(y))
-    if limit is not None and limit < len(y):
-        indices, _ = train_test_split(indices, train_size=limit, stratify=y, random_state=seed)
-        indices.sort()
-    return np.asarray(X[indices], dtype=np.float32), np.asarray(y[indices]), indices
-
-
-def _index_hash(indices: np.ndarray) -> str:
-    return hashlib.sha256(indices.astype("<i8").tobytes()).hexdigest()
 
 
 def _fit_mlp(X, y, val_X, val_y, config):
@@ -176,15 +163,8 @@ def train_baselines(
         record = artifacts[name]
         if not isinstance(record, dict) or record.get("file") != expected:
             raise ValueError(f"Training artifact filename must be {expected}")
-        digest = record.get("sha256")
-        if (
-            not isinstance(digest, str)
-            or len(digest) != 64
-            or any(char not in "0123456789abcdef" for char in digest)
-        ):
-            raise ValueError(f"Training artifact {name} needs a SHA-256 digest")
     failures = verify_manifest_artifacts(
-        {"artifacts": {k: artifacts[k] for k in required}}, data_root
+        {"artifacts": {k: artifacts[k] for k in required}}, data_root, require_hashes=True
     )
     if failures:
         raise ValueError("Training artifact verification failed: " + "; ".join(failures))
@@ -198,8 +178,8 @@ def train_baselines(
     for split in (train, val):
         if len(np.unique(split.y)) != 2 or not np.isin(split.y, [0, 1]).all():
             raise ValueError("Both train and validation must have binary classes 0 and 1")
-    X, y, train_indices = _sample(train.X, train.y, config.max_train, config.seed)
-    val_X, val_y, val_indices = _sample(val.X, val.y, config.max_val, config.seed)
+    X, y, train_indices = sample_rows(train.X, train.y, config.max_train, config.seed)
+    val_X, val_y, val_indices = sample_rows(val.X, val.y, config.max_val, config.seed)
     if not np.isfinite(X).all() or not np.isfinite(val_X).all():
         raise ValueError("Features must be finite")
     # Refit only on selected training rows; a subset never borrows full-train statistics.
@@ -279,8 +259,8 @@ def train_baselines(
             "train_rows": len(X),
             "val_rows": len(val_X),
             "feature_count": X.shape[1],
-            "train_indices_sha256": _index_hash(train_indices),
-            "val_indices_sha256": _index_hash(val_indices),
+            "train_indices_sha256": index_hash(train_indices),
+            "val_indices_sha256": index_hash(val_indices),
             "score_kind": "decision_margin" if name == "linear_svm" else "uncalibrated_probability",
             "metrics": metrics,
             "validation_operating_point": {

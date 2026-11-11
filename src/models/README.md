@@ -2,6 +2,9 @@
 
 Current contents:
 
+- `sampling.py` — shared sorted stratified row selection and little-endian
+  index hashes for Sprint 3/4 provenance. Tuning selects indices without reading
+  feature matrices; comparison training materializes only selected rows.
 - `baseline_mlp.py` — `BaselineMLP` (demo-era tabular skeleton, not the trained `TabularMLP`) and
   `SmallCNN` (the MNIST demo model used by `scripts/art_quickstart.py`).
 - `tabular.py` — configurable binary `TabularMLP` (default 2381 → 1024 → 512 →
@@ -29,7 +32,8 @@ calibration and full-data accuracy gates. `frozen.py` verifies immutable local
 bundles and performs explicitly raw/scaled feature inference. Run
 `python scripts/tune_baseline.py --help`; see the
 [reproduction/protocol guide](../../docs/sprint4.md). Existing Sprint 3 training
-remains validation-only and unchanged.
+remains validation-only; both paths use the shared mandatory-hash verifier in
+`src/data/preprocessing.py` rather than duplicating digest validation.
 
 ### Reusable interfaces and outputs
 

@@ -10,6 +10,7 @@ from fastapi.testclient import TestClient
 from src.data.preprocessing import sha256_file
 from src.evaluation.artifacts import ArtifactStore, ArtifactUnavailable
 from src.evaluation.binary import binary_metrics, threshold_at_tpr
+from src.models.sampling import sample_rows
 from src.models.training import MODEL_NAMES, TrainingConfig, train_baselines
 
 
@@ -71,9 +72,7 @@ def test_four_models_train_without_test_files_and_reproduce(trained, processed, 
     )
     assert [r["metrics"] for r in result["runs"]] == [r["metrics"] for r in again["runs"]]
     # Scaler uses selected training rows only, independent of validation shifts.
-    from src.models.training import _sample
-
-    selected, _, _ = _sample(
+    selected, _, _ = sample_rows(
         np.load(processed / "train_X.npy"), np.load(processed / "train_y.npy"), 24, 42
     )
     stats = np.load(tmp_path / "models" / result["batch_id"] / "scaler.npz")
@@ -109,7 +108,7 @@ def test_manifest_must_verify_the_actual_training_filename(processed, tmp_path, 
     assert not (tmp_path / "models").exists()
 
 
-@pytest.mark.parametrize("digest", [None, "", "0" * 63, "z" * 64, 123])
+@pytest.mark.parametrize("digest", [None, "", "0" * 63, "z" * 64, "A" * 64, 123])
 def test_training_requires_integrity_digest(processed, tmp_path, digest):
     path = processed / "manifest.json"
     manifest = json.loads(path.read_text())
