@@ -25,7 +25,7 @@ python -m pytest --cov=src --cov=api --cov=dashboard --cov=scripts \
 ```
 
 The default suite does not download MNIST or read the raw EMBER/CICIDS
-datasets. Two optional real-data checks are skipped unless
+datasets. Three optional real-data checks are skipped unless
 `RUN_REAL_DATA_TESTS=1` is set (see below).
 
 ## Test layout
@@ -35,6 +35,8 @@ datasets. Two optional real-data checks are skipped unless
 | `tests/data_fixtures.py` | Synthetic EMBER JSONL and CICIDS CSV builders (not a test module) |
 | `tests/test_config.py` | `ensure_dirs()` creates every runtime directory idempotently |
 | `tests/test_sprint4.py` | Disjoint selection/calibration/operating splits, temperature calibration, deterministic MLP/CNN search, freeze gates, bundle integrity, raw/scaled equivalence, prediction auth/limits/errors |
+| `tests/test_binary_metrics.py` | Hand-computed metrics, decision margins, undefined single-class metrics, tied scores, highest-threshold TPR selection and invalid inputs |
+| `tests/test_prediction_streaming.py` | Real ASGI request chunks, exact body-cap boundary, early overflow rejection with absent or misleading Content-Length |
 | `tests/test_data_resolution.py` | Dataset resolution precedence: CLI > env > repo-local > `~/Documents` |
 | `tests/test_seed.py` | `set_seed()` determinism for stdlib, numpy, torch, and `PYTHONHASHSEED` |
 | `tests/test_preprocessing.py` | Scaler statistics, standardisation, stratified/time splits, hashing, atomic writes, manifest verification |
@@ -68,6 +70,9 @@ nested test packages.
   use this pattern so committed demo artifacts are not overwritten.
 - **Deterministic and isolated.** Pass explicit seeds, avoid order-dependent
   assertions, and keep test output inside `tmp_path`.
+- **Budget tests use a controlled clock.** Replace only the prediction module's
+  clock, not the process-wide clock used by async I/O. Assert the 30th/31st
+  request and the exact 60-second reset; never sleep to cross a rate window.
 - **Optional real data.** Mark checks with
   `pytest.mark.skipif(os.environ.get("RUN_REAL_DATA_TESTS") != "1", ...)`;
   tests run only when the user opts in and has the datasets locally.
@@ -122,7 +127,35 @@ Trivy scan (`make docker-scan`). The local equivalents are `make check`,
 `make coverage`, `make security`, `make docker-build`, and `make docker-scan`.
 Coverage is reported as a diagnostic; there is no arbitrary global threshold.
 
-A healthy default run passes with the two real-data checks skipped. Warnings
+A healthy default run passes with the three real-data checks skipped. Warnings
 from third-party packages (for example matplotlib/pyparsing deprecations) are
 not test failures. `make security` must report no known vulnerabilities and no
 medium/high Bandit findings.
+
+## Focused correctness and integration checks
+
+These file-based groups overlap; the repository does not currently have separate
+unit/integration markers. From the repository root:
+
+```bash
+# Fast metrics and manifest unit tests
+.venv/bin/python -m pytest tests/test_binary_metrics.py tests/test_manifest_security.py -q
+# Synthetic training -> bundle verification -> HTTP inference, plus ASGI streaming
+.venv/bin/python -m pytest tests/test_sprint4.py tests/test_prediction_streaming.py -q
+# HTML delivery and JavaScript component behavior (Node required for the latter)
+.venv/bin/python -m pytest tests/test_sprint4_ui.py tests/test_html_dashboard.py -q
+```
+
+The prediction integration tests load actual CPU torch checkpoints, assert known
+temperature-calibrated probabilities and labels (including equality at 0.5), and
+exercise the maximum 32-row batch. Invalid-input cases are independently named
+so one failure cannot hide later cases behind an exhausted query budget.
+Manifest tests distinguish the general optional-hash contract from mandatory
+SHA-256 verification at Sprint 4 training, held-out test and inference boundaries.
+
+The Node test uses a minimal DOM, not a real browser; there is no browser
+end-to-end runner. No separate type checker is configured. Ruff, pytest coverage,
+Bandit, dependency auditing and the Docker build remain the existing quality gates.
+
+See [the test-hardening report](testing_hardening_report.md) for measured baseline,
+regression reproductions, verification results and remaining gaps.

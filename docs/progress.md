@@ -109,6 +109,20 @@ known issues, skipped items).
 - [x] `make lint`, `make test`, `make coverage`, and `make security` pass;
   test layout and commands are documented in [`testing.md`](testing.md).
 
+### Sprint 4 test follow-up (2026-11-11)
+
+- [x] Reproduce and fix highest-qualifying-TPR threshold selection and mandatory
+  integrity-digest checks for tuning, gated test evaluation and frozen loading.
+- [x] Add independent prediction-validation cases, controlled-clock budget
+  boundaries, socket-peer isolation, streamed-body caps, inclusive numeric
+  limits and known-score real-checkpoint HTTP tests. Focused suite: **92 passed**.
+- [x] Full suite: **376 passed, 3 skipped**; statement coverage **91.91%**,
+  branch coverage **80.95%**. Lint, compilation, security tooling and rebuilt
+  non-root container import/route-registration checks pass.
+- Evidence, before/after measurements and remaining gaps:
+  [`testing_hardening_report.md`](testing_hardening_report.md). No research
+  results were regenerated and M1 status is unchanged.
+
 ## How to update this file
 
 - Tick checklist items as they land and add a one-line pointer to the

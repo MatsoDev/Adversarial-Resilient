@@ -17,6 +17,7 @@ and how to get it running; this page is the map to everything else.
 | [`development.md`](development.md) | Setup, verification, ART demo, API/dashboard, Docker, troubleshooting |
 | [`configuration.md`](configuration.md) | Environment variables, dataset resolution, Compose ports, paths/seeds |
 | [`testing.md`](testing.md) | Test layout, commands, synthetic fixtures, optional real-data checks |
+| [`testing_hardening_report.md`](testing_hardening_report.md) | Verified metrics/integrity regressions, prediction-boundary tests and before/after measurements |
 | [`progress.md`](progress.md) | Where are we now: sprint/milestone status, current checklist |
 
 ## Architecture and structure
