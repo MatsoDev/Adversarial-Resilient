@@ -8,6 +8,14 @@ for M1 availability consult [progress](progress.md), not the historical handoff.
 Start here. The root [`README.md`](../README.md) explains what the project is
 and how to get it running; this page is the map to everything else.
 
+## Which document owns the answer?
+
+- **Setup and operations:** [development](development.md); **settings:** [configuration](configuration.md).
+- **Placement and dependencies:** [project structure](project-structure.md) and [architecture](architecture.md).
+- **HTTP/data/model contracts:** the component references linked below; **validation:** [testing](testing.md).
+- **Current status:** [progress](progress.md); **scope:** [project plan](project_plan.md).
+- **Why:** [decisions](DECISIONS.md); **dated evidence:** sprint and audit reports, not new setup instructions.
+
 ## Getting oriented
 
 | Document | What it covers |
@@ -20,6 +28,7 @@ and how to get it running; this page is the map to everything else.
 | [`testing.md`](testing.md) | Test layout, commands, synthetic fixtures, optional real-data checks |
 | [`testing_hardening_report.md`](testing_hardening_report.md) | Verified metrics/integrity regressions, prediction-boundary tests and before/after measurements |
 | [`documentation_audit.md`](documentation_audit.md) | Documentation findings, fixes, validation evidence and remaining gaps |
+| [`repository_audit.md`](repository_audit.md) | Structural audit, cleanup evidence, regression guards, validation and retained exceptions |
 | [`progress.md`](progress.md) | Where are we now: sprint/milestone status, current checklist |
 
 ## Architecture and structure
@@ -89,5 +98,8 @@ These are committed on purpose so results are visible without running anything:
 
 To regenerate, run the corresponding command (see
 [`development.md`](development.md) and [`data/README.md`](data/README.md)).
-`mlruns/`, `data/raw/`, `data/processed/`, and `models/` are generated at
-runtime but are gitignored, not committed.
+`docs/results/baseline_reference.json` is also intentionally committed measured
+Sprint 3 evidence; do not edit its scores by hand. Local comparison reports in
+`docs/results/baselines/`, `mlruns/`, `data/raw/`, `data/processed/`, and model bundles
+are generated at runtime but are gitignored, not committed. The tracked
+`.gitkeep` files reserve runtime directories; they are not datasets or weights.

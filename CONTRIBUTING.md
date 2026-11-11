@@ -8,11 +8,14 @@ tests, and docs belong; [`docs/testing.md`](docs/testing.md) covers test
 conventions and the optional real-data checks.
 
 ## Branching
-- `main` is protected. Work on `sprint<N>/<topic>` or `feat/<topic>`, `fix/<topic>`, `docs/<topic>`.
+- Treat `main` as protected: no direct pushes. Work on `sprint<N>/<topic>` or
+  `feat/<topic>`, `fix/<topic>`, `docs/<topic>`, `chore/<topic>`.
 - Open a PR into `main` with the template. One reviewer minimum.
+- Inspect staged, unstaged and untracked changes before starting; never include
+  another contributor's staged work or unrelated local commits in your push.
 
 ## Commit style (Conventional Commits)
-`feat:`, `fix:`, `docs:`, `chore:`, `test:`, `ci:` — e.g. `feat: add EMBER loader`.
+`feat:`, `fix:`, `refactor:`, `docs:`, `chore:`, `test:`, `ci:` — e.g. `feat: add EMBER loader`.
 
 ## PR checklist
 - `make check` passes (`make lint` + `make test`); paste output if touching
@@ -21,7 +24,10 @@ conventions and the optional real-data checks.
   changed.
 - No datasets, weights, `.env`, or `mlruns/` committed.
 - New docs linked from `docs/README.md`; relative links resolve
-  (`tests/test_docs_links.py`).
+  (`tests/test_docs_links.py` also follows links to check index discoverability).
+- Module moves preserve the dependency direction in `docs/architecture.md`
+  (`tests/test_architecture.py`); update CLI paths, source-provenance hashes,
+  runtime assets and references together, not just Python imports.
 - Non-obvious choices logged in `docs/DECISIONS.md`.
 - Security-impacting changes reviewed against
   [`docs/security/SECURITY_AUDIT.md`](docs/security/SECURITY_AUDIT.md).
@@ -34,3 +40,5 @@ conventions and the optional real-data checks.
 - `make setup` installs pre-commit hooks (ruff lint + `ruff format`); run
   `make check` before pushing.
 - Windows/Linux/macOS compatible paths; CPU-only (no CUDA assumptions).
+- Ignore rules must exclude runtime metadata as well as weights while retaining
+  templates and committed research evidence (`tests/test_repository_hygiene.py`).

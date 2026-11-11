@@ -1,5 +1,12 @@
 # Security audit — Adversarial-Resilient
 
+**Repository configuration clarification (2026-11-11):** Dependabot version-update
+configuration was intentionally removed in `557b34b`. Historical mentions below
+describe its earlier presence, not currently configured automation. Maintainers
+must review dependency/image updates and rerun the existing CI/security checks.
+The [repository audit](../repository_audit.md) does not constitute the outstanding
+full Sprint 4 security assessment.
+
 ## Follow-up assessment — 2026-11-11 (Sprint 3 snapshot)
 
 This section supersedes the historical Sprint 2 assessment below for the

@@ -32,7 +32,7 @@ arrays or checkpoints. Legacy Streamlit runs separately and uses the bounded
 |---|---|
 | Shared configuration | `src/config.py`: repository paths, dataset resolution, seed defaults; `src/utils/seed.py`: Python/NumPy/torch seeding |
 | Data | `src/data/`: clean-room EMBER v2 vectorization, CICIDS cleaning/deduplication, splitting, atomic output, loaders and manifest verification |
-| Models | `src/models/training.py`: classical/MLP validation comparison; `tuning.py`: selection/calibration/test gates; `frozen.py`: verified CPU bundle loading/inference; `tabular.py`: MLP and 1D-CNN |
+| Models | `src/models/sampling.py`: shared deterministic selection/provenance; `training.py`: classical/MLP validation comparison; `tuning.py`: selection/calibration/test gates; `frozen.py`: verified CPU bundle loading/inference; `tabular.py`: MLP and 1D-CNN |
 | Evaluation | `src/evaluation/binary.py`: binary metrics and operating thresholds; `artifacts.py`: bounded, allowlisted research artifact readers |
 | HTTP | `api/main.py`: app factory, middleware and static mount; `api/artifacts.py`: read-only routes; `api/prediction.py`: token, body validation and query budget |
 | Operator tools | `scripts/setup_environment.py`, `preprocess.py`, `eda_datasets.py`, `train_baselines.py`, `tune_baseline.py`, `art_quickstart.py` |
@@ -87,6 +87,13 @@ to the local `mlruns/` file store (explicit file-store opt-in); `--tracking-uri`
 can select another store and `--no-mlflow` disables logging. The serving API does
 not query MLflow. No scheduler, job queue or training-over-HTTP is implemented.
 
+Sampling belongs to `src/models/sampling.py`, not to either training entry point.
+Both callers retain sorted stratified indices and little-endian int64 hashes;
+tuning selects indices without constructing a dummy feature matrix or importing
+Sprint 3 training. Mandatory digest validation is shared through
+`src.data.preprocessing.verify_manifest_artifacts(..., require_hashes=True)`.
+Canonical filename checks and the test-opening/freeze gates remain caller-owned.
+
 ### HTTP request lifecycle
 
 `create_app(store=None, *, baseline_dir=None)` reads Host/docs settings, registers
@@ -128,7 +135,8 @@ reference results/manifests/EDA outputs are intentionally committed.
 Compose runs **two instances of the same FastAPI application** (`api`: 8000,
 `dashboard`: 8501), plus MLflow (5000). Each HTML UI calls its own origin, not
 the other instance. Both mount reports and Sprint 4 bundles read-only; each has
-independent caches/budgets. `API_URL` retained in Compose is unused by HTML.
+independent caches/budgets. Compose does not set a browser API URL; `API_URL`
+is only a legacy Streamlit setting.
 The image copies source/docs/assets, installs pinned CPU dependencies and runs
 as non-root. API/dashboard drop capabilities and set `no-new-privileges`.
 MLflow's official image remains a separate unauthenticated service.
@@ -163,3 +171,8 @@ tests; there is no build step. See [testing](testing.md) and
 CI runs lint/format, coverage, dependency/static security checks, Docker build
 and a filtered vulnerability scan; it does not deploy. Non-obvious choices are
 recorded in [DECISIONS.md](DECISIONS.md), not inferred from future plans.
+
+Static dependency directions are guarded by `tests/test_architecture.py`;
+navigation and runtime/source ignore policy are guarded by the docs-link and
+repository-hygiene tests. These are regression checks, not a replacement for
+reviewing dynamic imports, runtime paths or security boundaries.
