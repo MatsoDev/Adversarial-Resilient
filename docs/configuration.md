@@ -12,7 +12,7 @@ Compose; paths and constants are defined in
 | Source | Used for |
 |---|---|
 | CLI flags | One-off datasets, output directories, seeds, demo options |
-| Environment variables | Dataset locations, dashboard API URL, Compose host ports, optional real-data tests |
+| Environment variables | Dataset locations, legacy dashboard URL, API hardening/token, Compose ports, optional tests |
 | `.env` | Compose host binding/ports, plus api/dashboard container environment via `env_file` (never commit it) |
 | Python constants | Repository paths, default seed, dataset names, demo constants in [`../src/config.py`](../src/config.py) |
 
@@ -35,15 +35,16 @@ produce an actionable error instead of using a personal absolute path.
 |---|---|---|---|---|
 | `EMBER_DATA_DIR` | No | Resolution order above | `src.config.resolve_ember_source()` | Raw EMBER2018 v2 directory |
 | `CICIDS_DATA_DIR` | No | Resolution order above | `src.config.resolve_cicids_source()` | Raw CIC-IDS-2017 directory (eight CSVs) |
-| `API_URL` | No | `http://localhost:8000` | `dashboard/app.py`, `dashboard/client.py` | Base URL the Streamlit page uses for `GET /health`; must be absolute http/https with no credentials, query string, or fragment; read at import time, so restart Streamlit after changing it |
+| `API_URL` | No | `http://localhost:8000` | Legacy `dashboard/app.py` | Base URL for the Streamlit artifact/health client; absolute http/https without credentials, query, fragment, whitespace or backslashes. Initialized in session state; change the sidebar URL or start a new session after changing the environment. HTML ignores this variable. |
 | `API_ALLOWED_HOSTS` | No | `localhost,127.0.0.1,api,testserver` | `api/main.py` | Comma-separated `Host` header allowlist; `*` disables validation (not recommended) |
-| `API_DOCS_ENABLED` | No | `true` | `api/main.py` | Serve `/docs`, `/redoc`, and `/openapi.json`; set `false` to hide them |
+| `API_DOCS_ENABLED` | No | `true` | `api/main.py` | Read at app creation. Accepts `1/true/yes/on` or `0/false/no/off` (case-insensitive); invalid values warn and use the default. Hiding docs does not disable API routes. |
 | `PREDICTION_API_TOKEN` | For prediction | Unset (disabled) | `api/prediction.py` | Random local research bearer token, minimum 32 characters; never commit; required by `/predict` and `/v1/baseline` |
 | `BIND_ADDR` | No | `127.0.0.1` | Docker Compose | Host interface for all published ports; do not use `0.0.0.0` without TLS/authentication |
 | `API_PORT` | No | `8000` | Docker Compose | Host port mapped to the API container; not read by Python |
 | `DASHBOARD_PORT` | No | `8501` | Docker Compose | Host port mapped to the dashboard container; not read by Python |
 | `MLFLOW_PORT` | No | `5000` | Docker Compose | Host port mapped to the MLflow container; not read by Python |
 | `RUN_REAL_DATA_TESTS` | No | Unset (tests skip) | `tests/test_data_real_optional.py` | Set to `1` to run the two local-dataset availability checks |
+| `MLFLOW_ALLOW_FILE_STORE` | For local file tracking | Project scripts set `true` if absent | Demo, training/tuning scripts and MLflow | MLflow 3.17 requires opt-in for the local `mlruns/` store. Compose sets `true`; set it explicitly for `mlflow ui`. An existing value is not overridden by scripts. |
 
 Notes:
 
@@ -55,9 +56,16 @@ Notes:
 - MLflow and the dashboard have no built-in authentication. Compose binds all
   published ports to `127.0.0.1` by default; use a TLS reverse proxy with
   authentication before changing `BIND_ADDR`.
-- The dashboard's `API_URL` is overridden to `http://api:8000` in
-  [`../docker-compose.yml`](../docker-compose.yml); the environment value is
-  what lets the same page work locally and in the container network.
+- `RUN_REAL_DATA_TESTS=1` also enables the processed-EMBER check in
+  `tests/test_sprint3_real.py` (three opt-in tests total).
+- `API_ALLOWED_HOSTS` is read at app creation (restart after changes);
+  `PREDICTION_API_TOKEN` is read on each authenticated request. The token is
+  compared against the exact `Authorization: Bearer <token>` header.
+- Compose retains `API_URL=http://api:8000`, but its dashboard service now runs
+  FastAPI, not Streamlit. HTML always requests its own origin's `/v1/*` and
+  `/predict`; there is no separate browser API URL or CORS configuration.
+- Training/tuning use explicit `--tracking-uri` or the local `mlruns/` default,
+  not `MLFLOW_TRACKING_URI`, to select tracking storage.
 
 ## `.env` and Docker
 
@@ -75,6 +83,8 @@ docker compose up --build
 - `API_ALLOWED_HOSTS` and `API_DOCS_ENABLED` are optional API settings in the
   same file. The safe defaults are built into the app.
 - `.env` is gitignored. Never commit it or put real credentials in it.
+- Native Python entry points do not call `load_dotenv`. For local uvicorn,
+  export settings first or pass `--env-file .env`; Compose loads it automatically.
 - If you add a new variable, document it here and add a safe placeholder to
   `.env.example`; do not hard-code paths or secrets in application code.
 
@@ -98,6 +108,8 @@ paths in modules. The main locations are:
 | `PROCESSED_DIR` | `data/processed/` (gitignored arrays, scalers, manifests) |
 | `ADVERSARIAL_DIR` | `data/adversarial/` (reserved for later sprints) |
 | `MODELS_DIR` | `models/` (gitignored checkpoints) |
+| `BASELINE_MODELS_DIR` / `BASELINE_RESULTS_DIR` | `models/baselines/`, `docs/results/baselines/` (ignored development outputs) |
+| `FROZEN_BASELINE_DIR` | `models/sprint4/baseline_v1/` (default trusted inference bundle; no environment override) |
 | `FIGURES_DIR` / `RESULTS_DIR` | `docs/figures/`, `docs/results/` (committed demo/EDA outputs) |
 | `DATA_MANIFESTS_DIR` | `docs/data/manifests/` (committed full-run manifests) |
 
@@ -115,10 +127,11 @@ export CICIDS_DATA_DIR="$HOME/datasets/CIC-IDS-Dataset"
 python scripts/preprocess.py --dataset all
 ```
 
-Point the dashboard at a non-default API port:
+Run the primary dashboard on a non-default port (no `API_URL` needed):
 
 ```bash
-API_URL=http://127.0.0.1:8001 python -m streamlit run dashboard/app.py
+python -m uvicorn api.main:app --host 127.0.0.1 --port 8001
+# Open http://localhost:8001/dashboard/
 ```
 
 Run the optional real-data tests (requires both local datasets):

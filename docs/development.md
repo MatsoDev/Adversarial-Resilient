@@ -31,8 +31,11 @@ git --version
 
 For both new and existing team checkouts, the cross-platform bootstrap is
 `python scripts/setup_environment.py` (Python 3.11–3.12). It creates/reuses
-`.venv`, synchronizes all requirement files and checks the installed versions.
-Use `--check-only` to verify without installing. The current HTML dashboard
+`.venv`, synchronizes runtime/developer and CPU torch requirements (not optional
+CleverHans), and checks the installed versions.
+Use `--check-only` to verify without installing. This script does not activate
+the venv or install Git hooks; `make setup` also attempts hook installation.
+After activation (or using `.venv/bin/python` / `.venv\Scripts\python.exe`), the current HTML dashboard
 runs with `python -m uvicorn api.main:app --port 8000`, at
 <http://localhost:8000/dashboard/>. See [team_handoff.md](team_handoff.md).
 
@@ -62,11 +65,12 @@ pip install -r requirements-torch.txt
 pre-commit install
 ```
 
-If activation is blocked with an "execution of scripts is disabled" error, run
-this once, then retry activation:
+If activation is blocked by PowerShell policy, no policy change is necessary:
+use the venv interpreter directly for each command, for example:
 
 ```powershell
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+.\.venv\Scripts\python.exe -m pytest
+.\.venv\Scripts\python.exe -m uvicorn api.main:app --port 8000
 ```
 
 Linux / macOS:
@@ -110,8 +114,8 @@ python -m pip_audit -r requirements-dev.txt
 python -m bandit -q -r src scripts api dashboard -ll
 ```
 
-The `pytest` run takes under a minute. Fast tests use synthetic fixtures; two
-optional local-dataset checks are skipped unless `RUN_REAL_DATA_TESTS=1`.
+Runtime depends on the machine. Fast tests use synthetic fixtures; three
+optional real-data checks are skipped unless `RUN_REAL_DATA_TESTS=1`.
 Tests write only to pytest temporary directories, never to committed
 `docs/results/`, `docs/figures/`, or `docs/data/` artifacts. Test layout,
 single-test commands, and the optional real-data checks are documented in
@@ -164,7 +168,11 @@ Outputs:
 - `mlruns/`: local MLflow tracking data (gitignored).
 
 The JSON and figures are committed reference outputs; regenerate them with the
-demo rather than editing them by hand. Browse the logged run with:
+demo rather than editing them by hand. **The demo CLI has no `--output-dir`
+flag**: even `--synthetic` writes to the default committed output paths. For an
+isolated synthetic check run `python -m pytest tests/test_art_quickstart_smoke.py`;
+Python callers can instead pass `run_demo(args, output_dir=Path(...))` to redirect
+results, figures and MLflow under a chosen directory. Browse a logged run with:
 
 ```bash
 MLFLOW_ALLOW_FILE_STORE=true python -m mlflow ui
@@ -176,7 +184,7 @@ Then open http://127.0.0.1:5000 in your browser.
 
 The HTML dashboard and API run in one service. The command blocks until stopped.
 
-Terminal 1:
+With the virtual environment active:
 
 ```bash
 python -m uvicorn api.main:app --reload --port 8000
@@ -187,6 +195,13 @@ Open http://127.0.0.1:8000/health — expect `{"status": "ok"}`.
 Open <http://localhost:8000/dashboard/>. Alternatively, `make dashboard` starts
 the same application on port 8501; open <http://localhost:8501/dashboard/>.
 `dashboard/app.py` is a legacy Streamlit reference, not the primary entry point.
+Its separate API/client workflow is documented in [the dashboard README](../dashboard/README.md).
+
+The `/health` response is liveness only: it does not verify data, reports,
+MLflow, a token, or a frozen model. Check `/v1/runs` for recorded comparisons;
+dataset routes always return `local_verification: "not_checked"`. Use the
+preprocessing CLI's `--verify-only` for local arrays, and the authenticated
+`/v1/baseline` route for prediction readiness. See [the API reference](../api/README.md).
 
 ## Run the Docker stack
 
@@ -204,15 +219,25 @@ docker compose up --build
 Ports come from `.env` (defaults: api 8000, dashboard 8501, mlflow 5000).
 Published ports bind to `127.0.0.1` by default, so the stack is not reachable
 from other hosts. Once the containers are up, check
-http://127.0.0.1:8000/health, http://localhost:8501, and
+http://127.0.0.1:8000/health, http://localhost:8501/dashboard/, and
 http://localhost:5000. Stop with `Ctrl+C`, then `docker compose down`.
 
 Do not set `BIND_ADDR=0.0.0.0` unless you put a TLS reverse proxy with
-authentication in front of the stack. MLflow and the placeholder dashboard
+authentication in front of the stack. MLflow and the research dashboard
 have no built-in authentication.
 
-The compose stack sets `API_URL=http://api:8000` for the dashboard container,
-so the same app works inside Docker and locally.
+Both `api` and `dashboard` run the same FastAPI app on different ports. The
+HTML client uses its own origin; Compose's `API_URL=http://api:8000` entry is
+unused by this UI. Each process has its own prediction cache/query budget.
+Compose mounts `docs/` and `models/sprint4/` read-only into both services;
+raw/processed datasets are not required to browse reports. Check service state
+and logs with `docker compose ps` and `docker compose logs api dashboard mlflow`.
+The MLflow service has no Compose healthcheck; inspect its endpoint separately.
+
+Provision prediction only after a genuine freeze, following [Sprint 4](sprint4.md).
+Native uvicorn does **not** load `.env` automatically: export settings before
+startup or explicitly pass `--env-file .env`. Compose loads the file via
+`env_file`. Restart API/dashboard processes after replacing a loaded bundle.
 
 ## Data pipeline and EDA
 
@@ -232,9 +257,13 @@ processed-data loaders.
 | `ModuleNotFoundError: No module named 'pkg_resources'` when importing mlflow | Your environment predates the current pins. Recreate `.venv` with `make setup` (mlflow 3.17.2 + setuptools 84.2.1). |
 | `ruff` or `pytest` not found | The venv is not activated, or dev requirements are missing. Activate `.venv` and run `pip install -r requirements-dev.txt`. |
 | torch download is very slow or fails | The CPU wheel is about 200 MB. Check disk space and connection, then rerun the same `pip install` command; pip resumes. |
-| PowerShell refuses to activate the venv | Run `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser`, then activate again. |
-| `python -m uvicorn ...` says address already in use | Port 8000 is taken. Use another port, e.g. `--port 8001`, and open that URL instead. Same for Streamlit (`--server.port 8502`). |
-| The local dashboard says the API is unreachable | Start the API first, or set `API_URL` (default `http://localhost:8000`). In Compose it is `http://api:8000`. |
+| PowerShell refuses to activate the venv | Use `.\.venv\Scripts\python.exe` directly; activation is optional. |
+| `python -m uvicorn ...` says address already in use | Port 8000 is taken. Use `--port 8001` and open `http://localhost:8001/dashboard/`; the HTML client follows the same origin automatically. |
+| HTML dashboard reports an API error | Check `/health` and `/v1/runs` on the same host/port, then inspect uvicorn logs. `API_URL` affects only legacy Streamlit, not HTML. |
+| `/` shows a Sprint 1 placeholder message | That root response is retained for compatibility; the current UI is `/dashboard/`, not `/`. |
+| HTTP 400 `Invalid host header` | Use localhost or add the intended hostname to `API_ALLOWED_HOSTS` before startup; do not disable validation with `*`. |
+| Prediction returns 503 while `/health` is OK | Confirm the API process receives a token of at least 32 characters and a valid frozen bundle exists at `models/sprint4/baseline_v1`. `.env` alone does not configure native uvicorn. Inspect server logs for bundle errors; do not bypass the M1 gate. |
+| Prediction returns 401 / 422 / 429 | Check the exact bearer token / ordered features and bundle identities / wait for the 60-second per-peer window. See [API errors](../api/README.md#prediction-errors). |
 | `docker compose up` fails with `env file ... not found` | Run `cp .env.example .env` first; compose uses it for host ports. |
 | MNIST download shows `HTTP Error 404` for `yann.lecun.com` | Expected: torchvision automatically retries its mirror and continues. No action needed. |
 | `--cleverhans` prints `CleverHans not available, skipping` | Expected: CleverHans lives in the separate `requirements-cleverhans.txt` because version 4.0.0 conflicts with the ART/torch stack. Only install it in an isolated env if you need the cross-check. |

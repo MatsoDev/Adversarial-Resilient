@@ -1,6 +1,6 @@
 # Sprint 3 — Baselines and Dashboard MVP
 
-**Branch:** [`sprint3/baselines-dashboard`](https://github.com/MatsoDev/Adversarial-Resilient/tree/sprint3/baselines-dashboard)
+**Original branch:** [`sprint3/baselines-dashboard`](https://github.com/MatsoDev/Adversarial-Resilient/tree/sprint3/baselines-dashboard) (historical; use current `main` for setup).
 **Status:** Implemented and validated with real EMBER development runs. See [sprint3_report.md](sprint3_report.md) for evidence and [team_handoff.md](team_handoff.md) for continuing from this point, installing requirements and opening the current HTML dashboard.
 
 This sprint adds the first tabular malware baselines and a read-only dashboard
@@ -28,7 +28,7 @@ are not malware-detection results.
 
 ## Setup after pulling
 
-From the repository root, use the branch above and install the pinned project
+From the repository root on current `main`, install the pinned project
 environment following [`development.md`](development.md). The Sprint 3 training
 code never downloads data automatically.
 
@@ -116,25 +116,20 @@ limitations; do not interpret the optional CICIDS run as equivalent to EMBER.
 
 ## Run the dashboard
 
-With the environment installed, open two PowerShell terminals at the repo root.
-Start the API in terminal 1:
+With the environment active, run from the repository root:
 
 ```powershell
 python -m uvicorn api.main:app --reload --port 8000
 ```
 
-Start Streamlit in terminal 2:
-
-```powershell
-python -m streamlit run dashboard/app.py
-```
-
-Open <http://localhost:8501>. Dataset and report views use committed compact
-artifacts and work without local arrays. Before preprocessing/training, the
-local manifest/array verification state and baseline run list remain
-`not_checked`/empty; this does not mean that training succeeded. After a run,
-refresh `/v1/runs` or restart/reload the dashboard session to see the new
-validation metrics.
+Open <http://localhost:8000/dashboard/>. FastAPI serves the current HTML UI and
+same-origin API; no second process is needed. The original Streamlit UI is now
+[legacy reference](../dashboard/README.md#legacy-streamlit-interface).
+Dataset/report views use compact artifacts without local arrays. A fresh
+checkout also shows the committed Sprint 3 comparison reference. Dataset local
+verification remains `not_checked`; viewing reports does not verify local data
+or imply that training succeeded. After local training, refresh the UI to see
+new validation metrics.
 
 ## Dataset verification and merge gate
 
@@ -144,11 +139,12 @@ required for training or this dashboard. The earlier wording incorrectly made
 database integration a Sprint 3 prerequisite. Persistent prediction history and
 audit storage belong to the later upload/history work in the revised plan.
 
-Before reviewing this sprint for merge, record archive integrity, preprocessing
+The original Sprint 3 merge review required archive integrity, preprocessing
 verification, measured training/validation counts, baseline metrics, automated
-tests and dashboard checks. The branch stays unmerged for team review.
+tests and dashboard checks. Historical evidence follows; current Sprint 4/M1
+status is tracked in [progress.md](progress.md).
 
-## Current verification and remaining work
+## Recorded Sprint 3 verification and remaining work
 
 - Official archive checksum matches; all seven JSONL files were extracted and
   the full preprocessing run verified 14 output artifacts.

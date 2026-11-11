@@ -1,4 +1,4 @@
-# Team handoff — continue from Sprint 3
+# Team handoff — recorded Sprint 3 results and current environment
 
 ## Update your checkout and environment
 
@@ -67,8 +67,10 @@ v2, preprocess, verify artifacts, then run:
 
 Budget about 25 GB of disk for archive/extraction/processing. The completed
 run used 10,000 training rows and 90,000 validation rows. Official test-set
-evaluation, tuning/freezing `baseline_v1` and feature prediction are Sprint 4.
-An application database is not a Sprint 3 setup requirement.
+evaluation, tuning/freezing `baseline_v1` and gated feature prediction are
+implemented in Sprint 4; see [the protocol](sprint4.md) and
+[current M1 status](progress.md). The recorded Sprint 3 runs are still
+validation-only and do not enable prediction. No application database is required.
 
 The local MLflow IDs in the recorded snapshot refer to the original machine;
 each teammate generates their own tracking store when reproducing training.

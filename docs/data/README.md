@@ -206,7 +206,7 @@ include the arrays.
    `--full` uses every training and validation row and can take substantially
    longer on CPU.
 
-4. Start the API and dashboard in separate terminals to view the committed
+4. Start FastAPI and open `/dashboard/` to view the committed
    dataset/EDA summaries and completed validation runs. Before local arrays are
    present, the API explicitly reports local verification as `not_checked`;
    the baseline training command fails clearly when a manifest/data artifact
