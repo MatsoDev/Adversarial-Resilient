@@ -303,3 +303,55 @@ def test_cli_missing_inputs(tmp_path):
     from scripts.tune_baseline import main
 
     assert main(["--data-dir", str(tmp_path / "missing"), "--no-mlflow"]) == 1
+
+
+@pytest.mark.parametrize(
+    "artifact", ["train_X", "train_y", "val_X", "val_y", "feature_names", "label_mapping"]
+)
+def test_tuning_requires_every_training_digest_before_creating_output(ember, tmp_path, artifact):
+    path = ember / "manifest.json"
+    manifest = json.loads(path.read_text())
+    del manifest["artifacts"][artifact]["sha256"]
+    write_json_atomic(path, manifest)
+    out = tmp_path / "must-not-exist"
+    with pytest.raises(ValueError, match="SHA-256"):
+        tune_baseline(ember, out, trials=(Trial(hidden=(8,), epochs=1),), log_mlflow=False)
+    assert not out.exists()
+
+
+@pytest.mark.parametrize("digest", [None, "", "0" * 63, "z" * 64, 123])
+def test_tuning_rejects_malformed_integrity_digests(ember, tmp_path, digest):
+    path = ember / "manifest.json"
+    manifest = json.loads(path.read_text())
+    manifest["artifacts"]["train_X"]["sha256"] = digest
+    write_json_atomic(path, manifest)
+    out = tmp_path / "must-not-exist"
+    with pytest.raises(ValueError):
+        tune_baseline(ember, out, trials=(Trial(hidden=(8,), epochs=1),), log_mlflow=False)
+    assert not out.exists()
+
+
+@pytest.mark.parametrize("artifact", ["test_X", "test_y"])
+def test_test_integrity_failure_keeps_selection_locked_without_freezing(
+    frozen, ember, tmp_path, artifact
+):
+    path = ember / "manifest.json"
+    manifest = json.loads(path.read_text())
+    del manifest["artifacts"][artifact]["sha256"]
+    write_json_atomic(path, manifest)
+    out = tmp_path / "locked"
+    with pytest.raises(ValueError, match="verification failed"):
+        tune_baseline(ember, out, trials=(Trial(hidden=(8,), epochs=1),), log_mlflow=False)
+    selection = json.loads((out / "selection.json").read_text())
+    assert selection["test_evaluated"] is False
+    assert selection["model_version"] == "sprint4_candidate"
+    assert not (out / "bundle.json").exists()
+
+
+@pytest.mark.parametrize("artifact", ["weights", "scaler", "features"])
+def test_frozen_bundle_requires_every_integrity_digest(frozen, artifact):
+    root, report = frozen
+    del report["artifacts"][artifact]["sha256"]
+    write_json_atomic(root / "bundle.json", report)
+    with pytest.raises(ValueError, match="integrity"):
+        FrozenBaseline(root)

@@ -464,8 +464,10 @@ def _resolve_manifest_artifact(root: Path, relative: object) -> Path | None:
     return resolved
 
 
-def verify_manifest_artifacts(manifest: dict[str, Any], root: str | Path) -> list[str]:
-    """Check every artifact in a manifest; return a list of human-readable errors."""
+def verify_manifest_artifacts(
+    manifest: dict[str, Any], root: str | Path, *, require_hashes: bool = False
+) -> list[str]:
+    """Check artifacts; opt into mandatory SHA-256 for training/inference trust boundaries."""
     root = Path(root)
     errors: list[str] = []
     artifacts = manifest.get("artifacts", {})
@@ -474,6 +476,14 @@ def verify_manifest_artifacts(manifest: dict[str, Any], root: str | Path) -> lis
     for name, record in sorted(artifacts.items()):
         if not isinstance(record, dict):
             errors.append(f"{name}: artifact record is not an object")
+            continue
+        digest = record.get("sha256")
+        if require_hashes and (
+            not isinstance(digest, str)
+            or len(digest) != 64
+            or any(char not in "0123456789abcdef" for char in digest)
+        ):
+            errors.append(f"{name}: a lowercase SHA-256 digest is required")
             continue
         relative = record.get("file")
         if not relative:

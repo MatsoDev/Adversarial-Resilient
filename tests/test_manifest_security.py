@@ -81,3 +81,27 @@ def test_manifest_rejects_malformed_records(tmp_path):
     bad_size = {"artifacts": {"bad": {"file": "data.bin", "size_bytes": "nope"}}}
     errors = verify_manifest_artifacts(bad_size, root)
     assert errors and "could not read" in errors[0]
+
+
+@pytest.mark.parametrize("digest", [None, "", "0" * 63, "z" * 64, "A" * 64, 123])
+def test_required_hashes_reject_missing_or_malformed_digest(tmp_path, digest):
+    (tmp_path / "data.bin").write_bytes(b"data")
+    manifest = _manifest("data.bin", b"data")
+    manifest["artifacts"]["artifact"]["sha256"] = digest
+    errors = verify_manifest_artifacts(manifest, tmp_path, require_hashes=True)
+    assert len(errors) == 1
+    assert "SHA-256" in errors[0]
+
+
+def test_hash_requirement_is_opt_in_and_still_verifies_content(tmp_path):
+    path = tmp_path / "data.bin"
+    path.write_bytes(b"data")
+    manifest = _manifest("data.bin", b"data")
+    assert verify_manifest_artifacts(manifest, tmp_path, require_hashes=True) == []
+    path.write_bytes(b"evil")  # Same size: only hashing can detect the change.
+    assert (
+        "sha256 mismatch" in verify_manifest_artifacts(manifest, tmp_path, require_hashes=True)[0]
+    )
+    del manifest["artifacts"]["artifact"]["sha256"]
+    assert verify_manifest_artifacts(manifest, tmp_path) == []
+    assert "SHA-256" in verify_manifest_artifacts(manifest, tmp_path, require_hashes=True)[0]

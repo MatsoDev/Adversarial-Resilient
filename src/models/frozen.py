@@ -73,7 +73,7 @@ class FrozenBaseline:
                 raise ValueError("Invalid bundle path")
             if (root / filename).stat().st_size > 128 * 1024 * 1024:
                 raise ValueError("Oversized model artifact")
-        if verify_manifest_artifacts(record, root):
+        if verify_manifest_artifacts(record, root, require_hashes=True):
             raise ValueError("Bundle integrity verification failed")
         expected_preprocessing = hashlib.sha256(
             (PREPROCESSING + record["artifacts"]["scaler"]["sha256"]).encode()

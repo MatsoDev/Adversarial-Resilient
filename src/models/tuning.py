@@ -209,10 +209,11 @@ def tune_baseline(
         suffix = ".json" if key in {"feature_names", "label_mapping"} else ".npy"
         if artifacts[key]["file"] != key + suffix:
             raise ValueError("Incompatible artifact filename")
-    if verify_manifest_artifacts(
-        {"artifacts": {key: artifacts[key] for key in required}}, data_root
-    ):
-        raise ValueError("Training artifact verification failed")
+    failures = verify_manifest_artifacts(
+        {"artifacts": {key: artifacts[key] for key in required}}, data_root, require_hashes=True
+    )
+    if failures:
+        raise ValueError("Training artifact verification failed: " + "; ".join(failures))
     train, val = (load_ember(split, root=data_root, mmap_mode="r") for split in ("train", "val"))
     if len(train.feature_names) != 2381 or train.feature_names != val.feature_names:
         raise ValueError("Expected matching EMBER v2 schemas")
@@ -359,7 +360,9 @@ def tune_baseline(
     if not subset and val_metrics["accuracy"] >= 0.93:
         test_required = ["test_X", "test_y"]
         if any(key not in artifacts for key in test_required) or verify_manifest_artifacts(
-            {"artifacts": {key: artifacts[key] for key in test_required}}, data_root
+            {"artifacts": {key: artifacts[key] for key in test_required}},
+            data_root,
+            require_hashes=True,
         ):
             raise ValueError("Test artifact verification failed; selection remains locked")
         if any(artifacts[key]["file"] != key + ".npy" for key in test_required):
