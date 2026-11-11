@@ -48,11 +48,12 @@ def test_compose_defaults_are_loopback_and_least_privilege():
     assert "./models/sprint4:/app/models/sprint4:ro" in services["api"]["volumes"]
 
 
-def test_compose_dashboard_uses_module_entrypoint_and_script_healthcheck():
+def test_compose_dashboard_serves_html_with_page_healthcheck():
     compose = yaml.safe_load((ROOT / "docker-compose.yml").read_text(encoding="utf-8"))
     dashboard = compose["services"]["dashboard"]
     assert dashboard["command"].startswith("python -m uvicorn api.main:app")
     assert "--no-server-header" in dashboard["command"]
+    assert not any("API_URL" in value for value in dashboard.get("environment", []))
 
     healthcheck = dashboard["healthcheck"]["test"]
     probe = healthcheck[-1]

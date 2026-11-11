@@ -61,8 +61,8 @@ Notes:
 - `API_ALLOWED_HOSTS` is read at app creation (restart after changes);
   `PREDICTION_API_TOKEN` is read on each authenticated request. The token is
   compared against the exact `Authorization: Bearer <token>` header.
-- Compose retains `API_URL=http://api:8000`, but its dashboard service now runs
-  FastAPI, not Streamlit. HTML always requests its own origin's `/v1/*` and
+- Compose's dashboard service runs FastAPI, not Streamlit, and no longer sets
+  the unused `API_URL`. HTML always requests its own origin's `/v1/*` and
   `/predict`; there is no separate browser API URL or CORS configuration.
 - Training/tuning use explicit `--tracking-uri` or the local `mlruns/` default,
   not `MLFLOW_TRACKING_URI`, to select tracking storage.
@@ -82,7 +82,8 @@ docker compose up --build
   listens on 8000, the dashboard on 8501, and MLflow on 5000.
 - `API_ALLOWED_HOSTS` and `API_DOCS_ENABLED` are optional API settings in the
   same file. The safe defaults are built into the app.
-- `.env` is gitignored. Never commit it or put real credentials in it.
+- `.env` and local `.env.*` variants are gitignored; only the root `.env.example`
+  template is allowed. Never commit real credentials.
 - Native Python entry points do not call `load_dotenv`. For local uvicorn,
   export settings first or pass `--env-file .env`; Compose loads it automatically.
 - If you add a new variable, document it here and add a safe placeholder to

@@ -1,6 +1,6 @@
 # Dev image (CPU only). Semester 2 will add a multi-stage prod image.
 # Pinned to the multi-arch python:3.11-slim manifest digest resolved on
-# 2026-10-26; Dependabot can update this digest.
+# 2026-10-26; review digest updates alongside the dependency/security checks.
 FROM python:3.11-slim@sha256:b7a9e5f6a93d6d4a31f129bbd4bdee69efccb6ded0fb230d78aafaf37af98377
 
 ENV PYTHONDONTWRITEBYTECODE=1 \

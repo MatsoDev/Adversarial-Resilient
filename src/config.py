@@ -34,10 +34,6 @@ DATA_CARDS_DIR: Path = DOCS_DIR / "data_cards"
 
 SEED: int = 42
 
-# MNIST demo defaults (scripts/art_quickstart.py)
-MNIST_MEAN: float = 0.1307
-MNIST_STD: float = 0.3081
-
 # Dataset locations. Raw data is never copied into the repository; it is read
 # in place from the first location that resolves. See resolve_source_dir().
 EMBER_DATASET_NAME: str = "EMBER-Dataset"
