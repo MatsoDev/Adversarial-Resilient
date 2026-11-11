@@ -9,6 +9,8 @@ Ignored runtime bundles live under `models/sprint4/`; see [Sprint 4](sprint4.md)
 
 Reference for how this repository is organized and where new work belongs.
 For component behavior and dependency rules see [`architecture.md`](architecture.md).
+The tree highlights important files, not every file; the [testing guide](testing.md)
+maps the test suites.
 
 ## Repository tree
 
@@ -34,16 +36,23 @@ Adversarial-Resilient/
 │   ├── ISSUE_TEMPLATE/          # bug.md, task.md
 │   └── PULL_REQUEST_TEMPLATE.md
 ├── api/                         # FastAPI service (importable as `api.*`)
-│   ├── main.py                  # app, GET /health, GET /
+│   ├── main.py                  # app factory, middleware, static /dashboard mount
+│   ├── artifacts.py             # read-only research routes
+│   ├── prediction.py            # gated feature inference, auth and request budgets
 │   └── README.md
-├── dashboard/                   # Streamlit UI
-│   ├── app.py                   # placeholder page calling the API
-│   ├── client.py                # validated/bounded API health client
+├── dashboard/                   # primary HTML UI + legacy Streamlit reference
+│   ├── web/                     # index.html, styles.css, app.js, prediction.js, logo
+│   ├── app.py                   # legacy Streamlit research pages
+│   ├── client.py                # validated/bounded legacy HTTP artifact client
 │   └── README.md
 ├── src/                         # shared library (importable as `src.*`)
 │   ├── config.py                # central paths, seed, dataset resolvers
 │   ├── utils/seed.py            # deterministic seeding (python/numpy/torch)
 │   ├── models/baseline_mlp.py   # BaselineMLP, SmallCNN
+│   ├── models/tabular.py        # TabularMLP, TabularCNN binary logits
+│   ├── models/training.py       # classical/MLP validation-only comparison
+│   ├── models/tuning.py         # CPU search, calibration, held-out test gate
+│   ├── models/frozen.py         # verified local bundles, raw/scaled inference
 │   ├── data/                    # EMBER/CICIDS loading + preprocessing (Sprint 2)
 │   │   ├── ember.py             # 2381-dim clean-room vectoriser, time split
 │   │   ├── cicids2017.py        # cleaning, labels, dedup, stratified split
@@ -51,11 +60,14 @@ Adversarial-Resilient/
 │   │   └── loader.py            # load_ember / load_cicids2017
 │   ├── attacks/                 # FGSM/PGD/CW wrappers (later sprints)
 │   ├── defenses/                # hardening methods (later sprints)
-│   └── evaluation/              # metrics + plots (later sprints)
+│   └── evaluation/              # binary.py metrics, artifacts.py bounded readers
 ├── scripts/                     # runnable demos / utilities
 │   ├── art_quickstart.py        # end-to-end ART demo on MNIST
 │   ├── preprocess.py            # reproducible EMBER/CICIDS data pipeline
-│   └── eda_datasets.py          # EDA JSON + figures + generated report
+│   ├── eda_datasets.py          # EDA JSON + figures + generated report
+│   ├── setup_environment.py     # sync/check .venv requirements; no hooks or data
+│   ├── train_baselines.py       # development comparison CLI
+│   └── tune_baseline.py         # tune/calibrate/evaluate/freeze CLI
 ├── tests/                       # pytest suite (flat, one file per area)
 │   ├── data_fixtures.py         # synthetic EMBER/CICIDS fixtures
 │   ├── test_config.py
@@ -71,7 +83,15 @@ Adversarial-Resilient/
 │   ├── test_data_cicids.py
 │   ├── test_preprocess_cli.py
 │   ├── test_data_loader.py
-│   └── test_data_real_optional.py  # skipped unless RUN_REAL_DATA_TESTS=1
+│   ├── test_data_real_optional.py  # skipped unless RUN_REAL_DATA_TESTS=1
+│   ├── test_sprint3.py          # synthetic training/artifact contracts
+│   ├── test_sprint3_real.py     # opt-in processed EMBER checks
+│   ├── test_sprint4.py          # tuning, bundle integrity and prediction
+│   ├── test_binary_metrics.py   # metric and operating-threshold semantics
+│   ├── test_artifact_security.py  # artifact size/type/numeric limits
+│   ├── test_prediction_streaming.py  # ASGI streamed-body boundaries
+│   ├── test_html_dashboard.py   # HTML/assets/CSP
+│   └── test_sprint4_ui.py       # Node-backed prediction component test
 ├── docs/                        # see docs/README.md for the documentation index
 │   ├── README.md                # documentation index
 │   ├── development.md           # setup, verification, demo, services, troubleshooting
@@ -102,7 +122,7 @@ Adversarial-Resilient/
 │   ├── raw/                     # downloads + in-place dataset links (gitignored)
 │   ├── processed/               # cleaned/split datasets (gitignored)
 │   └── adversarial/             # generated adversarial datasets (later sprints)
-├── models/                      # trained weights; gitignored except .gitkeep
+├── models/                      # ignored baselines/ and sprint4/ local bundles
 └── notebooks/                   # exploratory notebooks (empty for now)
 ```
 
@@ -113,7 +133,7 @@ Adversarial-Resilient/
 | `src/` | Reusable library code, grouped by concern; importable as `src.*` | Scripts with side effects, notebooks, tests |
 | `scripts/` | Runnable entry points (`python scripts/<name>.py`), including `preprocess.py` and `eda_datasets.py` | Reusable library code (put it in `src/`) |
 | `api/` | FastAPI app and HTTP concerns | Model/training logic (import it from `src/`) |
-| `dashboard/` | Streamlit UI code | Business logic (call the API instead) |
+| `dashboard/` | Primary HTML/CSS/JS in `web/`, legacy Streamlit UI/client | Business logic (call the API instead) |
 | `tests/` | pytest tests, fixtures, helpers | Production code |
 | `docs/` | Documentation + intentionally committed demo artifacts | Runtime data, model weights |
 | `data/` | Runtime datasets and derived data (gitignored) | Code, docs, committed data files |
@@ -168,7 +188,10 @@ Adversarial-Resilient/
   `docs/results/data_eda.json`, and `docs/figures/data_*.png` — written by
   `scripts/preprocess.py` (full runs) and `scripts/eda_datasets.py`; regenerate,
   do not hand-edit.
-- `mlruns/`, `data/raw/MNIST/`, `data/processed/`, `models/*.pt` — runtime
+- `docs/results/baseline_reference.json` — committed compact Sprint 3 run
+  evidence; local comparison outputs in `docs/results/baselines/` are ignored.
+  Do not hand-edit measured scores; see [the handoff](team_handoff.md).
+- `mlruns/`, `data/raw/MNIST/`, `data/processed/`, `models/` bundles — runtime
   outputs, gitignored.
 - `__pycache__/`, `.pytest_cache/`, `.ruff_cache/` — tool caches, gitignored;
   `make clean` removes them.
@@ -200,8 +223,7 @@ artifacts' generator (`scripts/art_quickstart.py`).
 - `docs/project_plan.md` is the Markdown conversion of the official plan HTML
   export; the original HTML is preserved in git history (commit `c8a9d0a`)
   if the exact export is ever needed.
-- `src/data` is implemented (Sprint 2). `src/attacks`, `src/defenses`, and
-  `src/evaluation` still contain only `__init__.py` and a README describing
-  planned contents; they reserve module boundaries for later sprints.
-- `notebooks/` and `models/` are intentionally empty (`.gitkeep` only) until
-  the dataset/sprint work needs them.
+- `src/data`, `src/models` and `src/evaluation` contain working implementations.
+  Only `src/attacks` and `src/defenses` remain reserved boundaries with no logic.
+- `notebooks/` has only `.gitkeep`. Model artifacts may exist locally but are
+  not distributed in Git; directory existence is not proof of a qualifying freeze.
