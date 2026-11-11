@@ -1,5 +1,9 @@
 # Threat model v0.1 (Sprint 1 draft — for security team review)
 
+Sections 1–10 preserve the original research scope/questions, not a list of
+implemented features. Current request contracts are in [the API reference](../api/README.md);
+Sprint 4 adds local gated feature prediction, not attack/defense HTTP routes.
+
 ## 1. System in scope
 ML-based malware (EMBER, primary) and network-intrusion (CIC-IDS-2017, secondary)
 detectors, plus training pipeline, evaluation harness (ART/CleverHans),
@@ -69,11 +73,14 @@ localhost.
 
 ## 12. Artifact-service and training trust boundaries (2026-11-11)
 
+This section records the Sprint 3 assessment; the Sprint 4 delta below updates
+the network/model-loading boundary. It is not a new security assessment.
+
 - **Assets:** integrity of training inputs and reported metrics, availability
   of the research API, and confidentiality of files outside the artifact root.
 - **Network boundary:** browsers may request only fixed read-only routes;
   identifiers are allowlisted, not filesystem paths. Neither API service
-  accepts uploads, trains models, or loads executable checkpoints on `main`.
+  accepted uploads, trained models, or loaded model checkpoints in that snapshot.
 - **Filesystem boundary:** locally produced or shared manifests/results cross
   into parsers and training. Treat them as potentially malformed; contain paths,
   limit individual and aggregate reads, and bind training hashes to the exact
@@ -93,3 +100,21 @@ localhost.
 
 See the current audit section in
 [`security/SECURITY_AUDIT.md`](security/SECURITY_AUDIT.md) for evidence and limits.
+
+## 13. Sprint 4 implemented prediction boundary
+
+- `/predict` accepts bounded JSON feature rows, not executable/PCAP uploads.
+  `/v1/baseline` and `/predict` require one local bearer token; research artifact
+  routes remain unauthenticated. There is no account/role/tenant service.
+- Each process lazily loads an operator-controlled `models/sprint4/baseline_v1`
+  bundle with required hashes and CPU `weights_only=True` loading. Callers cannot
+  choose filesystem paths. Hashes are not publisher authentication; bundle/data
+  directories must remain trusted and protected against concurrent writers.
+- The predictor returns calibrated positive-class probabilities and labels;
+  it has a 2 MiB body cap, 1–32 row batches and a 30-request/60-second socket-peer
+  budget (metadata included). These are process-local safeguards, not a shared
+  identity or distributed rate-limit system. See [the precise contract](../api/README.md#feature-prediction).
+- No real-detector adversarial robustness or public deployment safety is
+  established by this interface. Full Sprint 4 security assessment, shared
+  TLS/authz, browser end-to-end and sustained-load verification remain outside
+  the evidence of the Sprint 3 audit. Keep service exposure on loopback.

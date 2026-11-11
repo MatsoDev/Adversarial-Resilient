@@ -2,14 +2,15 @@
 
 Adversarial-Resilient Security Models: ML malware/network detectors attacked
 with adversarial examples (FGSM/PGD/CW) and hardened with defenses. Current
-state (Sprint 3 implemented; unmerged for review): pinned CPU environment,
-ART demo on MNIST, read-only FastAPI artifact routes, readable Streamlit
-research dashboard, classical/MLP training and measured EMBER validation runs.
+state (Sprint 4 implementation): pinned CPU environment, ART demo on MNIST,
+read-only FastAPI artifact routes, classical/MLP training and recorded EMBER
+validation runs, CPU MLP/CNN tuning/calibration and gated feature prediction.
 The primary UI is now plain HTML/CSS/JS under dashboard/web, served at
 /dashboard/ by FastAPI; dashboard/app.py is legacy Streamlit reference.
 Sprint 2 supplies cleaned/versioned datasets, loaders, EDA and manifests.
-See docs/sprint3_report.md for metrics and limitations. Tuning/freezing,
-prediction, attacks and defenses remain later-sprint work.
+See docs/progress.md and docs/sprint4_report.md for M1 status; implemented
+freezing/prediction does not establish a passing full-data baseline. Attacks
+against the real detectors and defenses remain later-sprint work.
 
 ## Read first
 
@@ -47,13 +48,13 @@ make security           # pip-audit + bandit (also a CI job)
 make docker-build docker-scan  # build + Trivy scan of fixed HIGH/CRITICAL
 make format             # rewrite files with ruff format
 make demo               # scripts/art_quickstart.py --fast (real MNIST, minutes)
-python scripts/art_quickstart.py --synthetic   # fast demo pipeline check
+python -m pytest tests/test_art_quickstart_smoke.py  # isolated synthetic demo check
 make data               # full EMBER + CICIDS preprocessing (needs local raw data)
 make data-smoke         # deterministic 2000-row subset into /tmp
 make eda                # regenerate docs/results/data_eda.json + figures/report
 python scripts/preprocess.py --dataset all --verify-only
-python -m uvicorn api.main:app --port 8000     # API (blocking; terminal 1)
-python -m streamlit run dashboard/app.py       # dashboard (separate terminal 2)
+python -m uvicorn api.main:app --port 8000     # API + HTML at /dashboard/ (blocking)
+make dashboard                                # same app on 8501; alternative, not required
 docker compose up --build                      # api + dashboard + mlflow (.env first)
 ```
 
@@ -111,8 +112,12 @@ formatting, so run it before every commit.
   the PyTorch index is scoped there so normal PyPI packages cannot be
   shadowed. Install runtime/dev requirements first, then that file.
 - `mlflow==3.17.2` keeps the local `mlruns/` file store behind an explicit
-  opt-in (`MLFLOW_ALLOW_FILE_STORE=true`); the demo and Compose set it.
+  opt-in (`MLFLOW_ALLOW_FILE_STORE=true`); the demo, training/tuning and Compose set it.
 - CleverHans is deliberately isolated in `requirements-cleverhans.txt`.
 - Compose binds published ports to `127.0.0.1` by default; do not set
   `BIND_ADDR=0.0.0.0` without TLS/authentication in front of MLflow and the
   dashboard (they have no built-in auth).
+- Native uvicorn does not load `.env` automatically; export settings or use
+  `--env-file .env`. HTML uses same-origin HTTP and ignores legacy `API_URL`.
+- Prediction requires `PREDICTION_API_TOKEN` (>=32 characters) plus a verified
+  frozen bundle at `models/sprint4/baseline_v1`; never bypass the freeze gate.

@@ -1,8 +1,9 @@
 # Documentation index
 
-**Continuing after Sprint 3?** Start with [team_handoff.md](team_handoff.md) for
+**Opening the recorded results?** Start with [team_handoff.md](team_handoff.md) for
 pulling main, synchronizing requirements and opening the HTML dashboard with
-the recorded baseline results.
+the recorded baseline results. For tuning/prediction use [Sprint 4](sprint4.md);
+for M1 availability consult [progress](progress.md), not the historical handoff.
 
 Start here. The root [`README.md`](../README.md) explains what the project is
 and how to get it running; this page is the map to everything else.
@@ -18,6 +19,7 @@ and how to get it running; this page is the map to everything else.
 | [`configuration.md`](configuration.md) | Environment variables, dataset resolution, Compose ports, paths/seeds |
 | [`testing.md`](testing.md) | Test layout, commands, synthetic fixtures, optional real-data checks |
 | [`testing_hardening_report.md`](testing_hardening_report.md) | Verified metrics/integrity regressions, prediction-boundary tests and before/after measurements |
+| [`documentation_audit.md`](documentation_audit.md) | Documentation findings, fixes, validation evidence and remaining gaps |
 | [`progress.md`](progress.md) | Where are we now: sprint/milestone status, current checklist |
 
 ## Architecture and structure
@@ -27,12 +29,12 @@ and how to get it running; this page is the map to everything else.
 | [`architecture.md`](architecture.md) | Components, entry points, dependency rules, data flows, constraints |
 | [`project-structure.md`](project-structure.md) | Directory responsibilities, where new code/tests/docs belong, conventions |
 | [`../api/README.md`](../api/README.md) | FastAPI endpoints, responses, run commands, OpenAPI URLs |
-| [`../dashboard/README.md`](../dashboard/README.md) | Streamlit page, `API_URL`, run command |
+| [`../dashboard/README.md`](../dashboard/README.md) | Primary HTML UI, feature prediction, UI checks and legacy Streamlit |
 | [`../src/data/README.md`](../src/data/README.md) | Data layer APIs: preprocessing entry points and loaders |
-| [`../src/models/README.md`](../src/models/README.md) | Current model classes and planned baseline work |
+| [`../src/models/README.md`](../src/models/README.md) | Model classes, training/tuning interfaces, verified frozen bundles and CLI discovery |
 | [`../src/attacks/README.md`](../src/attacks/README.md) | Planned FGSM/PGD/CW wrappers (placeholder) |
 | [`../src/defenses/README.md`](../src/defenses/README.md) | Planned hardening methods (placeholder) |
-| [`../src/evaluation/README.md`](../src/evaluation/README.md) | Planned metrics and plots (placeholder) |
+| [`../src/evaluation/README.md`](../src/evaluation/README.md) | Binary metrics/threshold semantics and bounded artifact readers |
 
 ## Data
 

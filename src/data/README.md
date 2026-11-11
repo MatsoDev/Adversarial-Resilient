@@ -63,6 +63,14 @@ returns the number of rows. EMBER always uses the binary target; CICIDS accepts
 `FileNotFoundError` with the preprocessing command to run, invalid
 split/target names raise `ValueError`, and loaders never download data.
 
+Both loaders also accept `root=Path(...)` for custom processed directories and
+`mmap_mode="r"` for memory-mapping the feature file. `standardize=True` allocates
+a transformed matrix using the saved Sprint 2 raw-feature scaler; it is **not**
+the Sprint 4 signed-log1p/bundle scaler. Neither loader implicitly verifies
+manifest SHA-256 digests: use `scripts/preprocess.py --verify-only` for complete
+artifact verification, or explicit required-input checks at training/inference
+boundaries. Missing metadata CSVs are allowed and yield `metadata=None`.
+
 ## Adding data code
 
 - Keep raw-data discovery in `src/config.py` (`resolve_ember_source`,

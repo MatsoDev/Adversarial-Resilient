@@ -85,34 +85,23 @@ the UI; there is no history. Do not use a shared/public deployment without
 TLS and external authentication/authorization; this single local research
 token is not a multi-user identity system.
 
-`GET /v1/baseline` requires `Authorization: Bearer <token>` and returns frozen
-identity and measured test metrics. `POST /predict` requires the same header,
-`Content-Type: application/json`, and:
+With the venv active, Linux/macOS shell setup:
 
-```json
-{
-  "model_version": "baseline_v1",
-  "representation": "raw",
-  "preprocessing_id": "<preprocessing_sha256 from /v1/baseline>",
-  "feature_schema_sha256": "<feature_schema_sha256 from /v1/baseline>",
-  "rows": [[0.0]]
-}
+```bash
+export PREDICTION_API_TOKEN="$(python -c 'import secrets; print(secrets.token_urlsafe(32))')"
+python -m uvicorn api.main:app --host 127.0.0.1 --port 8000
 ```
 
-The abbreviated row above must be replaced with **exactly 2381** finite numbers
-in the published EMBER v2 order. No strings or booleans. Supply 1–32 rows.
-`raw` means unscaled vectorized EMBER values, absolute bound 1e30. `scaled`
-means already transformed by **this exact bundle's signed-log1p and scaler**,
-absolute bound 1e6; no transform is reapplied. Schema and preprocessing hashes
-are mandatory in both modes to prevent accidental model/schema mismatches.
-Predictions contain numeric label (0 benign / 1 malicious), calibrated positive
-class score, score type, 0.5 threshold, model/preprocessing identity and latency.
-Scores are not a file-safety guarantee and no adversarial verdict is produced.
+PowerShell uses `$env:PREDICTION_API_TOKEN = python -c "import secrets; print(secrets.token_urlsafe(32))"`.
+Native uvicorn does not read `.env` automatically; use exported variables or
+explicit `--env-file .env`. A generated token does not create a frozen bundle.
+Do not manually change a blocked candidate's status to enable serving.
 
-Limits: 2 MiB streamed body cap; 30 authenticated requests/minute/socket peer
-per API process (metadata included); bounded 1024-peer budget cache. Forwarded
-IP headers are not trusted. Errors: 401 unauthorized, 413 oversized, 415 wrong
-content type, 422 invalid rows/schema/representation, 429 budget, 503 disabled/
-missing/invalid frozen bundle. Errors retain HTTP security headers and omit
-filesystem/model-loading details. Model loading is lazy, cached for the process,
-local-only and never controlled by HTTP; restart after provisioning a bundle.
+`GET /v1/baseline` returns verified frozen identity/test metrics. `POST /predict`
+accepts 1–32 ordered 2381-dimensional numeric feature rows with matching schema/
+preprocessing identities, either raw or explicitly bundle-scaled. The maintained
+[API reference](../api/README.md#feature-prediction) contains exact fields,
+response semantics, limits, errors and an executable client example; keep HTTP
+contract changes there rather than duplicating them in the training protocol.
+Model loading is lazy and process-cached; restart each serving instance after
+provisioning a bundle. Scores are not a file-safety guarantee or adversarial verdict.

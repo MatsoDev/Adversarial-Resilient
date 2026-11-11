@@ -43,7 +43,13 @@ datasets. Three optional real-data checks are skipped unless
 | `tests/test_api_health.py` | `health()` return value and `/health` route registration (no HTTP client needed) |
 | `tests/test_api_security.py` | Security headers on success/error responses, Host validation, HSTS, docs switch, env flags |
 | `tests/test_dashboard_security.py` | `API_URL` scheme/credential validation, IPv6 handling, same-origin redirects, bounded JSON responses |
-| `tests/test_dashboard_app.py` | Streamlit placeholder behavior with a fake `st` module (invalid URL, button click, safe errors) |
+| `tests/test_dashboard_app.py` | Legacy Streamlit behavior with a fake `st` module and AppTest navigation/error checks |
+| `tests/test_dashboard_entrypoint.py` | Real legacy Streamlit process and script-health check |
+| `tests/test_html_dashboard.py` | Primary HTML/assets delivery and separate CSP |
+| `tests/test_sprint4_ui.py` | Prediction JavaScript component with a minimal DOM; skips if Node is absent |
+| `tests/test_sprint3.py` | Synthetic baseline training, CLI, artifact/provenance contracts, MLflow and legacy model views |
+| `tests/test_artifact_security.py` | Aggregate response, nonfinite JSON and special-file handling |
+| `tests/test_sprint3_real.py` | Opt-in processed EMBER counts/schema/labels and sampled finite/features checks |
 | `tests/test_manifest_security.py` | Manifest path containment, NUL/absolute/`..` rejection, symlink escapes, malformed records |
 | `tests/test_security_config.py` | Torch index scoping, Docker/CI pins, loopback ports, capability drops, coverage gate |
 | `tests/test_art_quickstart_smoke.py` | Synthetic end-to-end ART demo, including JSON/figure outputs under `tmp_path` |
@@ -77,18 +83,20 @@ nested test packages.
   `pytest.mark.skipif(os.environ.get("RUN_REAL_DATA_TESTS") != "1", ...)`;
   tests run only when the user opts in and has the datasets locally.
 - **Docs are part of the contract.** When you add or move a Markdown file,
-  update its links; `tests/test_docs_links.py` fails on broken relative links.
+  update its links; `tests/test_docs_links.py` checks relative file targets.
+  It intentionally skips fenced/inline code and does not validate heading
+  anchors or external URLs. Links whose labels are inline code are also outside
+  its current coverage; review those paths explicitly. No Markdown linter,
+  static-site generator or generated API-doc build is configured. FastAPI's
+  runtime `/openapi.json` is the machine-readable route/request-schema reference.
 
 ## Optional real-data checks
 
-Sprint 3 also adds `tests/test_sprint3.py` (training, metrics, artifact contracts,
-MLflow and UI model views), real Streamlit AppTest navigation/error checks in
-`tests/test_dashboard_app.py`, and `tests/test_sprint3_real.py` for opt-in
-processed EMBER counts/schema/normalization. On Windows, `tests/conftest.py`
+On Windows, `tests/conftest.py`
 initializes torch before collection to avoid native DLL import-order errors.
 The [Sprint 3 report](sprint3_report.md) records the complete executed results.
 
-These require the resolved EMBER and CIC-IDS-2017 directories (see
+The two raw-availability checks require the resolved EMBER and CIC-IDS-2017 directories (see
 [`configuration.md`](configuration.md)) and only check that the expected files
 exist:
 
@@ -104,6 +112,17 @@ artifacts from a previous full run:
 ```bash
 python scripts/preprocess.py --dataset all --verify-only
 ```
+
+The third opt-in test inspects the default processed EMBER directory's full-run
+counts, labels, schema, sample byte histograms and temporal split relationship:
+
+```bash
+RUN_REAL_DATA_TESTS=1 python -m pytest tests/test_sprint3_real.py -q
+```
+
+It skips if no processed manifest exists, even after opt-in. It does not train
+or evaluate a detector, re-hash every artifact, or assert standardized mean/variance.
+None of these opt-in tests replaces full preprocessing/manifest verification.
 
 ## Adding tests
 

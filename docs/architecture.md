@@ -1,211 +1,165 @@
 # Architecture overview
 
-**Sprint 4 update:** the primary UI is plain HTML/CSS/JS in `dashboard/web`,
-served at `/dashboard/` by FastAPI. `src/models/tuning.py` performs CPU model
-selection/calibration and the M1 gate; `src/models/frozen.py` verifies trusted
-local bundles and provides inference. `api/prediction.py` adds token-protected,
-bounded feature prediction, disabled until a genuine frozen baseline exists.
-No database, upload handling, attacks or defenses were added. See
-[Sprint 4](sprint4.md) for the current protocol and contracts; the historical
-Sprint 2 component map below still explains the dependency boundaries.
+Current implementation: Sprint 4 training/tuning and gated feature inference,
+plus the Sprint 1 MNIST demo and Sprint 2 data pipeline. Implementation of a
+freeze gate is **not** proof of a passing baseline; consult [progress](progress.md)
+and the [Sprint 4 report](sprint4_report.md) for measured status.
 
-This document describes how the repository is actually built today (Sprint 2
-state) and the rules that keep it coherent as the project grows.
+## Components and boundaries
 
-## What the system is
-
-Machine-learning detectors for malware (EMBER) and network intrusion
-(CIC-IDS-2017) that are attacked with adversarial examples (FGSM, PGD,
-Carlini-Wagner) and later hardened with defenses. Sprint 1 proved the attack
-tooling works end to end on an MNIST demo; Sprint 2 adds the cleaned, versioned
-EMBER2018 and CIC-IDS-2017 datasets, reusable loaders, EDA, and manifests.
-Baselines, attacks on real data, and defenses land in later sprints (see the
-module READMEs under [`../src/`](../src/)).
-
-## Components
-
-```text
-  +-------------------------------+   +-------------------------------+
-  | scripts/art_quickstart.py     |   | scripts/preprocess.py         |
-  | (ART demo on MNIST)           |   | scripts/eda_datasets.py       |
-  +---------------+---------------+   +---------------+---------------+
-                  | imports                           | imports
-                  v                                   v
-  +-----------+   +-------------------------------------------+   +----------------+
-  | api/      |   |  src/  (shared library, importable as     |   | data/processed |
-  | FastAPI   |-->|  `src.*`)                                 |-->| (gitignored)   |
-  | /health   |   |  config.py  utils/seed  models/           |   +----------------+
-  +-----------+   |  data/ attacks/ defenses/ evaluation/     |
-        ^         |                                           |
-        | calls   +-------------------------------------------+
-  +-----------+                 | manifests / EDA
-  | dashboard/|                 v
-  | Streamlit |      +---------------------------+   +------------------+
-  +-----------+      | docs/data/manifests/      |   | mlruns/          |
-                     | docs/data/eda_report.md   |   | MLflow tracking  |
-                     | docs/figures/data_*.png   |   | (gitignored)     |
-                     +---------------------------+   +------------------+
+```mermaid
+flowchart LR
+    Browser[HTML dashboard in browser] -->|same-origin HTTP| API[FastAPI]
+    Legacy[Legacy Streamlit] -->|HTTP artifacts| API
+    API --> Store[src/evaluation/artifacts.py]
+    Store --> Docs[Committed reports and local baseline JSON]
+    API -->|authenticated metadata / prediction| Frozen[src/models/frozen.py]
+    Frozen --> Bundle[Trusted local frozen bundle]
+    Raw[Raw public feature datasets] --> Prep[scripts/preprocess.py]
+    Prep --> Data[Processed arrays and manifest]
+    Data --> Train[Training / tuning CLIs]
+    Train --> Bundle
+    Train --> Docs
+    Train --> MLflow[MLflow tracking]
 ```
 
-### `src/` — shared library
+FastAPI also serves the static HTML/CSS/JS under `dashboard/web/` at
+`/dashboard/`; there is no frontend build. The browser does not read local
+arrays or checkpoints. Legacy Streamlit runs separately and uses the bounded
+`dashboard/client.py` HTTP client.
 
-The single home for reusable code. Everything else imports from here, never
-the other way around.
+| Layer | Entry points and responsibilities |
+|---|---|
+| Shared configuration | `src/config.py`: repository paths, dataset resolution, seed defaults; `src/utils/seed.py`: Python/NumPy/torch seeding |
+| Data | `src/data/`: clean-room EMBER v2 vectorization, CICIDS cleaning/deduplication, splitting, atomic output, loaders and manifest verification |
+| Models | `src/models/training.py`: classical/MLP validation comparison; `tuning.py`: selection/calibration/test gates; `frozen.py`: verified CPU bundle loading/inference; `tabular.py`: MLP and 1D-CNN |
+| Evaluation | `src/evaluation/binary.py`: binary metrics and operating thresholds; `artifacts.py`: bounded, allowlisted research artifact readers |
+| HTTP | `api/main.py`: app factory, middleware and static mount; `api/artifacts.py`: read-only routes; `api/prediction.py`: token, body validation and query budget |
+| Operator tools | `scripts/setup_environment.py`, `preprocess.py`, `eda_datasets.py`, `train_baselines.py`, `tune_baseline.py`, `art_quickstart.py` |
 
-- [`src/config.py`](../src/config.py) — central paths (`ROOT`, `DATA_DIR`,
-  `FIGURES_DIR`, ...), the default `SEED`, and demo constants. All modules are
-  expected to import paths from here instead of constructing their own so the
-  project stays portable across Windows/Linux/macOS. `ensure_dirs()` creates
-  the gitignored runtime directories.
-- [`src/utils/seed.py`](../src/utils/seed.py) — `set_seed()` seeds
-  `random`, numpy, and torch, and enables deterministic torch settings where
-  possible. Every experiment should call it first.
-- [`src/models/baseline_mlp.py`](../src/models/baseline_mlp.py) —
-  `BaselineMLP` (tabular baseline skeleton) and `SmallCNN` (the MNIST demo
-  model).
-- [`src/data/`](../src/data/README.md) — Sprint 2 data layer (usage guide:
-  [`docs/data/README.md`](data/README.md)):
-  `ember.py` (clean-room EMBER v2 vectoriser, metadata scan, time split),
-  `cicids2017.py` (cleaning, canonical labels, dedup, stratified split),
-  `preprocessing.py` (atomic writes, hashing/manifests, scalers, split
-  utilities), and `loader.py` (`load_ember` / `load_cicids2017`).
-- `src/attacks/`, `src/defenses/`, `src/evaluation/` — placeholder packages
-  whose READMEs describe the planned contents; they contain no logic yet.
+`src/attacks/` and `src/defenses/` are still placeholders. FGSM/PGD/CW-L2
+currently run only in the standalone MNIST demo, not against security detectors.
+Public contracts live in the [API README](../api/README.md),
+[data module README](../src/data/README.md), [model README](../src/models/README.md)
+and [evaluation README](../src/evaluation/README.md).
 
-### `scripts/` — runnable entry points
+## Execution and data flows
 
-One-off and demo scripts that wire the library together. `scripts/` may import
-`src/`; `src/` must never import `scripts/`.
+### Data preparation and reports
 
-- [`scripts/art_quickstart.py`](../scripts/art_quickstart.py) — the Sprint 1
-  deliverable: downloads MNIST via torchvision into `data/raw/`, trains
-  `SmallCNN`, wraps it with ART's `PyTorchClassifier`, runs FGSM/PGD/CW-L2,
-  computes an accuracy-vs-epsilon table, then writes the JSON report,
-  the two figures, and MLflow data. `--synthetic` runs on random data for
-  tests, and `run_demo(args, output_dir=...)` redirects all outputs (the smoke
-  test uses pytest's `tmp_path` so committed artifacts are never overwritten).
-- [`scripts/preprocess.py`](../scripts/preprocess.py) — one-command
-  reproducible EMBER/CICIDS preprocessing, `--verify-only` manifest checks,
-  deterministic subsets, and `--dataset all`.
-- [`scripts/eda_datasets.py`](../scripts/eda_datasets.py) — EDA JSON, compact
-  PNG figures, and a generated Markdown report; `--output-dir` keeps tests out
-  of `docs/`.
+1. `scripts/preprocess.py` resolves raw sources in order: CLI, dataset environment
+   variable, repo-local `data/raw/<name>`, then `~/Documents/<name>`. Raw files are
+   read in place, never downloaded or copied by the pipeline.
+2. EMBER preserves the official test partition and makes time-based validation
+   from labeled training records. CICIDS cleans/deduplicates before a binary-
+   stratified 70/15/15 split. See the [data guide](data/README.md) for details.
+3. Processed arrays, metadata, scalers and hashes go under `data/processed/`.
+   Full runs in default output directories publish compact manifests under
+   `docs/data/manifests/`; subsets/custom outputs do not.
+4. `scripts/eda_datasets.py` scans raw sources and optionally enriches its report
+   with processed manifests. It generates JSON, figures and the EDA Markdown.
 
-### `api/` — FastAPI service
+Loaders validate shapes and schema, but do not implicitly re-hash every file.
+Training/tuning explicitly verify canonical input filenames and required SHA-256
+digests before loading. Hashes detect corruption, not a malicious publisher who
+can replace both manifest and data. Do not allow untrusted artifact writers.
 
-[`api/main.py`](../api/main.py) exposes `GET /health` (used by the dashboard's
-API check and `tests/test_api_health.py`) and `GET /`. FastAPI also serves
-`/docs`, `/redoc`, and `/openapi.json` (disable with `API_DOCS_ENABLED=false`).
-It validates Host headers, sends browser security headers, and runs with
-`--no-server-header` in the image/Compose stack. Semester 2 adds the real
-`/predict`, `/attack`, and `/defend` endpoints, which must also add
-authentication, authorization, and rate limiting. The Docker image
-(`Dockerfile`) runs this app as a non-root user with uvicorn. The endpoint
-contract is documented in [`api/README.md`](../api/README.md).
+### Training, selection and freezing
 
-### `dashboard/` — Streamlit UI
+- **Sprint 3 comparison:** `train_baselines.py` memory-maps inputs, samples rows,
+  fits a new raw-feature scaler on selected train rows, and trains Logistic
+  Regression, Random Forest, Linear SVM and/or MLP. Validation selects the MLP
+  checkpoint; test is never opened. Reports include row hashes, schema/manifest
+  identities and subset flags so only compatible runs share a comparison.
+- **Sprint 4 selection:** `tune_baseline.py` fits signed-log1p/train-only scaling,
+  tries six predeclared MLP/CNN configurations and partitions validation into
+  selection/calibration/operating subsets (50/25/25). Selection NLL chooses the
+  checkpoint; a separate partition fits temperature and another selects the
+  95%-TPR operating threshold.
+- Weights/config/scaler/schema are locked before official test evaluation. Only
+  a non-subset run with operating-partition accuracy >=93% opens test. Test
+  accuracy >=93% permits `status: frozen` / `model_version: baseline_v1`.
+  Other outcomes remain blocked candidates. Default prediction uses 0.5, not
+  the separately recorded operating threshold. See [the full protocol](sprint4.md).
 
-[`dashboard/app.py`](../dashboard/app.py) is a placeholder page with a button
-that calls the API's `/health` endpoint. It reads `API_URL` from the
-environment, defaulting to `http://localhost:8000` for local runs; compose sets
-it to `http://api:8000`.
+Both training paths are operator-invoked, synchronous CPU jobs. MLflow defaults
+to the local `mlruns/` file store (explicit file-store opt-in); `--tracking-uri`
+can select another store and `--no-mlflow` disables logging. The serving API does
+not query MLflow. No scheduler, job queue or training-over-HTTP is implemented.
 
-### Deployment stack
+### HTTP request lifecycle
 
-[`docker-compose.yml`](../docker-compose.yml) defines three services:
+`create_app(store=None, *, baseline_dir=None)` reads Host/docs settings, registers
+artifact and prediction routers, and mounts static assets. Tests can inject an
+artifact store and bundle directory without changing production paths.
 
-- `api` — built from the repo `Dockerfile`, served on `${API_PORT:-8000}`;
-- `dashboard` — same image, runs Streamlit on `${DASHBOARD_PORT:-8501}`;
-- `mlflow` — the official MLflow image, serving `./mlruns` on
-  `${MLFLOW_PORT:-5000}`.
+- Host validation rejects unapproved hosts. Middleware adds browser security
+  headers, no-store and a restrictive CSP; HTML assets get self-only script/style/
+  connection allowances. HSTS is emitted for HTTPS request schemes only.
+- Artifact routes map unknown IDs to 404 and known unavailable/invalid artifacts
+  to generic 503. The store reads only contained regular files, with per-file and
+  aggregate run budgets. `/v1/runs` combines local comparison JSON with the
+  committed reference, deduplicates run IDs and excludes invalid batches.
+- Prediction first checks the exact bearer token, then charges the socket peer's
+  in-memory budget. It streams a bounded JSON body and validates the feature
+  contract. Model loading and prediction run in a thread pool; first successful
+  loading is locked and cached per router/process. Restart to replace that model.
+- `FrozenBaseline` validates the trusted bundle, required hashes, feature order,
+  scaler, finite parameters and freeze status, and loads a CPU state dictionary
+  with `weights_only=True`. HTTP callers cannot select filesystem paths/models.
+- Unhandled exceptions are logged server-side and return generic 500 JSON with
+  security headers. Bundle-load exceptions are also logged; clients receive no
+  filesystem details. There is no application audit/history persistence.
 
-The stack reads `.env` (copied from [`.env.example`](../.env.example)) and
-publishes ports on `127.0.0.1` by default. API and dashboard drop all Linux
-capabilities and set `no-new-privileges`; MLflow has no authentication, so it
-must stay on loopback or sit behind a TLS reverse proxy with auth.
-`.dockerignore` keeps the build context small. The image is CPU-only, runs as
-a non-root user, and pins its base image and pip version.
+`/health` is liveness only. It says nothing about artifact availability, model
+readiness, data integrity or MLflow. Artifact routes are unauthenticated;
+`/v1/baseline` and `/predict` require a local token. This is not multi-user
+authorization. Query limits/caches are per process, not distributed; the actual
+socket peer is used, not forwarded IP headers.
 
-### CI
+## Persistence and deployment
 
-[`.github/workflows/ci.yml`](../.github/workflows/ci.yml) runs on every push
-and pull request:
+There is no application database, ORM, migration system, account store or upload
+service. Persistence is files: JSON/Markdown/PNG evidence, NumPy arrays, neural
+state dictionaries, local trusted joblib checkpoints and MLflow's file store.
+Raw/processed datasets, weights, `.env` and `mlruns/` are ignored. Compact
+reference results/manifests/EDA outputs are intentionally committed.
 
-- `lint-test` — Python 3.11, `make lint` (ruff check + format check), then
-  `make coverage` (the full suite with line/branch coverage).
-- `security` — `make security` (pip-audit + Bandit).
-- `docker` — `docker build` plus a pinned Trivy scan of fixed
-  HIGH/CRITICAL findings (no push).
+Compose runs **two instances of the same FastAPI application** (`api`: 8000,
+`dashboard`: 8501), plus MLflow (5000). Each HTML UI calls its own origin, not
+the other instance. Both mount reports and Sprint 4 bundles read-only; each has
+independent caches/budgets. `API_URL` retained in Compose is unused by HTML.
+The image copies source/docs/assets, installs pinned CPU dependencies and runs
+as non-root. API/dashboard drop capabilities and set `no-new-privileges`.
+MLflow's official image remains a separate unauthenticated service.
 
-## Dependency rules
+Published ports default to loopback. External exposure needs TLS, external
+authentication/authorization and resource controls; neither local tokens nor
+security headers establish production readiness. See [development/operations](development.md)
+and the dated [security audit](security/SECURITY_AUDIT.md); its Sprint 3 assessment
+does not constitute a full Sprint 4 assessment.
 
-1. `src/` is the base layer: it may depend only on third-party packages
-   (torch, numpy, ART, ...), never on `api/`, `dashboard/`, `scripts/`, or
-   `tests/`.
-2. `api/`, `dashboard/`, and `scripts/` may import `src/`.
-3. `api/` and `dashboard/` are independent of each other; the dashboard talks
-   to the API over HTTP.
-4. `tests/` may import anything.
-5. Paths come from `src/config.py`; seeds come from `src/utils/seed.py`.
-6. New reusable code goes in `src/`; new runnable demos go in `scripts/`.
+## Constraints and extension rules
 
-## Key data flows
+1. `src/` never imports `api/`, `dashboard/`, `scripts/` or `tests/`.
+2. HTTP/UI/CLI layers may import `src/`; API and dashboard communicate by HTTP,
+   not mutual Python imports. Serving static UI files does not change this rule.
+3. Reusable logic belongs in `src/<concern>/`; runnable orchestration belongs in
+   `scripts/`. Tests may import all layers and must write only into temporary dirs.
+4. Paths/constants come from `src/config.py`, seeds from `src/utils/seed.py`.
+5. Python 3.11–3.12 only; CPU-only torch; no CUDA assumptions. Fixed seeds improve
+   repeatability but do not promise bit-identical results across platforms.
+6. Preserve test isolation, manifest provenance and the no-test-driven-tuning
+   gate. Do not implement planned attacks/defenses as part of unrelated work.
+7. Public feature datasets only, no live malware or weaponized tooling.
 
-**ART demo (`make demo`):**
+For a new endpoint, keep transport/auth/validation in `api/`, reusable behavior
+in `src/`, and add synthetic HTTP/security tests. Update [the API reference](../api/README.md)
+and [configuration reference](configuration.md) if the contract/settings change.
+For a UI change edit `dashboard/web/` and run HTML/CSP and Node-backed component
+tests; there is no build step. See [testing](testing.md) and
+[project structure](project-structure.md) for placement and checks.
 
-```text
-torchvision MNIST --> data/raw/MNIST/ --> SmallCNN (train) --> ART PyTorchClassifier
-        --> FGSM / PGD / CW-L2 --> metrics (adv accuracy, ASR, L2/Linf)
-        --> docs/results/art_quickstart_results.json
-        --> docs/figures/art_samples.png, art_accuracy_vs_eps.png
-        --> mlruns/ (MLflow file store)
-```
-
-**Data pipeline (`make data` / `make eda`):**
-
-```text
-resolved EMBER/CICIDS source (CLI > env var > data/raw/ > ~/Documents; read in place)
-    --> src/data/ember.py / cicids2017.py (validate, clean, vectorise, split)
-    --> data/processed/{ember2018,cicids2017}/ (gitignored .npy + metadata + scalers)
-    --> docs/data/manifests/*.json (committed compact manifests)
-    --> scripts/eda_datasets.py --> docs/results/data_eda.json
-                                  docs/figures/data_*.png
-                                  docs/data/eda_report.md
-```
-
-**API + dashboard:**
-
-```text
-Streamlit (dashboard/) --HTTP GET /health--> FastAPI (api/) --> {"status": "ok"}
-```
-
-## Constraints and invariants
-
-- Python 3.11–3.12 (CI and Docker use 3.11; Python 3.10 support ends in October 2026).
-- CPU-only; torch/torchvision CPU wheels from the PyTorch index
-  (`requirements-torch.txt`, scoped index).
-- Deterministic runs: fixed seeds (`SEED = 42` default) and
-  `set_seed()`; the demo also records the seed in its JSON output.
-- Raw datasets, processed arrays, scalers, model weights, `.env`, and `mlruns/`
-  are never committed (`.gitignore`). Committed generated artifacts are the
-  Sprint 1 demo files in `docs/results/` + `docs/figures/`, the compact data
-  manifests in `docs/data/manifests/`, and the generated EDA report/figures.
-- Data versioning is manifest-based (SHA-256 + sizes + counts + config + seed);
-  DVC/Git LFS are deliberately not used in Sprint 2 (see `DECISIONS.md`).
-- Defensive research only: public feature datasets, no live malware, no
-  weaponized tooling (see [`threat_model_v0.1.md`](threat_model_v0.1.md)).
-
-## Where future components fit
-
-| Planned work | Sprint | Location | Module README |
-|---|---|---|---|
-| EMBER / CIC-IDS-2017 loaders, preprocessing, splits | 2 (done) | `src/data/` | [`src/data/README.md`](../src/data/README.md) |
-| Baseline detectors | 3–4 | `src/models/` | [`src/models/README.md`](../src/models/README.md) |
-| FGSM/PGD/CW wrappers over ART | 5–6 | `src/attacks/` | [`src/attacks/README.md`](../src/attacks/README.md) |
-| Adversarial training, distillation, ensembles, sanitization, detector | 9–11 | `src/defenses/` | [`src/defenses/README.md`](../src/defenses/README.md) |
-| Metrics and plots | 5, 7 | `src/evaluation/` | [`src/evaluation/README.md`](../src/evaluation/README.md) |
-| REST endpoints (/predict, /attack, /defend) | 13 | `api/` | [`api/README.md`](../api/README.md) |
-| Real dashboard | 13 | `dashboard/` | [`dashboard/README.md`](../dashboard/README.md) |
-
-Non-obvious choices are logged in [`DECISIONS.md`](DECISIONS.md); sprint
-reports record what was actually run and measured.
+CI runs lint/format, coverage, dependency/static security checks, Docker build
+and a filtered vulnerability scan; it does not deploy. Non-obvious choices are
+recorded in [DECISIONS.md](DECISIONS.md), not inferred from future plans.
