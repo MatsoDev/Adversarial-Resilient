@@ -150,7 +150,7 @@ def test_failed_full_validation_gate_does_not_open_test(ember, tmp_path, monkeyp
     assert not report["test_evaluated"]
 
 
-def test_api_prediction_validation_and_auth(frozen, monkeypatch):
+def test_api_prediction_disabled_and_auth(frozen, monkeypatch):
     root, report = frozen
     monkeypatch.delenv("PREDICTION_API_TOKEN", raising=False)
     client = TestClient(create_app(baseline_dir=root))
@@ -160,52 +160,50 @@ def test_api_prediction_validation_and_auth(frozen, monkeypatch):
     client.headers["Authorization"] = "Bearer " + "x" * 32
     identity = client.get("/v1/baseline")
     assert identity.status_code == 200
-    payload = dict(
-        model_version="baseline_v1",
-        representation="raw",
-        preprocessing_id=report["preprocessing_sha256"],
-        feature_schema_sha256=report["feature_schema_sha256"],
-        rows=[[0] * 2381],
-    )
-    response = client.post("/predict", json=payload)
-    assert response.status_code == 200
-    assert response.json()["score_type"] == "temperature_calibrated_probability"
+    assert identity.json()["preprocessing_sha256"] == report["preprocessing_sha256"]
+    assert identity.json()["feature_count"] == 2381
+    assert identity.headers["cache-control"] == "no-store"
+
+
+@pytest.mark.parametrize(
+    "change",
+    [
+        pytest.param({"rows": []}, id="empty-batch"),
+        pytest.param({"rows": [[0]]}, id="wrong-dimension"),
+        pytest.param({"rows": [[True] * 2381]}, id="boolean-features"),
+        pytest.param({"rows": [["0"] * 2381]}, id="string-features"),
+        pytest.param({"rows": [[1e31] * 2381]}, id="raw-overflow"),
+        pytest.param({"preprocessing_id": "0" * 64}, id="wrong-preprocessing"),
+        pytest.param({"feature_schema_sha256": "0" * 64}, id="wrong-schema"),
+        pytest.param({"representation": "unknown"}, id="unknown-representation"),
+        pytest.param({"model_version": "candidate"}, id="unfrozen-version"),
+        pytest.param({"path": "/tmp/model.pt"}, id="extra-path"),
+        pytest.param({"rows": [[0] * 2381] * 33}, id="oversized-batch"),
+    ],
+)
+def test_api_prediction_rejects_invalid_payload(prediction_client, change):
+    client, payload = prediction_client
+    response = client.post("/predict", json={**payload, **change})
+    assert response.status_code == 422
     assert response.headers["cache-control"] == "no-store"
-    for change in (
-        {"rows": []},
-        {"rows": [[0]]},
-        {"rows": [[True] * 2381]},
-        {"rows": [["0"] * 2381]},
-        {"rows": [[1e31] * 2381]},
-        {"preprocessing_id": "0" * 64},
-        {"feature_schema_sha256": "0" * 64},
-        {"representation": "unknown"},
-        {"model_version": "candidate"},
-        {"path": "/tmp/model.pt"},
-        {"rows": [[0] * 2381] * 33},
-    ):
-        assert client.post("/predict", json={**payload, **change}).status_code == 422
-    assert (
-        client.post("/predict", content=b"{}", headers={"Content-Type": "text/plain"}).status_code
-        == 415
-    )
-    assert (
-        client.post(
-            "/predict",
-            content=b"x" * (2 * 1024 * 1024 + 1),
-            headers={"Content-Type": "application/json"},
-        ).status_code
-        == 413
-    )
-    assert (
-        client.post(
-            "/predict", content=b'{"rows": NaN}', headers={"Content-Type": "application/json"}
-        ).status_code
-        == 422
-    )
-    for _ in range(31):
-        response = client.get("/v1/baseline")
-    assert response.status_code == 429
+    assert "Traceback" not in response.text
+
+
+@pytest.mark.parametrize(
+    ("body", "content_type", "status"),
+    [
+        pytest.param(b"{}", "text/plain", 415, id="non-json"),
+        pytest.param(b"x" * (2 * 1024 * 1024 + 1), "application/json", 413, id="body-limit"),
+        pytest.param(b'{"rows": NaN}', "application/json", 422, id="nonfinite-json"),
+        pytest.param(b"{", "application/json", 422, id="malformed-json"),
+        pytest.param(b"\xff", "application/json", 422, id="invalid-encoding"),
+    ],
+)
+def test_api_prediction_rejects_invalid_bodies(prediction_client, body, content_type, status):
+    client, _ = prediction_client
+    response = client.post("/predict", content=body, headers={"Content-Type": content_type})
+    assert response.status_code == status
+    assert response.headers["cache-control"] == "no-store"
 
 
 def test_missing_bundle_and_invalid_config(tmp_path, monkeypatch):
@@ -355,3 +353,136 @@ def test_frozen_bundle_requires_every_integrity_digest(frozen, artifact):
     write_json_atomic(root / "bundle.json", report)
     with pytest.raises(ValueError, match="integrity"):
         FrozenBaseline(root)
+
+
+@pytest.fixture
+def prediction_client(frozen, monkeypatch):
+    root, report = frozen
+    monkeypatch.setenv("PREDICTION_API_TOKEN", "x" * 32)
+    monkeypatch.setenv("API_ALLOWED_HOSTS", "testserver")
+    payload = {
+        "model_version": "baseline_v1",
+        "representation": "raw",
+        "preprocessing_id": report["preprocessing_sha256"],
+        "feature_schema_sha256": report["feature_schema_sha256"],
+        "rows": [[0] * 2381],
+    }
+    with TestClient(create_app(baseline_dir=root)) as client:
+        client.headers["Authorization"] = "Bearer " + "x" * 32
+        yield client, payload
+
+
+@pytest.fixture
+def prediction_clock(monkeypatch):
+    from types import SimpleNamespace
+
+    import api.prediction as prediction
+
+    now = [100.0]
+    # Replace this module's clock, not the process-wide time module used by async I/O.
+    monkeypatch.setattr(prediction, "time", SimpleNamespace(monotonic=lambda: now[0]))
+    return now
+
+
+def test_prediction_budget_is_shared_by_routes_and_resets_at_60_seconds(
+    prediction_client, prediction_clock
+):
+    client, payload = prediction_client
+    now = prediction_clock
+    for _ in range(15):
+        assert client.get("/v1/baseline").status_code == 200
+        assert client.post("/predict", json=payload).status_code == 200
+    now[0] = 159.999
+    exhausted = client.post("/predict", json=payload)
+    assert exhausted.status_code == 429
+    assert exhausted.headers["retry-after"] == "60"
+    assert exhausted.headers["cache-control"] == "no-store"
+    now[0] = 160.0
+    assert client.post("/predict", json=payload).status_code == 200
+
+
+def test_forwarding_headers_cannot_bypass_prediction_budget(prediction_client, prediction_clock):
+    client, _ = prediction_client
+    for number in range(30):
+        response = client.get("/v1/baseline", headers={"X-Forwarded-For": f"192.0.2.{number}"})
+        assert response.status_code == 200
+    response = client.get(
+        "/v1/baseline", headers={"X-Forwarded-For": "198.51.100.1", "Forwarded": "for=198.51.100.1"}
+    )
+    assert response.status_code == 429
+
+
+def test_unauthorized_requests_do_not_consume_authenticated_budget(
+    prediction_client, prediction_clock
+):
+    client, _ = prediction_client
+    for _ in range(31):
+        response = client.get("/v1/baseline", headers={"Authorization": "Bearer wrong"})
+        assert response.status_code == 401
+        assert response.headers["www-authenticate"] == "Bearer"
+    for _ in range(30):
+        assert client.get("/v1/baseline").status_code == 200
+    assert client.get("/v1/baseline").status_code == 429
+
+
+def test_prediction_budget_isolated_by_socket_peer(prediction_client, prediction_clock):
+    first, _ = prediction_client
+    for _ in range(30):
+        assert first.get("/v1/baseline").status_code == 200
+    assert first.get("/v1/baseline").status_code == 429
+    with TestClient(first.app, client=("192.0.2.1", 45000)) as second:
+        second.headers["Authorization"] = first.headers["Authorization"]
+        assert second.get("/v1/baseline").status_code == 200
+    assert first.get("/v1/baseline").status_code == 429
+
+
+@pytest.mark.parametrize(("representation", "bound"), [("raw", 1e30), ("scaled", 1e6)])
+def test_prediction_numeric_bounds_are_inclusive(prediction_client, representation, bound):
+    client, payload = prediction_client
+    payload["representation"] = representation
+    for value, expected in ((bound, 200), (-bound, 200), (bound * 1.01, 422), (-bound * 1.01, 422)):
+        payload["rows"][0][0] = value
+        assert client.post("/predict", json=payload).status_code == expected
+
+
+@pytest.mark.parametrize(("score", "label"), [(0.25, 0), (0.5, 1), (0.75, 1)])
+def test_http_predictions_match_known_calibrated_logits_for_maximum_batch(
+    frozen, monkeypatch, score, label
+):
+    root, report = frozen
+    # Write a real, constant-logit neural checkpoint with a known temperature.
+    baseline = FrozenBaseline(root)
+    with torch.no_grad():
+        for parameter in baseline.model.parameters():
+            parameter.zero_()
+        baseline.model.net[-1].bias.fill_(2 * np.log(score / (1 - score)))
+    torch.save(baseline.model.state_dict(), root / "weights.pt")
+    report["temperature"] = 2.0
+    report["artifacts"]["weights"].update(
+        sha256=sha256_file(root / "weights.pt"), size_bytes=(root / "weights.pt").stat().st_size
+    )
+    write_json_atomic(root / "bundle.json", report)
+    monkeypatch.setenv("PREDICTION_API_TOKEN", "x" * 32)
+    with TestClient(create_app(baseline_dir=root)) as client:
+        response = client.post(
+            "/predict",
+            headers={"Authorization": "Bearer " + "x" * 32},
+            json={
+                "model_version": "baseline_v1",
+                "representation": "scaled",
+                "preprocessing_id": report["preprocessing_sha256"],
+                "feature_schema_sha256": report["feature_schema_sha256"],
+                "rows": [[0] * 2381 for _ in range(32)],
+            },
+        )
+    assert response.status_code == 200
+    result = response.json()
+    assert result["model_version"] == "baseline_v1"
+    assert result["threshold"] == 0.5
+    assert result["preprocessing_id"] == report["preprocessing_sha256"]
+    assert result["feature_schema_sha256"] == report["feature_schema_sha256"]
+    assert result["score_type"] == "temperature_calibrated_probability"
+    assert len(result["predictions"]) == 32
+    for prediction in result["predictions"]:
+        assert prediction == {"label": label, "score": pytest.approx(score, abs=1e-7)}
+    assert np.isfinite(result["latency_ms"]) and result["latency_ms"] >= 0
