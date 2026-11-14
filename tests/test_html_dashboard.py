@@ -18,8 +18,22 @@ def test_dashboard_html_and_assets_keep_separate_csp():
     assert "script-src 'self'" in page.headers["content-security-policy"]
     assert "unsafe-inline" not in page.headers["content-security-policy"]
     assert "default-src 'none'" in client.get("/v1/runs").headers["content-security-policy"]
-    assert 'id="prediction-rows"' in page.text
-    assert 'id="prediction-token" type="password"' in page.text
-    for name in ["styles.css", "app.js", "prediction.js"]:
+    assert 'lang="ar" dir="rtl"' in page.text
+    research = client.get("/dashboard/research.html")
+    assert 'id="prediction-rows"' in research.text
+    assert 'id="prediction-token" type="password"' in research.text
+    for html in (page.text, research.text, client.get("/dashboard/attacks.html").text):
+        assert 'src="release.js"' in html
+        assert 'src="locale.js"' in html
+        assert "data-release" in html
+    for name in [
+        "styles.css",
+        "theme.css",
+        "app.js",
+        "prediction.js",
+        "journey.js",
+        "journey.css",
+        "release.js",
+    ]:
         assert client.get("/dashboard/" + name).status_code == 200
     assert client.get("/dashboard/missing.html").status_code == 404

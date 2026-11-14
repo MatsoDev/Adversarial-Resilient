@@ -7,8 +7,12 @@ See [Sprint 5](../docs/sprint5.md) for prerequisites and commands.
 
 ## Current UI: HTML / CSS / JavaScript
 
-The primary dashboard is now `dashboard/web/index.html`, `styles.css` and
-`app.js`. It is served by FastAPI at **/dashboard/** and reads `/v1/*` on the
+The primary dashboard is `dashboard/web/index.html` with `journey.js` and
+`journey.css`: a bilingual measured-case journey (English default, optional Egyptian Arabic). `research.html` retains the
+model/data views (`app.js`) and gated prediction; `attacks.html` retains the
+attack explorer. `theme.css` supplies the shared dark navy/cyan palette and
+`release.js` supplies the visible v0.5.2 / Sprint 05 UI identity. See the
+[journey guide](../docs/ai_journey.md). It is served by FastAPI at **/dashboard/** and reads `/v1/*` on the
 same origin. Start `python -m uvicorn api.main:app --host 127.0.0.1 --port 8000`
 and open <http://localhost:8000/dashboard/>. `make dashboard` or the Compose
 dashboard service uses <http://localhost:8501/dashboard/>.
@@ -27,7 +31,7 @@ The UI does not load NumPy arrays, joblib models or torch checkpoints.
 
 ## Feature prediction
 
-The primary HTML dashboard includes a **Frozen baseline · feature prediction**
+The research page includes a **Frozen baseline · feature prediction**
 panel. Load the frozen identity with a local research token, then submit ordered
 raw or explicitly bundle-preprocessed EMBER feature rows. The UI does not save
 tokens, rows or history; it sends the token/rows to the same-origin API.
@@ -38,7 +42,7 @@ provisioned; recorded Sprint 3 results do not provision a model. See
 
 ## Development and checks
 
-Edit `web/index.html`, `styles.css`, `app.js` and `prediction.js` directly.
+Edit the HTML/CSS/JS files under `web/` directly; there is no build step.
 Do not open the HTML as a `file:` URL or serve it without the API: requests use
 absolute same-origin `/v1/*` and `/predict` paths. `API_URL` does not change them.
 Serve at `/dashboard/` (including the trailing slash for relative assets).

@@ -12,6 +12,7 @@ import numpy as np
 import torch
 
 from src.attacks.constraints import FeaturePolicy
+from src.attacks.examples import measured_examples
 from src.attacks.runner import BinaryLogits, generate, library_version
 from src.config import ROOT, SEED
 from src.data.loader import load_ember
@@ -166,6 +167,9 @@ def run_experiment(
         attacked = generate(model, raw, y, baseline.mean, baseline.scale, policy, config, seed=seed)
         after = labels(model, attacked)
         row["metrics"] = attack_metrics(y, before, after, clean, attacked)
+        row["examples"] = measured_examples(
+            model, clean, attacked, raw, y, indices, baseline.mean, baseline.scale, policy
+        )
         cross = {"status": "not_run", "reason": "Optional isolated CleverHans check not requested"}
         if cleverhans:
             try:

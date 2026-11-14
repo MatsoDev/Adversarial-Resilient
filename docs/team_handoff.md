@@ -1,5 +1,15 @@
 # Team handoff — recorded research results and current environment
 
+## Sprint 5 dashboard release — v0.5.2
+
+Use the main-branch update commands below, start the same API, and open
+<http://localhost:8000/dashboard/>. Verify **v0.5.2 · Sprint 05 · AI Journey**
+on all three pages; hard-refresh stale browser assets. The release adds the
+bilingual dark guided walkthrough and recorded case evidence. No new dependencies.
+Detailed setup, measured-case reproduction and limitations: [AI journey](ai_journey.md).
+The source branch is `sprint5/ai-journey-dashboard`; main is the team's shared
+integration branch. Dataset/model downloads are not needed for recorded playback.
+
 ## Sprint 5 on main
 
 Sprint 5 was merged into `main` through [PR #19](https://github.com/MatsoDev/Adversarial-Resilient/pull/19).

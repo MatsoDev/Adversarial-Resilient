@@ -16,6 +16,8 @@ and how to get it running; this page is the map to everything else.
 - **Current status:** [progress](progress.md); **scope:** [project plan](project_plan.md).
 - **Why:** [decisions](DECISIONS.md); **dated evidence:** sprint and audit reports, not new setup instructions.
 
+- [AI journey and UI v0.5.1](ai_journey.md): guided measured cases, team version check and future sprint work.
+
 ## Getting oriented
 
 | Document | What it covers |

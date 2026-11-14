@@ -6,6 +6,24 @@ short. Evidence of record stays in the sprint reports, PRs, and MLflow runs.
 
 **Last updated:** 2026-11-14 · **Current sprint:** Sprint 5 implementation and real exploratory validation complete; frozen-benchmark acceptance remains pending M1 and technical feature-policy review. See [Sprint 5 report](sprint5_report.md).
 
+## Sprint 5 UI release — v0.5.2
+
+- Dark bilingual three-step measured AI journey is the landing page; detailed research
+  pages remain available with the shared language switch. Plain-language introduction/FAQ and optional technical details added. Shared
+  release label, dark navy/cyan palette and
+  official logo treatment added; no new runtime dependencies.
+- Reran the same 21 configurations: same identity and aggregate metrics, with
+  57 selected individual cases and completed CleverHans checks. Research gates
+  unchanged. Source branch: `sprint5/ai-journey-dashboard`; team release
+  identity: v0.5.2 / Sprint 05.
+- Verification: 467 passed, 4 skipped; 88% combined coverage, lint/format,
+  JavaScript, docs links and Bandit checks passed. Desktop/mobile language
+  switching reviewed in-browser. Later UI-only v0.5.2 dark guided-flow follow-up:
+  81 focused tests plus lint/JS checks passed; browser reviewed step navigation,
+  case reset, languages and mobile layout.
+- Future work stays in the existing 16-sprint order; see the updated
+  [plan](project_plan.md) and [journey guide](ai_journey.md).
+
 ## Milestones
 
 | #   | When   | Milestone                                      | Status |
