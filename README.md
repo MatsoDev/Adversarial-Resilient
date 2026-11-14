@@ -23,8 +23,10 @@ Works today:
 - Test suite (`pytest`) and lint/format checks (`ruff`).
 - FastAPI service with liveness, read-only research artifacts, and gated,
   bearer-token-protected feature prediction. See the [API reference](api/README.md).
-- HTML research dashboard with Overview, Datasets, Models, MNIST demo and
-  Methodology pages; baseline comparisons use recorded validation artifacts.
+- HTML dashboard v0.5.2 (Sprint 05): guided measured AI journey with an
+  English / Egyptian Arabic language switch, attack comparisons and detailed
+  model/data/methodology/tooling pages; baseline comparisons use recorded
+  validation artifacts. See [the journey guide](docs/ai_journey.md).
   The earlier Streamlit implementation is retained as a legacy reference.
 - `Dockerfile` and `docker-compose.yml` for api, dashboard, and mlflow services
   (the image is built in CI; Compose publishes ports on localhost by default and
@@ -53,8 +55,9 @@ Sprint-by-sprint status is tracked in
 [`docs/progress.md`](docs/progress.md); scope and schedule are in
 [`docs/project_plan.md`](docs/project_plan.md).
 
-Honestly not verified: the CleverHans cross-check was only tested as a graceful
-skip (library not installed). Docker is covered differently: the image builds
+Sprint 5 has 21 completed torch-only CleverHans cross-checks and 57 measured
+case summaries; this does not extend the historical MNIST demo evidence.
+Docker is covered differently: the image builds
 in CI on every push; the 2026-10 security audit rebuilt the image, started the
 full three-service stack on loopback, and health-checked the API, dashboard,
 and MLflow. Browser/MLflow artifact workflows and sustained load were not

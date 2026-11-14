@@ -16,7 +16,12 @@ and how to get it running; this page is the map to everything else.
 - **Current status:** [progress](progress.md); **scope:** [project plan](project_plan.md).
 - **Why:** [decisions](DECISIONS.md); **dated evidence:** sprint and audit reports, not new setup instructions.
 
+- [AI journey and UI v0.5.1](ai_journey.md): guided measured cases, team version check and future sprint work.
+
 ## Getting oriented
+
+The complete versioned HTML plan is in [plans/](plans/README.md), including the
+[v0.5.2 export](plans/project_plan_v0.5.2.html) for the team to open after pulling.
 
 | Document | What it covers |
 |---|---|

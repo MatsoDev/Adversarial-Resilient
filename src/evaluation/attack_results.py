@@ -119,6 +119,60 @@ def validate_attack_report(report):
         seen.add(unique)
         metrics(row["metrics"])
         require(row["metrics"]["clean_correct"] == rows[0]["metrics"]["clean_correct"])
+        examples = row.get("examples", [])
+        require(isinstance(examples, list) and len(examples) <= 3)
+        positions = set()
+        outcomes = set()
+        features = {f["index"]: f for f in constraint["policy"]["features"]}
+        for example in examples:
+            position = example["cohort_position"]
+            require(type(position) is int and 0 <= position < identity["samples"])
+            require(position not in positions)
+            positions.add(position)
+            require(type(example["split_row_index"]) is int and example["split_row_index"] >= 0)
+            truth, before, after = (
+                example[k] for k in ("true_label", "clean_prediction", "attacked_prediction")
+            )
+            require(all(type(v) is int and v in {0, 1} for v in (truth, before, after)))
+            outcome = (
+                "preexisting_error"
+                if before != truth
+                else "successful_attack"
+                if after != truth
+                else "remained_correct"
+            )
+            require(example["outcome"] == outcome and outcome not in outcomes)
+            outcomes.add(outcome)
+            if outcome == "successful_attack":
+                require(row["metrics"]["successful_attacks"] > 0)
+            if outcome == "preexisting_error":
+                require(row["metrics"]["clean_correct"] < identity["samples"])
+            for key, prediction in (
+                ("clean_malicious_score", before),
+                ("attacked_malicious_score", after),
+            ):
+                score = example[key]
+                require(type(score) in {int, float} and 0 <= score <= 1)
+                require(int(score >= 0.5) == prediction)
+            changes = example["changes"]
+            require(isinstance(changes, list) and len(changes) <= len(features))
+            changed = set()
+            deltas = []
+            for change in changes:
+                i = change["index"]
+                require(i in features and i not in changed)
+                changed.add(i)
+                require(change["operation"] == features[i]["operation"])
+                for key in ("raw_before", "raw_after_approx", "model_before", "model_after"):
+                    require(type(change[key]) in {int, float})
+                delta = abs(change["model_after"] - change["model_before"])
+                require(delta > 1e-6)
+                deltas.append(delta)
+            norms = example["norms"]
+            require(type(norms["L0"]) is int and norms["L0"] == len(changes))
+            require(norms["L2"] >= 0 and norms["Linf"] >= 0)
+            require(math.isclose(norms["Linf"], max(deltas, default=0), abs_tol=1e-6))
+            require(math.isclose(norms["L2"], math.sqrt(sum(d * d for d in deltas)), abs_tol=1e-4))
         check = row["cross_check"]
         require(check["status"] in {"not_run", "completed"})
         if check["status"] == "completed":

@@ -2,6 +2,23 @@
 
 ## Sprint 5 — 2026-11-14
 
+- **Publish a team-facing plan copy.** The owner explicitly requested the new
+  plan in a repository folder before merging the journey update. Commit the
+  self-contained HTML snapshot under [plans/](plans/README.md), keep the
+  canonical Markdown plan linked, and retain the ignored local Plan folder.
+
+
+- **Owner-approved measured journey, same research scope.** Make a simple bilingual
+  case walkthrough (English default, optional Egyptian Arabic) the HTML landing page, preserve technical pages, and retain
+  the official logo with CSS dark-mode treatment within a dark navy/cyan theme. Individual
+  cases must come from an actual rerun, never synthesized from aggregate scores.
+  Deliberate case selection is labelled; failed attempts and preexisting errors
+  remain distinguishable. Share one UI version (v0.5.2, Sprint 05), independent
+  of model identity. Extend the journey in existing Sprints 6–16; defenses are
+  planned until measured. See [journey guide](ai_journey.md) and the updated
+  [project plan](project_plan.md). M1/SS gates remain unchanged.
+
+
 - **Delegated exploratory fallback does not freeze a weak candidate.** After
   full-data searches missed 93%, the owner delegated the fallback choice.
   Retain the freeze/prediction gate, but allow explicit offline development
