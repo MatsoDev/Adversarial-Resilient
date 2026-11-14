@@ -10,6 +10,7 @@ from pathlib import Path
 if __package__ in {None, ""}:
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
+import torch  # noqa: F401 — initialize native DLLs before dataframe libraries on Windows.
 from src.config import EMBER_PROCESSED_DIR, FROZEN_BASELINE_DIR, SEED
 from src.data.preprocessing import write_json_atomic
 from src.models.tuning import default_trials, tune_baseline

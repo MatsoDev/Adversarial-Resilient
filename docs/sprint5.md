@@ -37,6 +37,21 @@ Do not mark `problem_space_validated` true.
 
 ## Run measured experiments offline
 
+The project owner subsequently authorized a narrow experimental size-only
+probe in chat. [Its exact policy](sprint5_size_probe_policy.json) permits only
+raw feature 616 (`general.size`) to increase by at most 65,536 bytes, remaining
+integral and within its box. Every other coordinate is fixed. Its status is
+`owner_authorized_feature_space`, with **technical Security review pending**.
+This is a scalar sensitivity probe; unchanged coupled features mean it is not
+a realizable append transformation. Owner authorization is not SS validation.
+It does not establish the strength of a broader attack or general robustness.
+
+Once M1 passes, this policy can produce the first bounded measurements:
+
+```bash
+python scripts/run_attacks.py --policy docs/sprint5_size_probe_policy.json --cleverhans --cleverhans-path data/external/cleverhans-torch --output docs/results/attacks/size-probe-001.json
+```
+
 From the repository root, using its activated environment:
 
 ```bash
@@ -125,8 +140,10 @@ python -m uvicorn api.main:app --host 127.0.0.1 --port 8000
 
 Open <http://localhost:8000/dashboard/attacks.html>, or choose **Attack results**
 from the existing dashboard. `/v1/attacks` serves completed, validated reports
-only. No model or dataset is loaded by this endpoint. The listing is limited
-to 100 filenames, 2 MiB per file and 4 MiB aggregate; invalid reports are counted
+only. No model or dataset is loaded by this endpoint. The listing includes up
+to 100 local filenames plus an optional committed `docs/results/attack_reference.json`,
+deduplicated by experiment identity and timestamp, with 2 MiB per file and
+4 MiB aggregate; invalid reports are counted
 and excluded. Missing reports return `pending`, not a synthetic zero ASR.
 
 Choose one experiment snapshot, norm and attack. Each snapshot is bound to one

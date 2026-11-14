@@ -24,7 +24,7 @@ class FeaturePolicy:
         r = self.record
         if (
             r.get("schema_version") != 1
-            or r.get("status") != "reviewed_feature_space"
+            or r.get("status") not in {"reviewed_feature_space", "owner_authorized_feature_space"}
             or not isinstance(r.get("reviewer"), str)
             or not r["reviewer"].strip()
             or not isinstance(r.get("features"), list)
@@ -48,6 +48,19 @@ class FeaturePolicy:
                 raise ValueError("Each operation needs finite bounds and an integer flag")
             if f["integer"] and (lo < 0 or lo != int(lo) or hi != int(hi)):
                 raise ValueError("Integer count bounds must be integral and nonnegative")
+            if "nondecreasing" in f and type(f["nondecreasing"]) is not bool:
+                raise ValueError("nondecreasing must be boolean")
+            if "max_increase" in f and (
+                not np.isfinite(f["max_increase"])
+                or f["max_increase"] <= 0
+                or (f["integer"] and f["max_increase"] != int(f["max_increase"]))
+            ):
+                raise ValueError("Invalid increase budget")
+        if (
+            r["status"] == "owner_authorized_feature_space"
+            and r.get("security_review") != "pending"
+        ):
+            raise ValueError("Owner authorization must retain pending technical Security review")
 
     @property
     def digest(self):
@@ -99,7 +112,12 @@ class FeaturePolicy:
             v = np.sign(v) * np.expm1(np.abs(v))
             if f["integer"]:
                 v = np.rint(v)
-            raw[:, i] = np.clip(v, f["minimum"], f["maximum"])
+            lo, hi = f["minimum"], f["maximum"]
+            if f.get("nondecreasing"):
+                lo = np.maximum(lo, original[:, i])
+            if "max_increase" in f:
+                hi = np.minimum(hi, original[:, i] + f["max_increase"])
+            raw[:, i] = np.clip(v, lo, hi)
         result = transform(raw, mean, scale)
         if epsilon is not None:
             excess = np.abs(result.astype(np.float64) - clean) > epsilon + 1e-6

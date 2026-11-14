@@ -94,14 +94,23 @@ class ArtifactStore:
             if directory.resolve().is_relative_to(self.root)
             else []
         )
-        for path in paths[:MAX_BATCHES]:
+        files = ["results/attacks/" + p.name for p in paths[:MAX_BATCHES]]
+        reference = self.root / "results" / "attack_reference.json"
+        if reference.is_file():
+            files.insert(0, "results/attack_reference.json")
+        seen = set()
+        for relative in files:
             try:
-                report = validate_attack_report(self.json("results/attacks/" + path.name))
+                report = validate_attack_report(self.json(relative))
+                identity = (report["compatibility_id"], report["generated_at"])
+                if identity in seen:
+                    continue
                 size = len(json.dumps(report).encode())
                 if total + size > RUN_RESPONSE_LIMIT - 512:
                     truncated = True
                     break
                 reports.append(report)
+                seen.add(identity)
                 total += size
             except (
                 ArtifactUnavailable,
@@ -116,7 +125,7 @@ class ArtifactStore:
             "schema_version": 1,
             "experiments": reports,
             "status": "completed" if reports else "pending",
-            "pending_reason": "Requires verified M1 baseline and SS-reviewed feature policy",
+            "pending_reason": "Requires frozen M1 baseline and explicit feature-space policy; technical review status is reported separately",
             "unavailable_reports": unavailable,
             "truncated": len(paths) > MAX_BATCHES or truncated,
         }

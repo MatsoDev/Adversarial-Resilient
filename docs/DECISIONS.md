@@ -2,6 +2,15 @@
 
 ## Sprint 5 — 2026-11-14
 
+- **Owner approval and technical feasibility are separate labels.** Following
+  explicit owner approval, the initial measured probe may use the committed
+  size-only policy (nondecreasing, integral, maximum 64 KiB increase). It is
+  labelled owner-authorized feature-space research, with SS validation pending;
+  it cannot be presented as a realizable PE append or a comprehensive attack.
+- **Honor the recorded CPU budget.** Apply the tuning thread setting after
+  seeding, which otherwise resets torch to one thread. Preload torch before
+  dataframe imports in the tuning CLI to avoid the observed Windows DLL error.
+
 - **Preserve M1 and Security gates.** Implement/test the attack pipeline using
   synthetic fixtures while real measurements await a qualifying frozen bundle
   and a reviewed policy. No Sprint 3 model substitution or seeded UI scores.

@@ -46,10 +46,14 @@ def validate_attack_report(report):
     expected = hashlib.sha256(json.dumps(identity, sort_keys=True).encode()).hexdigest()
     require(report["compatibility_id"] == expected)
     constraint = report["constraint"]
-    require(constraint["status"] == "reviewed_feature_space")
+    require(constraint["status"] in {"reviewed_feature_space", "owner_authorized_feature_space"})
     require(constraint["problem_space_validated"] is False)
     require(isinstance(report["generated_at"], str) and bool(report["generated_at"]))
-    require(constraint["policy"]["status"] == "reviewed_feature_space")
+    require(constraint["policy"]["status"] == constraint["status"])
+    if constraint["status"] == "owner_authorized_feature_space":
+        require(
+            constraint["security_review"] == constraint["policy"]["security_review"] == "pending"
+        )
     require(constraint["reviewer"] == constraint["policy"]["reviewer"])
     policy_hash = hashlib.sha256(
         json.dumps(constraint["policy"], sort_keys=True, allow_nan=False).encode()

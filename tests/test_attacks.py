@@ -82,6 +82,21 @@ def test_policy_rounds_raw_counts_restores_immutable_and_respects_budget():
     np.testing.assert_array_equal(bounded, clean)
 
 
+def test_owner_authorized_probe_is_monotone_bounded_and_labelled_pending():
+    record = deepcopy(policy(integer=True).record)
+    record.update(status="owner_authorized_feature_space", security_review="pending")
+    record["features"][0].update(nondecreasing=True, max_increase=1)
+    p = FeaturePolicy(record, 2)
+    raw = np.array([[1.0, 9.0], [2.0, -2.0]], dtype=np.float32)
+    clean = transform(raw, np.zeros(2), np.ones(2))
+    projected = p.project(clean + np.array([[-5, 5], [5, 5]]), raw, np.zeros(2), np.ones(2))
+    np.testing.assert_allclose(np.expm1(projected[:, 0]), [1, 3], atol=1e-6)
+    np.testing.assert_array_equal(projected[:, 1], clean[:, 1])
+    record["security_review"] = "completed"
+    with pytest.raises(ValueError):
+        FeaturePolicy(record, 2)
+
+
 @pytest.mark.parametrize("attack", ["FGSM", "PGD", "CW-L2"])
 def test_real_art_adapters_produce_finite_feasible_output(attack):
     raw = np.array([[1.0, 2.0], [0.0, 3.0]], dtype=np.float32)
@@ -210,6 +225,12 @@ def test_reports_api_is_pending_then_serves_only_valid_results(tmp_path):
     data = response.json()
     assert data["experiments"] == [good]
     assert data["unavailable_reports"] == 1
+    # A compact measured reference can be distributed without weights/data;
+    # a matching local copy must not duplicate the experiment in the UI.
+    (tmp_path / "results/attack_reference.json").write_text(json.dumps(good))
+    assert client.get("/v1/attacks").json()["experiments"] == [good]
+    (directory / "good.json").unlink()
+    assert client.get("/v1/attacks").json()["experiments"] == [good]
 
 
 @pytest.mark.parametrize("case", ["identity", "asr", "cw", "nonfinite", "duplicate", "count"])

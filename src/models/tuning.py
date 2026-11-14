@@ -129,8 +129,11 @@ def logits_for(model, X, indices, mean, scale):
     return result
 
 
-def _fit(X, y, train_indices, val_X, val_y, selection, mean, scale, trial, seed):
+def _fit(X, y, train_indices, val_X, val_y, selection, mean, scale, trial, seed, threads=1):
     set_seed(seed)
+    # set_seed establishes a conservative one-thread default; honor the
+    # explicit CPU budget recorded by this experiment after seeding.
+    torch.set_num_threads(threads)
     model = make_model(asdict(trial), X.shape[1])
     optimizer = torch.optim.Adam(model.parameters(), lr=trial.learning_rate)
     loader = DataLoader(
@@ -256,6 +259,7 @@ def tune_baseline(
             scaler.scale_,
             trial,
             seed,
+            threads,
         )
         logits = logits_for(model, val.X, selection, scaler.mean_, scaler.scale_)
         records.append(

@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "status": "owner_authorized_feature_space",
+  "security_review": "pending",
+  "reviewer": "Project owner authorization in chat, 2026-11-14; no SS technical validation claimed",
+  "feature_schema_sha256": "2776432ba73c53078886c62beacd9453607a8b004fff5c80318e548919e591a1",
+  "features": [
+    {
+      "index": 616,
+      "minimum": 0,
+      "maximum": 4294967296,
+      "integer": true,
+      "nondecreasing": true,
+      "max_increase": 65536,
+      "operation": "Bounded file-size scalar sensitivity probe only. Increase raw general.size by at most 64 KiB while freezing every other coordinate. No bytes are changed and coupled statistics are not recomputed. This is not a realizable append operation or SS-approved feasibility claim."
+    }
+  ]
+}

@@ -68,6 +68,27 @@ def test_validation_partitions_and_temperature():
     assert TabularCNN()(torch.zeros(2, 2381)).shape == (2,)
 
 
+def test_tuning_honors_recorded_cpu_thread_budget():
+    from src.models.tuning import _fit
+
+    X = np.array([[0.0, 1.0], [1.0, 0.0]] * 4, dtype=np.float32)
+    y = np.tile([0, 1], 4).astype(np.int8)
+    _fit(
+        X,
+        y,
+        np.arange(8),
+        X,
+        y,
+        np.arange(8),
+        np.zeros(2),
+        np.ones(2),
+        Trial(hidden=(4,), batch_size=4, epochs=1),
+        42,
+        threads=2,
+    )
+    assert torch.get_num_threads() == 2
+
+
 def test_subset_search_never_opens_test_and_reproduces(ember, tmp_path):
     (ember / "test_X.npy").unlink()
     args = dict(trials=(Trial(hidden=(8,), epochs=2, batch_size=16),), log_mlflow=False)

@@ -5,6 +5,13 @@ Date: 2026-11-14. Branch: `sprint5/attack-implementation`, based on remote main
 ancestor of main. The local [revised plan](project_plan.md) and ignored Plan
 HTML define the attack-results explorer requirements.
 
+Owner-authorized follow-up: full-data Sprint 4 measurement is now running locally
+after verifying all 14 EMBER artifacts. The Windows CLI import order and
+recorded-versus-actual CPU thread setting were fixed before training.
+The explicit size-only experimental policy is owner-authorized; technical SS
+validation remains pending. Subsequent measured evidence supersedes the initial
+missing-bundle snapshot below when available.
+
 ## Delivered in this branch
 
 - CPU ART `PyTorchClassifier`, FGSM, deterministic policy-projected PGD and

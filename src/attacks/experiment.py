@@ -179,7 +179,8 @@ def run_experiment(
         "generated_at": datetime.now(UTC).isoformat(),
         "identity": identity,
         "constraint": {
-            "status": "reviewed_feature_space",
+            "status": policy.record["status"],
+            "security_review": policy.record.get("security_review", "asserted_by_local_reviewer"),
             "reviewer": policy.record["reviewer"],
             "problem_space_validated": False,
             "policy": policy.record,
