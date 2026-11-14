@@ -1,80 +1,104 @@
-# Sprint 5 — implementation evidence
+# Sprint 5 — implementation and measured exploratory report
 
 Date: 2026-11-14. Branch: `sprint5/attack-implementation`, based on remote main
-`fd47ef6`. The team's `sprint4/baseline-tuning-prediction` branch is already an
-ancestor of main. The local [revised plan](project_plan.md) and ignored Plan
-HTML define the attack-results explorer requirements.
+`fd47ef6`. Implementation and real exploratory validation are complete. Frozen-
+baseline acceptance remains pending M1 and technical Security review. The owner
+approved implementation and delegated the exploratory fallback choice; no merge
+into main was performed.
 
-Owner-authorized follow-up: full-data Sprint 4 measurement is now running locally
-after verifying all 14 EMBER artifacts. The Windows CLI import order and
-recorded-versus-actual CPU thread setting were fixed before training.
-The explicit size-only experimental policy is owner-authorized; technical SS
-validation remains pending. Subsequent measured evidence supersedes the initial
-missing-bundle snapshot below when available.
+## Delivered
 
-The initial full search subsequently measured **92.1778%** operating-validation
-accuracy, below M1's 93% gate. Official test remained unopened. See the actual
-[three-epoch evidence](results/sprint4_search_3epochs.json) and
-[Sprint 4 follow-up](sprint4_report.md). The selection-winning configuration is
-being extended to ten epochs; no attack score is claimed from a blocked model.
+- CPU ART `PyTorchClassifier`, FGSM, policy-projected PGD and post-projected CW-L2.
+- Independent optional CleverHans torch implementations and paired cross-checks.
+- Explicit masks, raw bounds, integral/nondecreasing counts and increase budgets.
+- Offline frozen-only default, plus explicitly labelled candidate exploration
+  restricted to the original operating-validation partition.
+- Bounded read-only `/v1/attacks` and a plain HTML/CSS/JS results explorer with
+  exact snapshot/norm/attack filters, stored-value curves, ASR counts and norms.
+- Portable measured reference: [attack_reference.json](results/attack_reference.json).
+  It was copied unchanged from the offline runner, not generated from test fixtures.
+- [Team instructions](team_handoff.md) and [reproduction protocol](sprint5.md).
 
-## Delivered in this branch
+## Baseline prerequisite: actual outcome
 
-- CPU ART `PyTorchClassifier`, FGSM, deterministic policy-projected PGD and
-  post-projected CW-L2; optional torch CleverHans counterparts.
-- Offline CLI, frozen-model/data/policy gates, exact paired cohort provenance,
-  count-based accuracy/ASR and model-space perturbation statistics.
-- Bounded read-only `/v1/attacks`, validated completed-report listing.
-- Plain HTML/CSS/JS attack explorer: snapshot/norm/attack filters, separate PGD
-  parameter series, epsilon curves, CW parameter tables, sample denominators,
-  clean/attacked scores and explicit cross-check state.
-- Team instructions and deliberately pending Security policy template in
-  [Sprint 5 guide](sprint5.md). No new runtime dependency or torch download.
+All 14 processed EMBER artifacts passed verification. Every model search used
+all 510,000 training rows and the 90,000-row validation allocation: 45,000
+selection / 22,500 calibration / 22,500 operating rows.
 
-## Prerequisites and measured results
+| Completed search | Selection/result | Operating-validation accuracy |
+|---|---|---:|
+| Six CPU configurations, 3 epochs each | MLP 256/128, lr 0.0003, epoch 3 | 92.1778% |
+| Same selected configuration, 10 epochs | Retained epoch 3 | 92.1778% |
+| Four regularized GPU configurations, 10 epochs each | AdamW MLP 128/64, epoch 3 | 91.4311% |
 
-**No EMBER attack results are claimed.** This machine has the full processed
-EMBER dataset and historical Sprint 3 weights, but no Sprint 4 frozen bundle.
-The remote branch contains no completed full-data report or model weights;
-its report still marks M1 measurement in progress. The existing 93% full-data
-validation/test freeze gate is preserved. The feasibility table is also still
-a proposal awaiting SS-A/SS-B review, so no real feature policy was approved by
-the implementation agent. No synthetic reports are seeded into the dashboard.
+Generated evidence and configuration are linked from the [Sprint 4 report](sprint4_report.md).
+The existing GTX 1660 SUPER and CUDA torch 2.5.1 installation were used without
+installing/replacing torch. The project CPU environment and dependency pins
+remain unchanged. Windows import initialization and the recorded CPU thread
+budget were fixed before measurements.
 
-The current UI shows a clear pending state. This is implemented infrastructure,
-not completed Sprint 5 research acceptance. Complete M1 and review a policy,
-then follow [the reproducible commands](sprint5.md).
+No selected model met the 93% gate, so **official test remained unopened and M1
+was not declared complete**. More epochs/regularization did not establish a
+passing baseline. The already-declared initial candidate was used for the
+exploratory experiment below; the prediction service's freeze gate is unchanged.
 
-## Validation
+## Actual attack measurements
 
-- Full suite with the optional torch-only CleverHans overlay: **446 passed,
-  4 skipped**, **88%** combined line/branch coverage. Existing plotting-library
-  deprecation warnings remain. Synthetic fixtures write to temporary directories.
-- Ruff lint and format checks, Node syntax check, pip-audit and medium/high
-  Bandit checks passed.
-- Actual offline CLI invocation stopped at the missing frozen bundle and wrote
-  no report. Existing direct requirement pins and `pip check` passed unchanged.
-- No Docker rebuild or real-data attack run was performed in this sprint.
+Model: verified full-data `sprint4_candidate`, not frozen. Exact model, schema,
+preprocessing, dataset, cohort and policy hashes are in the reference JSON.
+Sample: **128 stratified rows from the 22,500-row operating-validation partition**,
+seed 42. Selection/calibration rows and official test were excluded.
 
-The ART FGSM, PGD and CW adapters execute on a tiny synthetic CPU model. All
-three CleverHans torch adapters were also executed using a 92 KB isolated
-package overlay, reusing the existing torch installation. FGSM/PGD agree on the
-tested fixture; CW is checked for finite projected outputs, not equivalent
-optimization. These tests establish integration, not malware robustness.
+| Configuration family | Configurations | Correct / 128 | Accuracy | ASR |
+|---|---:|---:|---:|---:|
+| Clean cohort | — | 122 | 95.3125% | — |
+| FGSM epsilon 0 control | 1 | 122 | 95.3125% | 0 / 122 |
+| FGSM epsilon 0.05, 0.1, 0.2 | 3 | 121 each | 94.53125% | 1 / 122 = 0.819672% |
+| PGD epsilon 0 controls | 4 | 122 each | 95.3125% | 0 / 122 |
+| PGD positive epsilon, steps 0.01/0.025, iterations 10/20 | 12 | 121 each | 94.53125% | 1 / 122 = 0.819672% |
+| Post-projected CW-L2, 100 iterations, 5 search steps | 1 | 122 | 95.3125% | 0 / 122 |
 
-Browser inspection confirmed the actual HTML pending page and disabled filters
-at `/dashboard/attacks.html`. Populated rendering is tested using Node fixtures,
-not real EMBER evidence. Full measured browser acceptance remains pending M1.
+ASR conditions on the **122 originally correct rows**, both classes. L0/L2/Linf
+means are stored per configuration in standardized signed-log model coordinates;
+L0 tolerance is 1e-6. These are 21 configurations on the same cohort, not 21
+independent datasets. The cohort's 95.31% clean accuracy cannot replace the
+full operating-validation qualification of 92.18%.
 
-Two preexisting Windows test issues found during verification were corrected:
-the streaming test now imports pinned `httpx2`; the repository-ignore test uses
-NUL-delimited byte input/output to avoid CRLF path corruption.
+All **21 CleverHans cross-checks completed**, with 100% prediction agreement on
+this cohort. Norms and candidate differences are recorded separately; matching
+predictions do not prove equivalent optimizers. CW is post-projected, not an
+optimal feasible CW attack, and has no epsilon sweep. Reported metrics evaluate
+the final policy-projected candidate, not intermediate solver log messages.
 
-## Limitations
+## Constraint scope and interpretation
 
-The projector covers reviewed scalar boxes/counts only. Coupled normalized,
-hashed and structural groups remain fixed. CW enforces policy only after
-optimization. Deterministic PGD without random starts is an initial attack
-configuration, not an exhaustive robustness assessment. These are feature-space
-experiments, not generated or executed malware. See [the protocol](sprint5.md)
-for exact metric units, policy semantics and cross-check limitations.
+The [owner-authorized policy](sprint5_size_probe_policy.json) permits only raw
+`general.size` (feature 616) to increase, integrally, by at most 64 KiB. Every
+other coordinate remains fixed. Technical Security review remains pending;
+no SS approval or executable-validity claim is made. Coupled features are not
+recomputed, so this is a scalar sensitivity probe, not a realizable PE append.
+
+One clean-correct decision changed under FGSM/PGD. The small ASR describes this
+narrow probe; it does not establish general adversarial robustness. No malware
+executables were loaded, modified or executed.
+
+## Verification
+
+- Full CPU suite with isolated CleverHans checks: **456 passed, 4 skipped**,
+  **88% combined line/branch coverage**. Lint/format, dependency audit and
+  medium/high Bandit checks pass. Synthetic tests write to temporary directories.
+  Existing plotting-library deprecation warnings remain.
+- Real measured ART/CleverHans calls completed on public EMBER features.
+- The HTML page was verified with real stored data: FGSM/PGD filters, CW-only L2
+  without an epsilon chart, incompatible-filter empty states, candidate labels,
+  and exact curve coordinates matching stored accuracy.
+- Desktop/mobile checks passed; narrow screens scroll charts/tables internally
+  with no page-width overflow. Provenance remains available in expandable details.
+- A clean-checkout artifact test serves the measured reference without data or weights.
+- Existing environment pins and `pip check` pass unchanged. No torch download.
+- GitHub CI covers Linux tests, security checks and Docker build/scan. No local
+  Docker runtime or public deployment was performed in this session.
+
+Remaining research acceptance: a genuinely passing frozen baseline, technically
+reviewed broader constraints, and rerunning the same harness on that baseline.
+Candidate exploration does not silently waive those requirements.

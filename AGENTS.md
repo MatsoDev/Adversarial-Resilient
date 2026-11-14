@@ -11,8 +11,10 @@ Sprint 2 supplies cleaned/versioned datasets, loaders, EDA and manifests.
 See docs/progress.md and docs/sprint4_report.md for M1 status; implemented
 freezing/prediction does not establish a passing full-data baseline. Sprint 5
 adds offline ART/CleverHans adapters, a reviewed scalar-policy projector and a
-read-only HTML attack explorer. Real EMBER measurements remain pending M1 and
-SS review; see docs/sprint5.md. Defenses remain later-sprint work.
+read-only HTML attack explorer with 21 measured exploratory EMBER configurations.
+Frozen-benchmark acceptance remains pending M1 and SS review; see docs/sprint5.md.
+Candidate exploration is explicit, operating-validation only, and cannot enable
+prediction. Defenses remain later-sprint work.
 
 ## Read first
 

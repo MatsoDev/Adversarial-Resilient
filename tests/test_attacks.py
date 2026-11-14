@@ -14,6 +14,7 @@ from fastapi.testclient import TestClient
 from src.attacks.constraints import FeaturePolicy
 from src.attacks.experiment import run_experiment
 from src.attacks.runner import AttackConfig, BinaryLogits, art_classifier, generate
+from src.config import ROOT
 from src.data.preprocessing import sha256_file
 from src.evaluation.artifacts import ArtifactStore
 from src.evaluation.attack_results import validate_attack_report
@@ -402,3 +403,24 @@ def test_candidate_mode_never_opens_official_test_or_accepts_missing_reason(tmp_
                 candidate_reason=reason,
             )
     assert not (tmp_path / "no-report.json").exists()
+
+
+def test_published_measured_reference_works_without_data_or_weights(tmp_path):
+    import shutil
+
+    root = tmp_path / "results"
+    root.mkdir()
+    shutil.copyfile(ROOT / "docs/results/attack_reference.json", root / "attack_reference.json")
+    with TestClient(
+        create_app(store=ArtifactStore(tmp_path), baseline_dir=tmp_path / "no-weights")
+    ) as client:
+        response = client.get("/v1/attacks")
+        assert response.status_code == 200
+        data = response.json()
+        assert data["unavailable_reports"] == 0
+        assert len(data["experiments"]) == 1
+        report = data["experiments"][0]
+        assert report["experiment_stage"] == "development_candidate_not_frozen"
+        assert report["identity"]["cohort"] == "operating_validation"
+        assert report["identity"]["split"] == "val"
+        assert all(row["cross_check"]["status"] == "completed" for row in report["results"])

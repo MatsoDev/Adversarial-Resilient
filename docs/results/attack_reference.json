@@ -1,0 +1,1164 @@
+{
+  "asr_definition": "Clean-correct rows made incorrect / clean-correct rows (all classes)",
+  "baseline_qualification": {
+    "status": "blocked_validation_accuracy",
+    "test_evaluated": false,
+    "test_metrics": null,
+    "validation_metrics": {
+      "accuracy": 0.9217777777777778,
+      "brier_score": 0.06473030264136415,
+      "confusion_matrix": [
+        [
+          7685,
+          409
+        ],
+        [
+          1351,
+          13055
+        ]
+      ],
+      "confusion_matrix_labels": [
+        0,
+        1
+      ],
+      "f1": 0.9368496591316828,
+      "false_positive_rate": 0.05053125772176921,
+      "log_loss": 0.23410631690646164,
+      "n_samples": 22500,
+      "precision": 0.969622697563874,
+      "recall": 0.9062196307094267,
+      "roc_auc": 0.9687804850688706,
+      "threshold": 0.5
+    }
+  },
+  "candidate_reason": "Owner-delegated exploratory validation; M1 freeze and prediction gates remain intact",
+  "code_revision": "eb2bfcfd7e3cd9656baa435b1ea83fca03fee815",
+  "compatibility_id": "a1fb1499fc5b3f2f8a75763436c6320ddec725b811924ef1390c340ca36627a1",
+  "constraint": {
+    "policy": {
+      "feature_schema_sha256": "2776432ba73c53078886c62beacd9453607a8b004fff5c80318e548919e591a1",
+      "features": [
+        {
+          "index": 616,
+          "integer": true,
+          "max_increase": 65536,
+          "maximum": 4294967296,
+          "minimum": 0,
+          "nondecreasing": true,
+          "operation": "Bounded file-size scalar sensitivity probe only. Increase raw general.size by at most 64 KiB while freezing every other coordinate. No bytes are changed and coupled statistics are not recomputed. This is not a realizable append operation or SS-approved feasibility claim."
+        }
+      ],
+      "reviewer": "Project owner authorization in chat, 2026-11-14; no SS technical validation claimed",
+      "schema_version": 1,
+      "security_review": "pending",
+      "status": "owner_authorized_feature_space"
+    },
+    "problem_space_validated": false,
+    "reviewer": "Project owner authorization in chat, 2026-11-14; no SS technical validation claimed",
+    "security_review": "pending",
+    "status": "owner_authorized_feature_space"
+  },
+  "experiment_stage": "development_candidate_not_frozen",
+  "generated_at": "2026-11-14T02:00:20.543873+00:00",
+  "identity": {
+    "available_cohort_rows": 22500,
+    "cohort": "operating_validation",
+    "constraint_sha256": "b2ff017d3cef536d59fd1cd349bda8015b50f0e29643d1c6426c5156c1d98e0f",
+    "dataset": "ember2018",
+    "feature_schema_sha256": "2776432ba73c53078886c62beacd9453607a8b004fff5c80318e548919e591a1",
+    "indices_sha256": "c252bc576c9bad2be032ec5ade689b6ec3cb834169467762d359bfa7a15cf081",
+    "manifest_sha256": "c414f8cbb7727767b3927bb702b63ee7263497bd0d9feb4f4367b5b2510d11cd",
+    "model_sha256": "8b87b1d617ddbc94b9ebd3baca76b153a1ae62bb0eb7369c2cb735d38da0db53",
+    "model_status": "blocked_validation_accuracy",
+    "model_version": "sprint4_candidate",
+    "norm_l0_tolerance": 1e-06,
+    "preprocessing_sha256": "479b1fb12a383fa3765315fc6684c6b42b472795a542098e95b59c54e794f247",
+    "representation": "signed-log1p-standardized",
+    "samples": 128,
+    "seed": 42,
+    "split": "val",
+    "targeted": false,
+    "threshold": 0.5
+  },
+  "norm_units": "Signed-log1p standardized model coordinates; L0 tolerance 1e-6",
+  "results": [
+    {
+      "attack": "FGSM",
+      "cross_check": {
+        "interpretation": "Independent implementations; agreement is not equivalence",
+        "library": "CleverHans",
+        "mean_candidate_l2_difference": 0.0,
+        "metrics": {
+          "asr_denominator": 122,
+          "attack_success_rate": 0.0,
+          "attacked_accuracy": 0.953125,
+          "attacked_correct": 122,
+          "clean_accuracy": 0.953125,
+          "clean_correct": 122,
+          "mean_norms": {
+            "L0": 0.0,
+            "L2": 0.0,
+            "Linf": 0.0
+          },
+          "samples": 128,
+          "successful_attacks": 0
+        },
+        "prediction_agreement": 1.0,
+        "status": "completed",
+        "version": "4.0.0"
+      },
+      "library": "ART",
+      "library_version": "1.20.1",
+      "metrics": {
+        "asr_denominator": 122,
+        "attack_success_rate": 0.0,
+        "attacked_accuracy": 0.953125,
+        "attacked_correct": 122,
+        "clean_accuracy": 0.953125,
+        "clean_correct": 122,
+        "mean_norms": {
+          "L0": 0.0,
+          "L2": 0.0,
+          "Linf": 0.0
+        },
+        "samples": 128,
+        "successful_attacks": 0
+      },
+      "norm": "Linf",
+      "parameters": {
+        "epsilon": 0.0,
+        "random_start": false
+      },
+      "projection": "each_step"
+    },
+    {
+      "attack": "FGSM",
+      "cross_check": {
+        "interpretation": "Independent implementations; agreement is not equivalence",
+        "library": "CleverHans",
+        "mean_candidate_l2_difference": 0.0,
+        "metrics": {
+          "asr_denominator": 122,
+          "attack_success_rate": 0.00819672131147541,
+          "attacked_accuracy": 0.9453125,
+          "attacked_correct": 121,
+          "clean_accuracy": 0.953125,
+          "clean_correct": 122,
+          "mean_norms": {
+            "L0": 0.6640625,
+            "L2": 0.025138311204500496,
+            "Linf": 0.025138311204500496
+          },
+          "samples": 128,
+          "successful_attacks": 1
+        },
+        "prediction_agreement": 1.0,
+        "status": "completed",
+        "version": "4.0.0"
+      },
+      "library": "ART",
+      "library_version": "1.20.1",
+      "metrics": {
+        "asr_denominator": 122,
+        "attack_success_rate": 0.00819672131147541,
+        "attacked_accuracy": 0.9453125,
+        "attacked_correct": 121,
+        "clean_accuracy": 0.953125,
+        "clean_correct": 122,
+        "mean_norms": {
+          "L0": 0.6640625,
+          "L2": 0.025138311204500496,
+          "Linf": 0.025138311204500496
+        },
+        "samples": 128,
+        "successful_attacks": 1
+      },
+      "norm": "Linf",
+      "parameters": {
+        "epsilon": 0.05,
+        "random_start": false
+      },
+      "projection": "each_step"
+    },
+    {
+      "attack": "FGSM",
+      "cross_check": {
+        "interpretation": "Independent implementations; agreement is not equivalence",
+        "library": "CleverHans",
+        "mean_candidate_l2_difference": 0.0,
+        "metrics": {
+          "asr_denominator": 122,
+          "attack_success_rate": 0.00819672131147541,
+          "attacked_accuracy": 0.9453125,
+          "attacked_correct": 121,
+          "clean_accuracy": 0.953125,
+          "clean_correct": 122,
+          "mean_norms": {
+            "L0": 0.671875,
+            "L2": 0.03539180738152936,
+            "Linf": 0.03539180738152936
+          },
+          "samples": 128,
+          "successful_attacks": 1
+        },
+        "prediction_agreement": 1.0,
+        "status": "completed",
+        "version": "4.0.0"
+      },
+      "library": "ART",
+      "library_version": "1.20.1",
+      "metrics": {
+        "asr_denominator": 122,
+        "attack_success_rate": 0.00819672131147541,
+        "attacked_accuracy": 0.9453125,
+        "attacked_correct": 121,
+        "clean_accuracy": 0.953125,
+        "clean_correct": 122,
+        "mean_norms": {
+          "L0": 0.671875,
+          "L2": 0.03539180738152936,
+          "Linf": 0.03539180738152936
+        },
+        "samples": 128,
+        "successful_attacks": 1
+      },
+      "norm": "Linf",
+      "parameters": {
+        "epsilon": 0.1,
+        "random_start": false
+      },
+      "projection": "each_step"
+    },
+    {
+      "attack": "FGSM",
+      "cross_check": {
+        "interpretation": "Independent implementations; agreement is not equivalence",
+        "library": "CleverHans",
+        "mean_candidate_l2_difference": 0.0,
+        "metrics": {
+          "asr_denominator": 122,
+          "attack_success_rate": 0.00819672131147541,
+          "attacked_accuracy": 0.9453125,
+          "attacked_correct": 121,
+          "clean_accuracy": 0.953125,
+          "clean_correct": 122,
+          "mean_norms": {
+            "L0": 0.6484375,
+            "L2": 0.04192939772474347,
+            "Linf": 0.04192939772474347
+          },
+          "samples": 128,
+          "successful_attacks": 1
+        },
+        "prediction_agreement": 1.0,
+        "status": "completed",
+        "version": "4.0.0"
+      },
+      "library": "ART",
+      "library_version": "1.20.1",
+      "metrics": {
+        "asr_denominator": 122,
+        "attack_success_rate": 0.00819672131147541,
+        "attacked_accuracy": 0.9453125,
+        "attacked_correct": 121,
+        "clean_accuracy": 0.953125,
+        "clean_correct": 122,
+        "mean_norms": {
+          "L0": 0.6484375,
+          "L2": 0.04192939772474347,
+          "Linf": 0.04192939772474347
+        },
+        "samples": 128,
+        "successful_attacks": 1
+      },
+      "norm": "Linf",
+      "parameters": {
+        "epsilon": 0.2,
+        "random_start": false
+      },
+      "projection": "each_step"
+    },
+    {
+      "attack": "PGD",
+      "cross_check": {
+        "interpretation": "Independent implementations; agreement is not equivalence",
+        "library": "CleverHans",
+        "mean_candidate_l2_difference": 0.0,
+        "metrics": {
+          "asr_denominator": 122,
+          "attack_success_rate": 0.0,
+          "attacked_accuracy": 0.953125,
+          "attacked_correct": 122,
+          "clean_accuracy": 0.953125,
+          "clean_correct": 122,
+          "mean_norms": {
+            "L0": 0.0,
+            "L2": 0.0,
+            "Linf": 0.0
+          },
+          "samples": 128,
+          "successful_attacks": 0
+        },
+        "prediction_agreement": 1.0,
+        "status": "completed",
+        "version": "4.0.0"
+      },
+      "library": "ART",
+      "library_version": "1.20.1",
+      "metrics": {
+        "asr_denominator": 122,
+        "attack_success_rate": 0.0,
+        "attacked_accuracy": 0.953125,
+        "attacked_correct": 122,
+        "clean_accuracy": 0.953125,
+        "clean_correct": 122,
+        "mean_norms": {
+          "L0": 0.0,
+          "L2": 0.0,
+          "Linf": 0.0
+        },
+        "samples": 128,
+        "successful_attacks": 0
+      },
+      "norm": "Linf",
+      "parameters": {
+        "epsilon": 0.0,
+        "iterations": 10,
+        "random_start": false,
+        "step_size": 0.01
+      },
+      "projection": "each_step"
+    },
+    {
+      "attack": "PGD",
+      "cross_check": {
+        "interpretation": "Independent implementations; agreement is not equivalence",
+        "library": "CleverHans",
+        "mean_candidate_l2_difference": 0.0,
+        "metrics": {
+          "asr_denominator": 122,
+          "attack_success_rate": 0.0,
+          "attacked_accuracy": 0.953125,
+          "attacked_correct": 122,
+          "clean_accuracy": 0.953125,
+          "clean_correct": 122,
+          "mean_norms": {
+            "L0": 0.0,
+            "L2": 0.0,
+            "Linf": 0.0
+          },
+          "samples": 128,
+          "successful_attacks": 0
+        },
+        "prediction_agreement": 1.0,
+        "status": "completed",
+        "version": "4.0.0"
+      },
+      "library": "ART",
+      "library_version": "1.20.1",
+      "metrics": {
+        "asr_denominator": 122,
+        "attack_success_rate": 0.0,
+        "attacked_accuracy": 0.953125,
+        "attacked_correct": 122,
+        "clean_accuracy": 0.953125,
+        "clean_correct": 122,
+        "mean_norms": {
+          "L0": 0.0,
+          "L2": 0.0,
+          "Linf": 0.0
+        },
+        "samples": 128,
+        "successful_attacks": 0
+      },
+      "norm": "Linf",
+      "parameters": {
+        "epsilon": 0.0,
+        "iterations": 20,
+        "random_start": false,
+        "step_size": 0.01
+      },
+      "projection": "each_step"
+    },
+    {
+      "attack": "PGD",
+      "cross_check": {
+        "interpretation": "Independent implementations; agreement is not equivalence",
+        "library": "CleverHans",
+        "mean_candidate_l2_difference": 0.0,
+        "metrics": {
+          "asr_denominator": 122,
+          "attack_success_rate": 0.0,
+          "attacked_accuracy": 0.953125,
+          "attacked_correct": 122,
+          "clean_accuracy": 0.953125,
+          "clean_correct": 122,
+          "mean_norms": {
+            "L0": 0.0,
+            "L2": 0.0,
+            "Linf": 0.0
+          },
+          "samples": 128,
+          "successful_attacks": 0
+        },
+        "prediction_agreement": 1.0,
+        "status": "completed",
+        "version": "4.0.0"
+      },
+      "library": "ART",
+      "library_version": "1.20.1",
+      "metrics": {
+        "asr_denominator": 122,
+        "attack_success_rate": 0.0,
+        "attacked_accuracy": 0.953125,
+        "attacked_correct": 122,
+        "clean_accuracy": 0.953125,
+        "clean_correct": 122,
+        "mean_norms": {
+          "L0": 0.0,
+          "L2": 0.0,
+          "Linf": 0.0
+        },
+        "samples": 128,
+        "successful_attacks": 0
+      },
+      "norm": "Linf",
+      "parameters": {
+        "epsilon": 0.0,
+        "iterations": 10,
+        "random_start": false,
+        "step_size": 0.025
+      },
+      "projection": "each_step"
+    },
+    {
+      "attack": "PGD",
+      "cross_check": {
+        "interpretation": "Independent implementations; agreement is not equivalence",
+        "library": "CleverHans",
+        "mean_candidate_l2_difference": 0.0,
+        "metrics": {
+          "asr_denominator": 122,
+          "attack_success_rate": 0.0,
+          "attacked_accuracy": 0.953125,
+          "attacked_correct": 122,
+          "clean_accuracy": 0.953125,
+          "clean_correct": 122,
+          "mean_norms": {
+            "L0": 0.0,
+            "L2": 0.0,
+            "Linf": 0.0
+          },
+          "samples": 128,
+          "successful_attacks": 0
+        },
+        "prediction_agreement": 1.0,
+        "status": "completed",
+        "version": "4.0.0"
+      },
+      "library": "ART",
+      "library_version": "1.20.1",
+      "metrics": {
+        "asr_denominator": 122,
+        "attack_success_rate": 0.0,
+        "attacked_accuracy": 0.953125,
+        "attacked_correct": 122,
+        "clean_accuracy": 0.953125,
+        "clean_correct": 122,
+        "mean_norms": {
+          "L0": 0.0,
+          "L2": 0.0,
+          "Linf": 0.0
+        },
+        "samples": 128,
+        "successful_attacks": 0
+      },
+      "norm": "Linf",
+      "parameters": {
+        "epsilon": 0.0,
+        "iterations": 20,
+        "random_start": false,
+        "step_size": 0.025
+      },
+      "projection": "each_step"
+    },
+    {
+      "attack": "PGD",
+      "cross_check": {
+        "interpretation": "Independent implementations; agreement is not equivalence",
+        "library": "CleverHans",
+        "mean_candidate_l2_difference": 0.0,
+        "metrics": {
+          "asr_denominator": 122,
+          "attack_success_rate": 0.00819672131147541,
+          "attacked_accuracy": 0.9453125,
+          "attacked_correct": 121,
+          "clean_accuracy": 0.953125,
+          "clean_correct": 122,
+          "mean_norms": {
+            "L0": 0.6640625,
+            "L2": 0.025138311204500496,
+            "Linf": 0.025138311204500496
+          },
+          "samples": 128,
+          "successful_attacks": 1
+        },
+        "prediction_agreement": 1.0,
+        "status": "completed",
+        "version": "4.0.0"
+      },
+      "library": "ART",
+      "library_version": "1.20.1",
+      "metrics": {
+        "asr_denominator": 122,
+        "attack_success_rate": 0.00819672131147541,
+        "attacked_accuracy": 0.9453125,
+        "attacked_correct": 121,
+        "clean_accuracy": 0.953125,
+        "clean_correct": 122,
+        "mean_norms": {
+          "L0": 0.6640625,
+          "L2": 0.025138311204500496,
+          "Linf": 0.025138311204500496
+        },
+        "samples": 128,
+        "successful_attacks": 1
+      },
+      "norm": "Linf",
+      "parameters": {
+        "epsilon": 0.05,
+        "iterations": 10,
+        "random_start": false,
+        "step_size": 0.01
+      },
+      "projection": "each_step"
+    },
+    {
+      "attack": "PGD",
+      "cross_check": {
+        "interpretation": "Independent implementations; agreement is not equivalence",
+        "library": "CleverHans",
+        "mean_candidate_l2_difference": 0.0,
+        "metrics": {
+          "asr_denominator": 122,
+          "attack_success_rate": 0.00819672131147541,
+          "attacked_accuracy": 0.9453125,
+          "attacked_correct": 121,
+          "clean_accuracy": 0.953125,
+          "clean_correct": 122,
+          "mean_norms": {
+            "L0": 0.6640625,
+            "L2": 0.025138311204500496,
+            "Linf": 0.025138311204500496
+          },
+          "samples": 128,
+          "successful_attacks": 1
+        },
+        "prediction_agreement": 1.0,
+        "status": "completed",
+        "version": "4.0.0"
+      },
+      "library": "ART",
+      "library_version": "1.20.1",
+      "metrics": {
+        "asr_denominator": 122,
+        "attack_success_rate": 0.00819672131147541,
+        "attacked_accuracy": 0.9453125,
+        "attacked_correct": 121,
+        "clean_accuracy": 0.953125,
+        "clean_correct": 122,
+        "mean_norms": {
+          "L0": 0.6640625,
+          "L2": 0.025138311204500496,
+          "Linf": 0.025138311204500496
+        },
+        "samples": 128,
+        "successful_attacks": 1
+      },
+      "norm": "Linf",
+      "parameters": {
+        "epsilon": 0.05,
+        "iterations": 20,
+        "random_start": false,
+        "step_size": 0.01
+      },
+      "projection": "each_step"
+    },
+    {
+      "attack": "PGD",
+      "cross_check": {
+        "interpretation": "Independent implementations; agreement is not equivalence",
+        "library": "CleverHans",
+        "mean_candidate_l2_difference": 0.0,
+        "metrics": {
+          "asr_denominator": 122,
+          "attack_success_rate": 0.00819672131147541,
+          "attacked_accuracy": 0.9453125,
+          "attacked_correct": 121,
+          "clean_accuracy": 0.953125,
+          "clean_correct": 122,
+          "mean_norms": {
+            "L0": 0.671875,
+            "L2": 0.025333571364171803,
+            "Linf": 0.025333571364171803
+          },
+          "samples": 128,
+          "successful_attacks": 1
+        },
+        "prediction_agreement": 1.0,
+        "status": "completed",
+        "version": "4.0.0"
+      },
+      "library": "ART",
+      "library_version": "1.20.1",
+      "metrics": {
+        "asr_denominator": 122,
+        "attack_success_rate": 0.00819672131147541,
+        "attacked_accuracy": 0.9453125,
+        "attacked_correct": 121,
+        "clean_accuracy": 0.953125,
+        "clean_correct": 122,
+        "mean_norms": {
+          "L0": 0.671875,
+          "L2": 0.025333571364171803,
+          "Linf": 0.025333571364171803
+        },
+        "samples": 128,
+        "successful_attacks": 1
+      },
+      "norm": "Linf",
+      "parameters": {
+        "epsilon": 0.05,
+        "iterations": 10,
+        "random_start": false,
+        "step_size": 0.025
+      },
+      "projection": "each_step"
+    },
+    {
+      "attack": "PGD",
+      "cross_check": {
+        "interpretation": "Independent implementations; agreement is not equivalence",
+        "library": "CleverHans",
+        "mean_candidate_l2_difference": 0.0,
+        "metrics": {
+          "asr_denominator": 122,
+          "attack_success_rate": 0.00819672131147541,
+          "attacked_accuracy": 0.9453125,
+          "attacked_correct": 121,
+          "clean_accuracy": 0.953125,
+          "clean_correct": 122,
+          "mean_norms": {
+            "L0": 0.671875,
+            "L2": 0.02552880730945617,
+            "Linf": 0.02552880730945617
+          },
+          "samples": 128,
+          "successful_attacks": 1
+        },
+        "prediction_agreement": 1.0,
+        "status": "completed",
+        "version": "4.0.0"
+      },
+      "library": "ART",
+      "library_version": "1.20.1",
+      "metrics": {
+        "asr_denominator": 122,
+        "attack_success_rate": 0.00819672131147541,
+        "attacked_accuracy": 0.9453125,
+        "attacked_correct": 121,
+        "clean_accuracy": 0.953125,
+        "clean_correct": 122,
+        "mean_norms": {
+          "L0": 0.671875,
+          "L2": 0.02552880730945617,
+          "Linf": 0.02552880730945617
+        },
+        "samples": 128,
+        "successful_attacks": 1
+      },
+      "norm": "Linf",
+      "parameters": {
+        "epsilon": 0.05,
+        "iterations": 20,
+        "random_start": false,
+        "step_size": 0.025
+      },
+      "projection": "each_step"
+    },
+    {
+      "attack": "PGD",
+      "cross_check": {
+        "interpretation": "Independent implementations; agreement is not equivalence",
+        "library": "CleverHans",
+        "mean_candidate_l2_difference": 0.0,
+        "metrics": {
+          "asr_denominator": 122,
+          "attack_success_rate": 0.00819672131147541,
+          "attacked_accuracy": 0.9453125,
+          "attacked_correct": 121,
+          "clean_accuracy": 0.953125,
+          "clean_correct": 122,
+          "mean_norms": {
+            "L0": 0.6875,
+            "L2": 0.03695327859168174,
+            "Linf": 0.03695327859168174
+          },
+          "samples": 128,
+          "successful_attacks": 1
+        },
+        "prediction_agreement": 1.0,
+        "status": "completed",
+        "version": "4.0.0"
+      },
+      "library": "ART",
+      "library_version": "1.20.1",
+      "metrics": {
+        "asr_denominator": 122,
+        "attack_success_rate": 0.00819672131147541,
+        "attacked_accuracy": 0.9453125,
+        "attacked_correct": 121,
+        "clean_accuracy": 0.953125,
+        "clean_correct": 122,
+        "mean_norms": {
+          "L0": 0.6875,
+          "L2": 0.03695327859168174,
+          "Linf": 0.03695327859168174
+        },
+        "samples": 128,
+        "successful_attacks": 1
+      },
+      "norm": "Linf",
+      "parameters": {
+        "epsilon": 0.1,
+        "iterations": 10,
+        "random_start": false,
+        "step_size": 0.01
+      },
+      "projection": "each_step"
+    },
+    {
+      "attack": "PGD",
+      "cross_check": {
+        "interpretation": "Independent implementations; agreement is not equivalence",
+        "library": "CleverHans",
+        "mean_candidate_l2_difference": 0.0,
+        "metrics": {
+          "asr_denominator": 122,
+          "attack_success_rate": 0.00819672131147541,
+          "attacked_accuracy": 0.9453125,
+          "attacked_correct": 121,
+          "clean_accuracy": 0.953125,
+          "clean_correct": 122,
+          "mean_norms": {
+            "L0": 0.6875,
+            "L2": 0.03679779154481366,
+            "Linf": 0.03679779154481366
+          },
+          "samples": 128,
+          "successful_attacks": 1
+        },
+        "prediction_agreement": 1.0,
+        "status": "completed",
+        "version": "4.0.0"
+      },
+      "library": "ART",
+      "library_version": "1.20.1",
+      "metrics": {
+        "asr_denominator": 122,
+        "attack_success_rate": 0.00819672131147541,
+        "attacked_accuracy": 0.9453125,
+        "attacked_correct": 121,
+        "clean_accuracy": 0.953125,
+        "clean_correct": 122,
+        "mean_norms": {
+          "L0": 0.6875,
+          "L2": 0.03679779154481366,
+          "Linf": 0.03679779154481366
+        },
+        "samples": 128,
+        "successful_attacks": 1
+      },
+      "norm": "Linf",
+      "parameters": {
+        "epsilon": 0.1,
+        "iterations": 20,
+        "random_start": false,
+        "step_size": 0.01
+      },
+      "projection": "each_step"
+    },
+    {
+      "attack": "PGD",
+      "cross_check": {
+        "interpretation": "Independent implementations; agreement is not equivalence",
+        "library": "CleverHans",
+        "mean_candidate_l2_difference": 0.0,
+        "metrics": {
+          "asr_denominator": 122,
+          "attack_success_rate": 0.00819672131147541,
+          "attacked_accuracy": 0.9453125,
+          "attacked_correct": 121,
+          "clean_accuracy": 0.953125,
+          "clean_correct": 122,
+          "mean_norms": {
+            "L0": 0.6953125,
+            "L2": 0.036564196285326034,
+            "Linf": 0.036564196285326034
+          },
+          "samples": 128,
+          "successful_attacks": 1
+        },
+        "prediction_agreement": 1.0,
+        "status": "completed",
+        "version": "4.0.0"
+      },
+      "library": "ART",
+      "library_version": "1.20.1",
+      "metrics": {
+        "asr_denominator": 122,
+        "attack_success_rate": 0.00819672131147541,
+        "attacked_accuracy": 0.9453125,
+        "attacked_correct": 121,
+        "clean_accuracy": 0.953125,
+        "clean_correct": 122,
+        "mean_norms": {
+          "L0": 0.6953125,
+          "L2": 0.036564196285326034,
+          "Linf": 0.036564196285326034
+        },
+        "samples": 128,
+        "successful_attacks": 1
+      },
+      "norm": "Linf",
+      "parameters": {
+        "epsilon": 0.1,
+        "iterations": 10,
+        "random_start": false,
+        "step_size": 0.025
+      },
+      "projection": "each_step"
+    },
+    {
+      "attack": "PGD",
+      "cross_check": {
+        "interpretation": "Independent implementations; agreement is not equivalence",
+        "library": "CleverHans",
+        "mean_candidate_l2_difference": 0.0,
+        "metrics": {
+          "asr_denominator": 122,
+          "attack_success_rate": 0.00819672131147541,
+          "attacked_accuracy": 0.9453125,
+          "attacked_correct": 121,
+          "clean_accuracy": 0.953125,
+          "clean_correct": 122,
+          "mean_norms": {
+            "L0": 0.671875,
+            "L2": 0.03539180738152936,
+            "Linf": 0.03539180738152936
+          },
+          "samples": 128,
+          "successful_attacks": 1
+        },
+        "prediction_agreement": 1.0,
+        "status": "completed",
+        "version": "4.0.0"
+      },
+      "library": "ART",
+      "library_version": "1.20.1",
+      "metrics": {
+        "asr_denominator": 122,
+        "attack_success_rate": 0.00819672131147541,
+        "attacked_accuracy": 0.9453125,
+        "attacked_correct": 121,
+        "clean_accuracy": 0.953125,
+        "clean_correct": 122,
+        "mean_norms": {
+          "L0": 0.671875,
+          "L2": 0.03539180738152936,
+          "Linf": 0.03539180738152936
+        },
+        "samples": 128,
+        "successful_attacks": 1
+      },
+      "norm": "Linf",
+      "parameters": {
+        "epsilon": 0.1,
+        "iterations": 20,
+        "random_start": false,
+        "step_size": 0.025
+      },
+      "projection": "each_step"
+    },
+    {
+      "attack": "PGD",
+      "cross_check": {
+        "interpretation": "Independent implementations; agreement is not equivalence",
+        "library": "CleverHans",
+        "mean_candidate_l2_difference": 0.0,
+        "metrics": {
+          "asr_denominator": 122,
+          "attack_success_rate": 0.00819672131147541,
+          "attacked_accuracy": 0.9453125,
+          "attacked_correct": 121,
+          "clean_accuracy": 0.953125,
+          "clean_correct": 122,
+          "mean_norms": {
+            "L0": 0.703125,
+            "L2": 0.03851779799879296,
+            "Linf": 0.03851779799879296
+          },
+          "samples": 128,
+          "successful_attacks": 1
+        },
+        "prediction_agreement": 1.0,
+        "status": "completed",
+        "version": "4.0.0"
+      },
+      "library": "ART",
+      "library_version": "1.20.1",
+      "metrics": {
+        "asr_denominator": 122,
+        "attack_success_rate": 0.00819672131147541,
+        "attacked_accuracy": 0.9453125,
+        "attacked_correct": 121,
+        "clean_accuracy": 0.953125,
+        "clean_correct": 122,
+        "mean_norms": {
+          "L0": 0.703125,
+          "L2": 0.03851779799879296,
+          "Linf": 0.03851779799879296
+        },
+        "samples": 128,
+        "successful_attacks": 1
+      },
+      "norm": "Linf",
+      "parameters": {
+        "epsilon": 0.2,
+        "iterations": 10,
+        "random_start": false,
+        "step_size": 0.01
+      },
+      "projection": "each_step"
+    },
+    {
+      "attack": "PGD",
+      "cross_check": {
+        "interpretation": "Independent implementations; agreement is not equivalence",
+        "library": "CleverHans",
+        "mean_candidate_l2_difference": 0.0,
+        "metrics": {
+          "asr_denominator": 122,
+          "attack_success_rate": 0.00819672131147541,
+          "attacked_accuracy": 0.9453125,
+          "attacked_correct": 121,
+          "clean_accuracy": 0.953125,
+          "clean_correct": 122,
+          "mean_norms": {
+            "L0": 0.671875,
+            "L2": 0.04661494748870609,
+            "Linf": 0.04661494748870609
+          },
+          "samples": 128,
+          "successful_attacks": 1
+        },
+        "prediction_agreement": 1.0,
+        "status": "completed",
+        "version": "4.0.0"
+      },
+      "library": "ART",
+      "library_version": "1.20.1",
+      "metrics": {
+        "asr_denominator": 122,
+        "attack_success_rate": 0.00819672131147541,
+        "attacked_accuracy": 0.9453125,
+        "attacked_correct": 121,
+        "clean_accuracy": 0.953125,
+        "clean_correct": 122,
+        "mean_norms": {
+          "L0": 0.671875,
+          "L2": 0.04661494748870609,
+          "Linf": 0.04661494748870609
+        },
+        "samples": 128,
+        "successful_attacks": 1
+      },
+      "norm": "Linf",
+      "parameters": {
+        "epsilon": 0.2,
+        "iterations": 20,
+        "random_start": false,
+        "step_size": 0.01
+      },
+      "projection": "each_step"
+    },
+    {
+      "attack": "PGD",
+      "cross_check": {
+        "interpretation": "Independent implementations; agreement is not equivalence",
+        "library": "CleverHans",
+        "mean_candidate_l2_difference": 0.0,
+        "metrics": {
+          "asr_denominator": 122,
+          "attack_success_rate": 0.00819672131147541,
+          "attacked_accuracy": 0.9453125,
+          "attacked_correct": 121,
+          "clean_accuracy": 0.953125,
+          "clean_correct": 122,
+          "mean_norms": {
+            "L0": 0.703125,
+            "L2": 0.04446927271055756,
+            "Linf": 0.04446927271055756
+          },
+          "samples": 128,
+          "successful_attacks": 1
+        },
+        "prediction_agreement": 1.0,
+        "status": "completed",
+        "version": "4.0.0"
+      },
+      "library": "ART",
+      "library_version": "1.20.1",
+      "metrics": {
+        "asr_denominator": 122,
+        "attack_success_rate": 0.00819672131147541,
+        "attacked_accuracy": 0.9453125,
+        "attacked_correct": 121,
+        "clean_accuracy": 0.953125,
+        "clean_correct": 122,
+        "mean_norms": {
+          "L0": 0.703125,
+          "L2": 0.04446927271055756,
+          "Linf": 0.04446927271055756
+        },
+        "samples": 128,
+        "successful_attacks": 1
+      },
+      "norm": "Linf",
+      "parameters": {
+        "epsilon": 0.2,
+        "iterations": 10,
+        "random_start": false,
+        "step_size": 0.025
+      },
+      "projection": "each_step"
+    },
+    {
+      "attack": "PGD",
+      "cross_check": {
+        "interpretation": "Independent implementations; agreement is not equivalence",
+        "library": "CleverHans",
+        "mean_candidate_l2_difference": 0.0,
+        "metrics": {
+          "asr_denominator": 122,
+          "attack_success_rate": 0.00819672131147541,
+          "attacked_accuracy": 0.9453125,
+          "attacked_correct": 121,
+          "clean_accuracy": 0.953125,
+          "clean_correct": 122,
+          "mean_norms": {
+            "L0": 0.703125,
+            "L2": 0.047008390531118494,
+            "Linf": 0.047008390531118494
+          },
+          "samples": 128,
+          "successful_attacks": 1
+        },
+        "prediction_agreement": 1.0,
+        "status": "completed",
+        "version": "4.0.0"
+      },
+      "library": "ART",
+      "library_version": "1.20.1",
+      "metrics": {
+        "asr_denominator": 122,
+        "attack_success_rate": 0.00819672131147541,
+        "attacked_accuracy": 0.9453125,
+        "attacked_correct": 121,
+        "clean_accuracy": 0.953125,
+        "clean_correct": 122,
+        "mean_norms": {
+          "L0": 0.703125,
+          "L2": 0.047008390531118494,
+          "Linf": 0.047008390531118494
+        },
+        "samples": 128,
+        "successful_attacks": 1
+      },
+      "norm": "Linf",
+      "parameters": {
+        "epsilon": 0.2,
+        "iterations": 20,
+        "random_start": false,
+        "step_size": 0.025
+      },
+      "projection": "each_step"
+    },
+    {
+      "attack": "CW-L2",
+      "cross_check": {
+        "interpretation": "Independent implementations; agreement is not equivalence",
+        "library": "CleverHans",
+        "mean_candidate_l2_difference": 0.02807443045458058,
+        "metrics": {
+          "asr_denominator": 122,
+          "attack_success_rate": 0.0,
+          "attacked_accuracy": 0.953125,
+          "attacked_correct": 122,
+          "clean_accuracy": 0.953125,
+          "clean_correct": 122,
+          "mean_norms": {
+            "L0": 0.6875,
+            "L2": 0.028060555960109923,
+            "Linf": 0.028060555960109923
+          },
+          "samples": 128,
+          "successful_attacks": 0
+        },
+        "prediction_agreement": 1.0,
+        "status": "completed",
+        "version": "4.0.0"
+      },
+      "library": "ART",
+      "library_version": "1.20.1",
+      "metrics": {
+        "asr_denominator": 122,
+        "attack_success_rate": 0.0,
+        "attacked_accuracy": 0.953125,
+        "attacked_correct": 122,
+        "clean_accuracy": 0.953125,
+        "clean_correct": 122,
+        "mean_norms": {
+          "L0": 0.03125,
+          "L2": 0.0003144630463793874,
+          "Linf": 0.0003144630463793874
+        },
+        "samples": 128,
+        "successful_attacks": 0
+      },
+      "norm": "L2",
+      "parameters": {
+        "binary_search_steps": 5,
+        "confidence": 0.0,
+        "initial_const": 0.01,
+        "iterations": 100,
+        "learning_rate": 0.01
+      },
+      "projection": "after_generation"
+    }
+  ],
+  "runtime": {
+    "device": "cpu",
+    "numpy_version": "1.26.4",
+    "threads": 1,
+    "torch_version": "2.14.1+cpu"
+  },
+  "schema_version": 1,
+  "source_sha256": {
+    "src/attacks/__init__.py": "5e33fec4feedda3afc577eec2ad581e4d5d66dfde2cd484415344212d0026184",
+    "src/attacks/constraints.py": "009ba65e633d3d6d3a9478c134f40ffcf7e251fef8bc22836ac453836432245d",
+    "src/attacks/experiment.py": "22e7b3771ecdc47dcae7310425905a5918132601790ffd73cdd47721cd866202",
+    "src/attacks/runner.py": "b0a53119ed75a512d7aa5c782cdf06b1954f77179db1e108e6ec8f6d22a8106d"
+  },
+  "status": "completed"
+}

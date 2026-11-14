@@ -29,6 +29,7 @@ mlruns/
 mlartifacts/
 # The read-only dashboard consumes compact research artifacts.
 docs/results/baselines/
+docs/results/attacks/
 notebooks/
 tests/
 *.html

@@ -41,7 +41,7 @@ and how to get it running; this page is the map to everything else.
 | [`../dashboard/README.md`](../dashboard/README.md) | Primary HTML UI, feature prediction, UI checks and legacy Streamlit |
 | [`../src/data/README.md`](../src/data/README.md) | Data layer APIs: preprocessing entry points and loaders |
 | [`../src/models/README.md`](../src/models/README.md) | Model classes, training/tuning interfaces, verified frozen bundles and CLI discovery |
-| [`../src/attacks/README.md`](../src/attacks/README.md) | Planned FGSM/PGD/CW wrappers (placeholder) |
+| [`../src/attacks/README.md`](../src/attacks/README.md) | ART/CleverHans FGSM/PGD/CW, policies and gated/exploratory experiments |
 | [`../src/defenses/README.md`](../src/defenses/README.md) | Planned hardening methods (placeholder) |
 | [`../src/evaluation/README.md`](../src/evaluation/README.md) | Binary metrics/threshold semantics and bounded artifact readers |
 

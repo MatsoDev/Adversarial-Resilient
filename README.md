@@ -3,8 +3,8 @@
 Defensive ML research for developers and researchers building malware and
 network-intrusion detectors. The repository implements dataset preprocessing,
 baseline training, evaluation, offline feature-space attacks and a research
-dashboard. Measured attacks against the real detectors await a qualified frozen
-baseline and reviewed policy; adversarial defenses remain planned.
+dashboard. Measured exploratory EMBER validation results are available; the
+frozen-baseline benchmark still awaits M1 and reviewed policy. Defenses remain planned.
 
 The MNIST demo in this repo is only an environment check that proves the attack
 tooling works — it is not the project's security result.
@@ -44,8 +44,8 @@ Sprint 4 adds CPU MLP/CNN tuning, calibration, gated freezing and authenticated
 feature prediction. See [`docs/sprint4.md`](docs/sprint4.md) and the
 [Sprint 4 report](docs/sprint4_report.md) for measured results and M1 status.
 Sprint 5 adds an offline attack pipeline and [HTML results explorer](docs/sprint5.md).
-Real EMBER attacks must wait until M1 passes and Security reviews a feature
-policy for frozen-benchmark acceptance. Explicit offline candidate exploration
+The planned frozen benchmark requires M1 and technical feature-policy review.
+Explicit offline candidate exploration
 uses operating validation only and is labelled **development—not frozen**;
 it does not enable prediction or complete M1. The explorer shows pending until
 measured reports exist. Defenses remain later-sprint work.

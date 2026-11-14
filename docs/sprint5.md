@@ -93,7 +93,7 @@ only that partition; selection/calibration rows and official test are excluded.
 An exploratory request for `--split test` is rejected before data access.
 
 ```bash
-python scripts/run_attacks.py --bundle-dir models/sprint4/baseline_v1 --policy docs/sprint5_size_probe_policy.json --split val --allow-candidate --candidate-reason "Owner-delegated validation exploration; frozen gate retained" --cleverhans --cleverhans-path data/external/cleverhans-torch --output docs/results/attacks/candidate-size-probe.json
+python scripts/run_attacks.py --bundle-dir models/sprint4/baseline_v1 --policy docs/sprint5_size_probe_policy.json --split val --allow-candidate --candidate-reason "Owner-delegated validation exploration; frozen gate retained" --samples 128 --epsilon 0 0.05 0.1 0.2 --step-size 0.01 0.025 --iterations 10 20 --cw-iterations 100 --cleverhans --cleverhans-path data/external/cleverhans-torch --output docs/results/attacks/candidate-size-probe.json
 ```
 
 Directory names do not establish readiness: check the bundle's actual
@@ -160,6 +160,12 @@ Reports contain compact statistics, not feature arrays or executables. Local
 reports in `docs/results/attacks/` are ignored. Review measured JSON before
 intentionally publishing a compact reference in a later review; do not commit
 weights or datasets. The UI does not fabricate results for fresh checkouts.
+
+The first measured [candidate reference](results/attack_reference.json) is now
+committed unchanged from the offline runner: 21 configurations on 128 original
+operating-validation rows, with 21 completed CleverHans checks. It is available
+without datasets or weights. See [the measured report](sprint5_report.md) for
+counts and limitations; it is not a frozen `baseline_v1` benchmark.
 
 ## API and HTML dashboard
 

@@ -9,6 +9,8 @@
 
 Entry point: `scripts/run_attacks.py`. Protocol, limitations, pending M1
 dependency and team commands: [Sprint 5 guide](../../docs/sprint5.md).
-Real EMBER results require a qualifying frozen baseline and reviewed policy;
-synthetic tests never become dashboard results. CW is post-projected only.
+Default frozen benchmarks require a qualifying frozen baseline and policy;
+explicit owner-delegated candidate exploration is limited to the verified
+operating-validation partition and labelled not frozen. Synthetic tests never
+become dashboard results. CW is post-projected only.
 Sprint 6 transfer/black-box and problem-space validation remain future work.
