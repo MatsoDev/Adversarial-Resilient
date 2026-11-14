@@ -27,7 +27,7 @@ short. Evidence of record stays in the sprint reports, PRs, and MLflow runs.
 | S2     | 3–4    | Data (EMBER v2, CICIDS2017, EDA, preprocessing) | Done (required); optional datasets skipped | [`sprint2_report.md`](sprint2_report.md), [`data/manifests/`](data/manifests/) |
 | S3     | 5–6    | Classical baselines + first neural model + Dashboard MVP | Done (development subset) | [`sprint3_report.md`](sprint3_report.md), [`team_handoff.md`](team_handoff.md) |
 | S4     | 7–8    | Tune and freeze the baseline (M1)       | Full CPU/GPU measurements complete; 93% freeze gate not met | [`sprint4_report.md`](sprint4_report.md), [`sprint4.md`](sprint4.md) |
-| S5     | 9–10   | Attack implementation (FGSM/PGD/CW)     | Implementation + 21 real exploratory configurations complete; frozen benchmark/SS acceptance pending | [`sprint5_report.md`](sprint5_report.md), [`sprint5.md`](sprint5.md) |
+| S5     | 9–10   | Attack implementation (FGSM/PGD/CW)     | Merged in PR #19: implementation + 21 real exploratory configurations; frozen benchmark/SS acceptance pending | [`sprint5_report.md`](sprint5_report.md), [`sprint5.md`](sprint5.md) |
 | S6     | 11–12  | Realistic attacks + black-box           | Not started | — |
 | S7     | 13–14  | Adversarial dataset + analysis          | Not started | — |
 | S8     | 15–16  | Phase 1 wrap-up and defense planning (M2) | Not started | — |

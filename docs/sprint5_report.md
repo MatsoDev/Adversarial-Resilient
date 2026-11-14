@@ -3,8 +3,10 @@
 Date: 2026-11-14. Branch: `sprint5/attack-implementation`, based on remote main
 `fd47ef6`. Implementation and real exploratory validation are complete. Frozen-
 baseline acceptance remains pending M1 and technical Security review. The owner
-approved implementation and delegated the exploratory fallback choice; no merge
-into main was performed.
+approved implementation and delegated the exploratory fallback choice.
+[PR #19](https://github.com/MatsoDev/Adversarial-Resilient/pull/19) was subsequently
+merged into `main` after its checks passed. This integration does not change M1
+qualification or the exploratory labels.
 
 ## Delivered
 
