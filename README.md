@@ -45,7 +45,10 @@ feature prediction. See [`docs/sprint4.md`](docs/sprint4.md) and the
 [Sprint 4 report](docs/sprint4_report.md) for measured results and M1 status.
 Sprint 5 adds an offline attack pipeline and [HTML results explorer](docs/sprint5.md).
 Real EMBER attacks must wait until M1 passes and Security reviews a feature
-policy; the explorer shows pending until measured reports exist. Defenses remain later-sprint work.
+policy for frozen-benchmark acceptance. Explicit offline candidate exploration
+uses operating validation only and is labelled **development—not frozen**;
+it does not enable prediction or complete M1. The explorer shows pending until
+measured reports exist. Defenses remain later-sprint work.
 Sprint-by-sprint status is tracked in
 [`docs/progress.md`](docs/progress.md); scope and schedule are in
 [`docs/project_plan.md`](docs/project_plan.md).

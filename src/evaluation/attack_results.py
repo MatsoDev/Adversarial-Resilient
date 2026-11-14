@@ -37,9 +37,23 @@ def validate_attack_report(report):
     ):
         require(isinstance(identity[k], str) and len(identity[k]) == 64)
         require(all(c in "0123456789abcdef" for c in identity[k]))
-    require(identity["dataset"] == "ember2018" and identity["model_version"] == "baseline_v1")
+    require(identity["dataset"] == "ember2018")
+    if identity["model_version"] == "sprint4_candidate":
+        require(report["experiment_stage"] == "development_candidate_not_frozen")
+        require(
+            identity["model_status"] in {"blocked_validation_accuracy", "blocked_test_accuracy"}
+        )
+        require(identity["split"] == "val" and identity["cohort"] == "operating_validation")
+        require(
+            isinstance(report["candidate_reason"], str) and bool(report["candidate_reason"].strip())
+        )
+        require(report["baseline_qualification"]["status"] == identity["model_status"])
+    else:
+        require(identity["model_version"] == "baseline_v1")
+        require(report.get("experiment_stage", "frozen_baseline") == "frozen_baseline")
+        require(identity["cohort"] == "stratified_all_classes")
     require(identity["split"] in {"val", "test"} and identity["threshold"] == 0.5)
-    require(identity["targeted"] is False and identity["cohort"] == "stratified_all_classes")
+    require(identity["targeted"] is False)
     require(identity["representation"] == "signed-log1p-standardized")
     require(identity["norm_l0_tolerance"] == 1e-6)
     require(type(identity["samples"]) is int and 2 <= identity["samples"] <= 4096)

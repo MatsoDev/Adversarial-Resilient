@@ -39,6 +39,12 @@ assert.match(chart,/y1="83.99999999999997"|y1="84"/);
 assert.match(chart,/cy="150"/); // 50% attacked accuracy from the stored metric.
 const other={...report,identity:{...report.identity,indices_sha256:'d'.repeat(64)},results:[]};
 assert.ok(!ui.renderReport(other,'Linf','all').includes('50.00%'));
+const candidate={...report,experiment_stage:'development_candidate_not_frozen',candidate_reason:'Exploratory only',
+  identity:{...report.identity,model_version:'sprint4_candidate',split:'val',cohort:'operating_validation',available_cohort_rows:22500},
+  baseline_qualification:{validation_metrics:{accuracy:.9218,n_samples:22500},test_evaluated:false}};
+const candidateHtml=ui.renderReport(candidate,'Linf','all');
+assert.match(candidateHtml,/Development model — not frozen/);
+assert.match(candidateHtml,/92.18%/); assert.match(candidateHtml,/Official test evaluated for this model: no/);
 """
     result = subprocess.run(
         [shutil.which("node"), "-e", script, str(ROOT / "dashboard/web/attacks.js")],

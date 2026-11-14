@@ -18,7 +18,6 @@ import torch
 from scipy.optimize import minimize_scalar
 from scipy.special import expit
 from sklearn.metrics import brier_score_loss, log_loss
-from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from torch import nn
 from torch.utils.data import DataLoader, Dataset
@@ -33,7 +32,7 @@ from src.data.preprocessing import (
 )
 from src.evaluation.binary import binary_metrics, threshold_at_tpr
 from src.models.frozen import BUNDLE_FILES, PREPROCESSING, make_model, transform
-from src.models.sampling import index_hash, sample_indices
+from src.models.sampling import index_hash, sample_indices, validation_partitions
 from src.utils.seed import set_seed
 
 logger = logging.getLogger(__name__)
@@ -78,15 +77,6 @@ def default_trials(epochs=10):
         replace(base, batch_size=512),
         replace(base, architecture="cnn"),
     )
-
-
-def validation_partitions(y, seed):
-    indices = np.arange(len(y))
-    selection, remainder = train_test_split(indices, test_size=0.5, stratify=y, random_state=seed)
-    calibration, operating = train_test_split(
-        remainder, test_size=0.5, stratify=y[remainder], random_state=seed
-    )
-    return tuple(np.sort(part) for part in (selection, calibration, operating))
 
 
 def fit_temperature(logits, y):

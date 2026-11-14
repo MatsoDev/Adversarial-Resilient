@@ -2,6 +2,13 @@
 
 ## Sprint 5 — 2026-11-14
 
+- **Delegated exploratory fallback does not freeze a weak candidate.** After
+  full-data searches missed 93%, the owner delegated the fallback choice.
+  Retain the freeze/prediction gate, but allow explicit offline development
+  experiments on hash-verified operating-validation rows. Reject official-test
+  requests in candidate mode and preserve model/version/stage labels in reports
+  and UI. This is exploratory evidence, not completed M1/frozen acceptance.
+
 - **Optional CUDA training follows explicit owner authorization.** Reuse an
   existing trusted CUDA torch package in a fresh operator process, with no
   installation or replacement of the pinned CPU environment. Record actual

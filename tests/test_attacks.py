@@ -292,7 +292,8 @@ def test_optional_cleverhans_cpu_cross_check(attack, monkeypatch):
         np.testing.assert_allclose(art, other, atol=1e-6)
 
 
-def test_offline_harness_identity_projection_and_optional_status(tmp_path, monkeypatch):
+@pytest.mark.parametrize("candidate", [False, True])
+def test_offline_harness_identity_projection_and_optional_status(tmp_path, monkeypatch, candidate):
     import src.attacks.experiment as experiment
 
     # Substitute only the bundle reader, retaining real dataset hashing, ART,
@@ -300,8 +301,9 @@ def test_offline_harness_identity_projection_and_optional_status(tmp_path, monke
     raw = np.zeros((8, 2381), dtype=np.float32)
     raw[:, 616] = np.tile([0, 1], 4)
     y = np.tile([0, 1], 4).astype(np.int8)
-    np.save(tmp_path / "test_X.npy", raw)
-    np.save(tmp_path / "test_y.npy", y)
+    split = "val" if candidate else "test"
+    np.save(tmp_path / f"{split}_X.npy", raw)
+    np.save(tmp_path / f"{split}_y.npy", y)
     (tmp_path / "feature_names.json").write_text(json.dumps([f"f{i}" for i in range(2381)]))
     (tmp_path / "label_mapping.json").write_text("{}")
     artifacts = {
@@ -327,10 +329,26 @@ def test_offline_harness_identity_projection_and_optional_status(tmp_path, monke
             "manifest_sha256": sha256_file(tmp_path / "manifest.json"),
             "feature_schema_sha256": schema,
             "preprocessing_sha256": "a" * 64,
-            "model_version": "baseline_v1",
+            "model_version": "sprint4_candidate" if candidate else "baseline_v1",
         },
     )
-    monkeypatch.setattr(experiment, "FrozenBaseline", lambda path: baseline)
+    if candidate:
+        _, _, operating = experiment.validation_partitions(y, 42)
+        baseline.record.update(
+            status="blocked_validation_accuracy",
+            subset=False,
+            seed=42,
+            test_evaluated=False,
+            test_metrics=None,
+            validation_metrics={"accuracy": 0.9},
+            partitions={
+                "operating": {
+                    "rows": len(operating),
+                    "indices_sha256": experiment.index_hash(operating),
+                }
+            },
+        )
+    monkeypatch.setattr(experiment, "FrozenBaseline", lambda path, **kwargs: baseline)
     p = deepcopy(policy(2381).record)
     p["feature_schema_sha256"] = schema
     p["features"][0]["index"] = 616
@@ -339,10 +357,22 @@ def test_offline_harness_identity_projection_and_optional_status(tmp_path, monke
     policy_path.write_text(json.dumps(p))
     out = tmp_path / "report.json"
     result = run_experiment(
-        tmp_path, tmp_path, policy_path, [AttackConfig("FGSM", 0.8)], out, samples=4
+        tmp_path,
+        tmp_path,
+        policy_path,
+        [AttackConfig("FGSM", 0.8)],
+        out,
+        samples=4,
+        split=split,
+        allow_candidate=candidate,
+        candidate_reason="Synthetic candidate fixture",
     )
-    assert result["identity"]["samples"] == 4
-    assert result["results"][0]["metrics"]["successful_attacks"] == 4
+    expected = 2 if candidate else 4
+    assert result["identity"]["samples"] == expected
+    assert result["results"][0]["metrics"]["successful_attacks"] == expected
+    if candidate:
+        assert result["identity"]["cohort"] == "operating_validation"
+        assert result["experiment_stage"] == "development_candidate_not_frozen"
     assert result["results"][0]["cross_check"]["status"] == "not_run"
     assert validate_attack_report(json.loads(out.read_text())) == result
     with pytest.raises(ValueError, match="overwrite"):
@@ -356,3 +386,19 @@ def test_offline_harness_identity_projection_and_optional_status(tmp_path, monke
     record["features"] *= 2
     with pytest.raises(ValueError):
         FeaturePolicy(record, 2)
+
+
+def test_candidate_mode_never_opens_official_test_or_accepts_missing_reason(tmp_path):
+    for split, reason in (("test", "Research"), ("val", "")):
+        with pytest.raises(ValueError, match="require val split"):
+            run_experiment(
+                tmp_path,
+                tmp_path,
+                tmp_path / "policy.json",
+                [AttackConfig("FGSM", 0.1)],
+                tmp_path / "no-report.json",
+                split=split,
+                allow_candidate=True,
+                candidate_reason=reason,
+            )
+    assert not (tmp_path / "no-report.json").exists()

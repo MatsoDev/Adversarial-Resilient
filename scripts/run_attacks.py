@@ -31,6 +31,12 @@ def main(argv=None):
     p.add_argument("--cw-iterations", type=int, default=100)
     p.add_argument("--cleverhans", action="store_true")
     p.add_argument(
+        "--allow-candidate",
+        action="store_true",
+        help="Explicit exploratory mode; full-data blocked candidate, operating validation only",
+    )
+    p.add_argument("--candidate-reason", default="")
+    p.add_argument(
         "--cleverhans-path",
         type=Path,
         help="Trusted isolated torch-only CleverHans installation (no dependency installs)",
@@ -59,6 +65,8 @@ def main(argv=None):
             split=a.split,
             seed=a.seed,
             cleverhans=a.cleverhans,
+            allow_candidate=a.allow_candidate,
+            candidate_reason=a.candidate_reason,
         )
     except (OSError, ValueError, KeyError) as error:
         logging.error("Sprint 5 experiment blocked/failed: %s", error)

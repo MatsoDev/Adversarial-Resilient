@@ -36,7 +36,10 @@
   }
   function renderReport(experiment, norm, attack) {
     const rows = selectRows(experiment, norm, attack), id = experiment.identity;
+    const qualification = experiment.baseline_qualification;
+    const candidate = experiment.experiment_stage === 'development_candidate_not_frozen';
     let html = `<section class="panel"><h2>Comparison identity</h2><div class="identity-grid"><p>${esc(id.dataset)} · ${esc(id.model_version)} · ${esc(id.split)}<br>${number(id.samples)} rows · seed ${esc(id.seed)} · threshold ${id.threshold}</p><p>Model bundle SHA-256<br><code>${esc(id.model_sha256)}</code></p><p>Exact row indices SHA-256<br><code>${esc(id.indices_sha256)}</code></p><p>Constraint policy SHA-256<br><code>${esc(id.constraint_sha256)}</code></p></div><p>Constraint status: ${esc(experiment.constraint.status)} · reviewer: ${esc(experiment.constraint.reviewer)} · problem-space validation: unavailable.</p></section>`;
+    html = (candidate ? `<section class="panel"><h2>Development model — not frozen</h2><p>This exploratory experiment does not complete M1 or enable prediction.</p><p>${esc(experiment.candidate_reason)}</p><p>Full operating-validation accuracy: ${pct(qualification?.validation_metrics?.accuracy)} on ${number(qualification?.validation_metrics?.n_samples || 0)} rows. Official test evaluated for this model: ${qualification?.test_evaluated ? 'yes' : 'no'}.</p><p>Attack cohort: ${esc(id.cohort)} · selected from ${number(id.available_cohort_rows)} validation rows.</p></section>` : '') + html;
     html += `<section class="panel"><p>Technical Security review: ${esc(experiment.constraint.security_review || 'Asserted by the named local reviewer')}. This label is separate from project-owner authorization.</p></section>`;
     if (!rows.length) return html + '<section class="panel attack-empty">No completed results match these filters. Choose another attack or norm.</section>';
     const clean = rows[0].metrics;

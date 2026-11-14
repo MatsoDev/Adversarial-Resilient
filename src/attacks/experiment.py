@@ -9,6 +9,7 @@ from importlib.metadata import PackageNotFoundError
 from pathlib import Path
 
 import numpy as np
+import torch
 
 from src.attacks.constraints import FeaturePolicy
 from src.attacks.runner import BinaryLogits, generate, library_version
@@ -23,7 +24,8 @@ from src.data.preprocessing import (
 from src.evaluation.attack_results import validate_attack_report
 from src.evaluation.attacks import attack_metrics, labels
 from src.models.frozen import FrozenBaseline, transform
-from src.models.sampling import index_hash, sample_indices
+from src.models.sampling import index_hash, sample_indices, validation_partitions
+from src.utils.seed import set_seed
 
 
 def run_experiment(
@@ -37,6 +39,8 @@ def run_experiment(
     split="test",
     seed=SEED,
     cleverhans=False,
+    allow_candidate=False,
+    candidate_reason="",
 ):
     """Require M1, exact dataset/schema identity, and a reviewed explicit policy.
 
@@ -50,8 +54,20 @@ def run_experiment(
     output, data_dir, bundle_dir = map(Path, (output, data_dir, bundle_dir))
     if output.exists():
         raise ValueError("Refusing to overwrite an existing experiment")
-    baseline = FrozenBaseline(bundle_dir)
+    if allow_candidate and (split != "val" or not candidate_reason.strip()):
+        raise ValueError("Exploratory candidates require val split and an explicit reason")
+    baseline = (
+        FrozenBaseline(bundle_dir, require_frozen=False)
+        if allow_candidate
+        else FrozenBaseline(bundle_dir)
+    )
     record = baseline.record
+    if allow_candidate and (
+        record.get("model_version") != "sprint4_candidate"
+        or record.get("status") not in {"blocked_validation_accuracy", "blocked_test_accuracy"}
+        or record.get("subset") is not False
+    ):
+        raise ValueError("Exploratory mode accepts only verified full-data blocked candidates")
     manifest_path = data_dir / "manifest.json"
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     if manifest.get("dataset") != "ember2018" or manifest.get("subset"):
@@ -103,8 +119,15 @@ def run_experiment(
     dataset = load_ember(split, root=data_dir, mmap_mode="r")
     if not np.isin(dataset.y, [0, 1]).all():
         raise ValueError("Expected binary labels")
-    indices = sample_indices(dataset.y, samples, seed)
+    pool = np.arange(len(dataset.y))
+    if allow_candidate:
+        _, _, pool = validation_partitions(dataset.y, record["seed"])
+        operating = record["partitions"]["operating"]
+        if operating["indices_sha256"] != index_hash(pool) or operating["rows"] != len(pool):
+            raise ValueError("Candidate operating-partition identity mismatch")
+    indices = pool[sample_indices(dataset.y[pool], samples, seed)]
     raw, y = np.asarray(dataset.X[indices]), dataset.y[indices]
+    set_seed(seed)
     clean = transform(raw, baseline.mean, baseline.scale)
     model = BinaryLogits(baseline.model, record["temperature"])
     before = labels(model, clean)
@@ -113,6 +136,7 @@ def run_experiment(
         "manifest_sha256": record["manifest_sha256"],
         "model_sha256": sha256_file(bundle_dir / "bundle.json"),
         "model_version": record["model_version"],
+        "model_status": record.get("status", "frozen"),
         "split": split,
         "indices_sha256": index_hash(indices),
         "samples": len(y),
@@ -123,7 +147,8 @@ def run_experiment(
         "threshold": 0.5,
         "representation": "signed-log1p-standardized",
         "targeted": False,
-        "cohort": "stratified_all_classes",
+        "cohort": "operating_validation" if allow_candidate else "stratified_all_classes",
+        "available_cohort_rows": len(pool),
         "norm_l0_tolerance": 1e-6,
     }
     # Identity includes exact rows, policy and model, not just a human version tag.
@@ -178,6 +203,22 @@ def run_experiment(
         "compatibility_id": group,
         "generated_at": datetime.now(UTC).isoformat(),
         "identity": identity,
+        "experiment_stage": "development_candidate_not_frozen"
+        if allow_candidate
+        else "frozen_baseline",
+        "candidate_reason": candidate_reason if allow_candidate else None,
+        "baseline_qualification": {
+            "status": record.get("status", "frozen"),
+            "validation_metrics": record.get("validation_metrics"),
+            "test_evaluated": record.get("test_evaluated", True),
+            "test_metrics": record.get("test_metrics"),
+        },
+        "runtime": {
+            "torch_version": torch.__version__,
+            "numpy_version": np.__version__,
+            "device": "cpu",
+            "threads": torch.get_num_threads(),
+        },
         "constraint": {
             "status": policy.record["status"],
             "security_review": policy.record.get("security_review", "asserted_by_local_reviewer"),

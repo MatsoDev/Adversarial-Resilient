@@ -53,6 +53,14 @@ varies AdamW weight decay, dropout and width. The winner is still selected by
 selection NLL, with final calibration/operating/test evaluation on CPU. See
 [the optional runtime instructions](sprint4.md#optional-existing-gpu-runtime).
 
+The [completed regularized GPU report](results/sprint4_regularized_gpu10.json)
+selected the 128/64 AdamW model at epoch 3 (selection NLL 0.27918). Its
+operating-validation accuracy was **91.4311%**, ROC-AUC **0.967061**, below 93%.
+Official test again remained unopened. This result does not improve on the
+earlier 92.1778% candidate's accuracy; GPU acceleration is not a quality fix.
+No model was manually marked frozen. The owner's delegated fallback permits
+only explicitly labelled validation exploration; see [Sprint 5](sprint5.md).
+
 ## Implemented
 
 - Predeclared CPU MLP hyperparameter search (learning rate, depth, dropout,

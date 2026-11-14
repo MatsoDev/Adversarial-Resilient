@@ -1,7 +1,8 @@
 # Sprint 5 — attack implementation and results explorer
 
-Status: implementation and synthetic verification; **real EMBER measurements
-pending M1 and Security review**. See [progress](progress.md) and
+Status: implementation with frozen-baseline acceptance **pending M1 and Security
+review**. An explicitly labelled operating-validation exploration is supported
+under the owner's delegated fallback decision. See [progress](progress.md) and
 [Sprint 4 report](sprint4_report.md). The remote Sprint 4 branch is already
 merged into main; it contains no completed frozen bundle or completed measured
 baseline report. Weights are deliberately not distributed through Git.
@@ -76,6 +77,34 @@ configuration and optional cross-check. No test data is used for tuning.
 The default 0 epsilon entry is an identity control for FGSM/PGD, not CW.
 
 ## ART and CleverHans
+
+### Explicit exploratory candidate mode
+
+The owner delegated the fallback choice after completed full-data searches
+missed 93%. Keep the freeze/prediction gate intact, while permitting separately
+labelled **development model—not frozen** attack measurements. This is additional
+exploratory evidence; it does not complete M1 or the planned frozen benchmark.
+
+`--allow-candidate` requires an explicit `--candidate-reason` and `--split val`.
+Only verified, full-training candidates blocked by validation/test accuracy are
+eligible. The runner reconstructs and verifies the original **operating**
+partition using the candidate's seed and recorded partition hash. It samples
+only that partition; selection/calibration rows and official test are excluded.
+An exploratory request for `--split test` is rejected before data access.
+
+```bash
+python scripts/run_attacks.py --bundle-dir models/sprint4/baseline_v1 --policy docs/sprint5_size_probe_policy.json --split val --allow-candidate --candidate-reason "Owner-delegated validation exploration; frozen gate retained" --cleverhans --cleverhans-path data/external/cleverhans-torch --output docs/results/attacks/candidate-size-probe.json
+```
+
+Directory names do not establish readiness: check the bundle's actual
+`model_version` and `status`. Candidate reports retain `sprint4_candidate`, the
+blocked status and `development_candidate_not_frozen`. The API/UI preserve these
+labels and the full validation qualification; they cannot be mixed with frozen
+or official-test cohorts. `/predict` still requires a passing frozen bundle.
+Default attack CLI behavior remains frozen-only. Shared partition reconstruction
+lives in `src/models/sampling.py` and is re-exported by tuning for compatibility.
+
+### Attack adapters
 
 `BinaryLogits` exposes `[0, calibrated_logit]` through ART `PyTorchClassifier`.
 Class 1 wins ties, matching frozen prediction at probability >=0.5. Attacks use
