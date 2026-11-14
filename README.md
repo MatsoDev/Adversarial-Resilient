@@ -2,8 +2,9 @@
 
 Defensive ML research for developers and researchers building malware and
 network-intrusion detectors. The repository implements dataset preprocessing,
-baseline training, evaluation, and a research dashboard. Attacks against the
-real detectors and adversarial defenses are planned, not implemented.
+baseline training, evaluation, offline feature-space attacks and a research
+dashboard. Measured attacks against the real detectors await a qualified frozen
+baseline and reviewed policy; adversarial defenses remain planned.
 
 The MNIST demo in this repo is only an environment check that proves the attack
 tooling works — it is not the project's security result.
@@ -42,7 +43,9 @@ training with reproducible validation reports and MLflow tracking. Follow
 Sprint 4 adds CPU MLP/CNN tuning, calibration, gated freezing and authenticated
 feature prediction. See [`docs/sprint4.md`](docs/sprint4.md) and the
 [Sprint 4 report](docs/sprint4_report.md) for measured results and M1 status.
-Attacks must wait until M1 passes; defenses remain later-sprint work.
+Sprint 5 adds an offline attack pipeline and [HTML results explorer](docs/sprint5.md).
+Real EMBER attacks must wait until M1 passes and Security reviews a feature
+policy; the explorer shows pending until measured reports exist. Defenses remain later-sprint work.
 Sprint-by-sprint status is tracked in
 [`docs/progress.md`](docs/progress.md); scope and schedule are in
 [`docs/project_plan.md`](docs/project_plan.md).

@@ -80,6 +80,8 @@ and how to get it running; this page is the map to everything else.
 | [`sprint3_report.md`](sprint3_report.md) | Real EMBER baseline metrics, verification evidence and Sprint 4 findings |
 | [`sprint4.md`](sprint4.md) | Tuning, calibration, freeze gates, reproducibility and authenticated feature prediction |
 | [`sprint4_report.md`](sprint4_report.md) | Sprint 4 measured evidence, verification and M1 status |
+| [`sprint5.md`](sprint5.md) | Offline constrained attacks, metrics, cross-checks and HTML explorer; prerequisites |
+| [`sprint5_report.md`](sprint5_report.md) | Sprint 5 implementation evidence and pending real-data acceptance |
 | [`PR_sprint1.md`](PR_sprint1.md) | Snapshot of the Sprint 1 pull request description (historical) |
 
 ## Generated artifacts (do not edit by hand)

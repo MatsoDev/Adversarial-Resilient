@@ -9,8 +9,10 @@ The primary UI is now plain HTML/CSS/JS under dashboard/web, served at
 /dashboard/ by FastAPI; dashboard/app.py is legacy Streamlit reference.
 Sprint 2 supplies cleaned/versioned datasets, loaders, EDA and manifests.
 See docs/progress.md and docs/sprint4_report.md for M1 status; implemented
-freezing/prediction does not establish a passing full-data baseline. Attacks
-against the real detectors and defenses remain later-sprint work.
+freezing/prediction does not establish a passing full-data baseline. Sprint 5
+adds offline ART/CleverHans adapters, a reviewed scalar-policy projector and a
+read-only HTML attack explorer. Real EMBER measurements remain pending M1 and
+SS review; see docs/sprint5.md. Defenses remain later-sprint work.
 
 ## Read first
 

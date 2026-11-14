@@ -2,7 +2,7 @@
 
 import asyncio
 
-import httpx
+import httpx2 as httpx
 import pytest
 from api.prediction import MAX_BODY, prediction_router
 from fastapi import FastAPI

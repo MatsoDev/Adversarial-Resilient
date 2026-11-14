@@ -1,7 +1,7 @@
 # api/ — FastAPI service
 
 Serves recorded research artifacts, the HTML dashboard and gated frozen-feature
-inference. No training, uploads, executable scanning, attack or defense routes.
+inference. No training, uploads, executable scanning, attack-execution or defense routes.
 
 ## Run locally
 
@@ -27,6 +27,7 @@ Artifact IDs are literal identifiers, not filesystem paths.
 | `GET` | `/dashboard/` | HTML dashboard and local CSS/JS/image assets |
 | `GET` | `/v1/datasets/{name}` | Recorded manifest/EDA, hashes/timestamps, `local_verification: "not_checked"` |
 | `GET` | `/v1/runs` | Validated Sprint 3 comparison runs and availability/truncation counts |
+| `GET` | `/v1/attacks` | Validated completed attack experiments; pending state without reports; never executes attacks |
 | `GET` | `/v1/demo` | MNIST report, `dataset: "MNIST"`, `purpose: "tooling_demo"` |
 | `GET` | `/v1/reports/{id}` | `schema_version`, `id`, UTF-8 Markdown `content` (not rendered HTML) |
 | `GET` | `/v1/figures/{id}` | `schema_version`, `id`, `png_base64` (JSON, not an image response) |

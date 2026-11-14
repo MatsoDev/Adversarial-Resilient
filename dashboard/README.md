@@ -1,5 +1,10 @@
 # dashboard/ — HTML research dashboard
 
+Sprint 5 adds `/dashboard/attacks.html`: a read-only completed-experiment
+explorer with exact cohort selection, norm/attack filters, accuracy curves,
+ASR counts and ART/CleverHans provenance. Missing measured reports stay pending.
+See [Sprint 5](../docs/sprint5.md) for prerequisites and commands.
+
 ## Current UI: HTML / CSS / JavaScript
 
 The primary dashboard is now `dashboard/web/index.html`, `styles.css` and

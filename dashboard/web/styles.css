@@ -3,3 +3,4 @@
 /* Explicit feature inference controls; no frontend build or external assets. */
 #prediction-rows { max-width: 100%; width: 100%; background: #111b27; color: #dbe6f3; border: 1px solid #344154; padding: 12px; border-radius: 8px; }
 #prediction-token { background: #111b27; color: #dbe6f3; border: 1px solid #344154; padding: 8px; border-radius: 6px; }
+nav .attack-nav{display:block;padding:14px 18px;color:#a6b6ca;text-decoration:none;border-radius:8px}nav .attack-nav:hover{background:#203b39;color:#71edc1}

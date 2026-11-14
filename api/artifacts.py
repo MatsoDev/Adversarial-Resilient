@@ -27,6 +27,10 @@ def artifact_router(store: ArtifactStore) -> APIRouter:
     def demo():
         return serve(store.demo)
 
+    @router.get("/attacks")
+    def attacks():
+        return serve(store.attacks)
+
     @router.get("/reports/{name}")
     def report(name: str):
         return serve(store.report, name)

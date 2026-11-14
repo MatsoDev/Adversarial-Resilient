@@ -4,7 +4,7 @@ Living status of the project against [`project_plan.md`](project_plan.md).
 Update this file as work lands (at least at each sprint boundary); keep it
 short. Evidence of record stays in the sprint reports, PRs, and MLflow runs.
 
-**Last updated:** 2026-11-11 · **Current sprint:** Sprint 4 implementation and verification; full-data M1 measurement in progress. See [Sprint 4 report](sprint4_report.md).
+**Last updated:** 2026-11-14 · **Current sprint:** Sprint 5 implementation; measured attack acceptance pending Sprint 4 M1 and reviewed feature policy. See [Sprint 5 report](sprint5_report.md).
 
 ## Milestones
 
@@ -27,7 +27,7 @@ short. Evidence of record stays in the sprint reports, PRs, and MLflow runs.
 | S2     | 3–4    | Data (EMBER v2, CICIDS2017, EDA, preprocessing) | Done (required); optional datasets skipped | [`sprint2_report.md`](sprint2_report.md), [`data/manifests/`](data/manifests/) |
 | S3     | 5–6    | Classical baselines + first neural model + Dashboard MVP | Done (development subset) | [`sprint3_report.md`](sprint3_report.md), [`team_handoff.md`](team_handoff.md) |
 | S4     | 7–8    | Tune and freeze the baseline (M1)       | Implementation complete; measurement in progress | [`sprint4_report.md`](sprint4_report.md), [`sprint4.md`](sprint4.md) |
-| S5     | 9–10   | Attack implementation (FGSM/PGD/CW)     | Not started | — |
+| S5     | 9–10   | Attack implementation (FGSM/PGD/CW)     | Implemented for review; real-data acceptance pending M1 and SS policy | [`sprint5_report.md`](sprint5_report.md), [`sprint5.md`](sprint5.md) |
 | S6     | 11–12  | Realistic attacks + black-box           | Not started | — |
 | S7     | 13–14  | Adversarial dataset + analysis          | Not started | — |
 | S8     | 15–16  | Phase 1 wrap-up and defense planning (M2) | Not started | — |

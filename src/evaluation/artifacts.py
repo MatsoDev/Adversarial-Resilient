@@ -13,6 +13,7 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field, FiniteFloat
 
 from src.config import DOCS_DIR
+from src.evaluation.attack_results import validate_attack_report
 
 DATASETS = ("ember2018", "cicids2017")
 REPORTS = {
@@ -83,6 +84,42 @@ class ArtifactUnavailable(ValueError):
 class ArtifactStore:
     def __init__(self, root: Path = DOCS_DIR):
         self.root = root.resolve()
+
+    def attacks(self):
+        """Bounded local report listing; missing results are pending, not zero scores."""
+        reports, unavailable, total, truncated = [], 0, 0, False
+        directory = self.root / "results" / "attacks"
+        paths = (
+            heapq.nlargest(MAX_BATCHES + 1, directory.glob("*.json"), key=lambda p: p.name)
+            if directory.resolve().is_relative_to(self.root)
+            else []
+        )
+        for path in paths[:MAX_BATCHES]:
+            try:
+                report = validate_attack_report(self.json("results/attacks/" + path.name))
+                size = len(json.dumps(report).encode())
+                if total + size > RUN_RESPONSE_LIMIT - 512:
+                    truncated = True
+                    break
+                reports.append(report)
+                total += size
+            except (
+                ArtifactUnavailable,
+                ValueError,
+                KeyError,
+                TypeError,
+                OverflowError,
+                RecursionError,
+            ):
+                unavailable += 1
+        return {
+            "schema_version": 1,
+            "experiments": reports,
+            "status": "completed" if reports else "pending",
+            "pending_reason": "Requires verified M1 baseline and SS-reviewed feature policy",
+            "unavailable_reports": unavailable,
+            "truncated": len(paths) > MAX_BATCHES or truncated,
+        }
 
     def read(self, relative: str, limit: int = LIMIT) -> bytes:
         try:
