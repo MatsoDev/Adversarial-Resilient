@@ -89,8 +89,9 @@ transfer labels; Sprint 7 versions case references/history/export; Sprint 8
 rehearses Phase 1. Sprints 9–12 add actual defense results and adaptive
 re-attacks; until then the defense stage is visibly planned, without scores.
 Sprints 13–16 finish integration, regression, reporting and handover. The
-16-sprint schedule and research gates are unchanged. The owner's local detailed
-HTML export remains in the ignored Plan folder and is delivered separately.
+16-sprint schedule and research gates are unchanged. The complete versioned
+HTML export is shared in [plans/](plans/README.md); the original local Plan folder
+remains ignored.
 
 ## Verification — 2026-11-14
 
@@ -112,8 +113,9 @@ numeric evidence, CW's single L2 row without an epsilon curve, and responsive
 original research documents retain their source language.
 
 The follow-up is published through the Sprint 5 journey branch and PR workflow.
-The local detailed HTML plan remains outside Git as requested; the shared scope
-is recorded in `docs/project_plan.md`.
+The original local Plan folder stays ignored. At the owner's explicit request,
+the team-facing [complete HTML plan](plans/project_plan_v0.5.2.html) is committed
+under [plans/](plans/README.md); shared scope is in `docs/project_plan.md`.
 
 ### v0.5.2 usability and theme follow-up
 

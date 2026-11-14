@@ -2,6 +2,12 @@
 
 ## Sprint 5 — 2026-11-14
 
+- **Publish a team-facing plan copy.** The owner explicitly requested the new
+  plan in a repository folder before merging the journey update. Commit the
+  self-contained HTML snapshot under [plans/](plans/README.md), keep the
+  canonical Markdown plan linked, and retain the ignored local Plan folder.
+
+
 - **Owner-approved measured journey, same research scope.** Make a simple bilingual
   case walkthrough (English default, optional Egyptian Arabic) the HTML landing page, preserve technical pages, and retain
   the official logo with CSS dark-mode treatment within a dark navy/cyan theme. Individual

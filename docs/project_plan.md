@@ -1,5 +1,7 @@
 # Adversarial-Resilient Security Models — Full Project Plan
 
+Detailed browser-readable release: [v0.5.2 HTML plan](plans/project_plan_v0.5.2.html).
+
 > Approved UI revision (2026-11-04): start dashboard delivery in
 > Sprint 3, adding readable data, baseline, demo and methodology views. Add
 > frozen-model feature prediction in Sprint 4; attack views in Sprint 5–6;

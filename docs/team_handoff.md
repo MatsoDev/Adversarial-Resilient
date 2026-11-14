@@ -8,7 +8,9 @@ on all three pages; hard-refresh stale browser assets. The release adds the
 bilingual dark guided walkthrough and recorded case evidence. No new dependencies.
 Detailed setup, measured-case reproduction and limitations: [AI journey](ai_journey.md).
 The source branch is `sprint5/ai-journey-dashboard`; main is the team's shared
-integration branch. Dataset/model downloads are not needed for recorded playback.
+integration branch. Dataset/model downloads are not needed for recorded playback. The team-facing
+[complete HTML plan](plans/project_plan_v0.5.2.html) is included under
+[docs/plans](plans/README.md) and opens directly in a browser.
 
 ## Sprint 5 on main
 
