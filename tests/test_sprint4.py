@@ -89,6 +89,33 @@ def test_tuning_honors_recorded_cpu_thread_budget():
     assert torch.get_num_threads() == 2
 
 
+def test_cli_can_extend_only_a_declared_configuration(tmp_path, monkeypatch):
+    from scripts import tune_baseline as cli
+
+    calls = []
+
+    def tune(data, output, **kwargs):
+        calls.append(kwargs)
+        return {"status": "blocked_validation_accuracy"}
+
+    monkeypatch.setattr(cli, "tune_baseline", tune)
+    assert (
+        cli.main(
+            [
+                "--output-dir",
+                str(tmp_path / "new-run"),
+                "--epochs",
+                "10",
+                "--trial-index",
+                "1",
+                "--no-mlflow",
+            ]
+        )
+        == 2
+    )
+    assert calls[0]["trials"] == (default_trials(10)[1],)
+
+
 def test_subset_search_never_opens_test_and_reproduces(ember, tmp_path):
     (ember / "test_X.npy").unlink()
     args = dict(trials=(Trial(hidden=(8,), epochs=2, batch_size=16),), log_mlflow=False)

@@ -12,6 +12,12 @@ The explicit size-only experimental policy is owner-authorized; technical SS
 validation remains pending. Subsequent measured evidence supersedes the initial
 missing-bundle snapshot below when available.
 
+The initial full search subsequently measured **92.1778%** operating-validation
+accuracy, below M1's 93% gate. Official test remained unopened. See the actual
+[three-epoch evidence](results/sprint4_search_3epochs.json) and
+[Sprint 4 follow-up](sprint4_report.md). The selection-winning configuration is
+being extended to ten epochs; no attack score is claimed from a blocked model.
+
 ## Delivered in this branch
 
 - CPU ART `PyTorchClassifier`, FGSM, deterministic policy-projected PGD and

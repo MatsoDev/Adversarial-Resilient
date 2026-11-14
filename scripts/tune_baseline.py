@@ -23,6 +23,12 @@ def main(argv=None):
     parser.add_argument("--max-train", type=int)
     parser.add_argument("--max-val", type=int)
     parser.add_argument("--epochs", type=int, default=10)
+    parser.add_argument(
+        "--trial-index",
+        type=int,
+        choices=range(6),
+        help="Run only one declared configuration, e.g. extend a selection winner",
+    )
     parser.add_argument("--threads", type=int, default=2)
     parser.add_argument("--seed", type=int, default=SEED)
     parser.add_argument("--no-mlflow", action="store_true")
@@ -30,11 +36,14 @@ def main(argv=None):
     parser.add_argument("--report", type=Path, help="Also publish the measured JSON report here")
     args = parser.parse_args(argv)
     logging.basicConfig(level=logging.INFO)
+    trials = default_trials(args.epochs)
+    if args.trial_index is not None:
+        trials = (trials[args.trial_index],)
     try:
         report = tune_baseline(
             args.data_dir,
             args.output_dir,
-            trials=default_trials(args.epochs),
+            trials=trials,
             max_train=args.max_train,
             max_val=args.max_val,
             seed=args.seed,

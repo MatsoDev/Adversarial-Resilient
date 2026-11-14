@@ -97,6 +97,16 @@ def test_owner_authorized_probe_is_monotone_bounded_and_labelled_pending():
         FeaturePolicy(record, 2)
 
 
+def test_projection_identity_has_no_inverse_scaling_roundoff_edits():
+    record = deepcopy(policy(integer=True).record)
+    record["features"][0]["maximum"] = 4294967296
+    p = FeaturePolicy(record, 2)
+    raw = np.array([[12345678.0, -99.0], [4294967040.0, 12.0]], dtype=np.float32)
+    mean, scale = np.array([15.123, -2.0]), np.array([1.123, 3.0])
+    clean = transform(raw, mean, scale)
+    np.testing.assert_array_equal(p.project(clean, raw, mean, scale), clean)
+
+
 @pytest.mark.parametrize("attack", ["FGSM", "PGD", "CW-L2"])
 def test_real_art_adapters_produce_finite_feasible_output(attack):
     raw = np.array([[1.0, 2.0], [0.0, 3.0]], dtype=np.float32)

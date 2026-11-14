@@ -117,7 +117,7 @@ class FeaturePolicy:
                 lo = np.maximum(lo, original[:, i])
             if "max_increase" in f:
                 hi = np.minimum(hi, original[:, i] + f["max_increase"])
-            raw[:, i] = np.clip(v, lo, hi)
+            raw[:, i] = np.where(candidate[:, i] == clean[:, i], original[:, i], np.clip(v, lo, hi))
         result = transform(raw, mean, scale)
         if epsilon is not None:
             excess = np.abs(result.astype(np.float64) - clean) > epsilon + 1e-6
