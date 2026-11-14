@@ -1,5 +1,23 @@
 # Decisions log
 
+## Sprint 5 — 2026-11-14
+
+- **Preserve M1 and Security gates.** Implement/test the attack pipeline using
+  synthetic fixtures while real measurements await a qualifying frozen bundle
+  and a reviewed policy. No Sprint 3 model substitution or seeded UI scores.
+- **Attack units are standardized model coordinates.** Apply raw bounds and
+  integer policies through inverse preprocessing; retain exact cohort/model/data
+  hashes. ASR conditions on originally correct rows across both classes.
+- **Constrained PGD projects each step; CW projects after optimization.** Label
+  this difference explicitly. Keep CW optimization parameters separate from
+  Linf epsilon curves; do not claim optimal feasible CW or valid executables.
+- **Use an optional torch-only CleverHans overlay.** Reuse the pinned CPU
+  environment without TensorFlow or replacement torch wheels. Missing checks
+  stay not run. The API reads bounded reports and never imports that overlay.
+- **Keep local reports outside Git.** The read-only HTML explorer selects one
+  exact experiment snapshot and norm; measured acceptance is still pending.
+  Protocol and limitations: [Sprint 5 guide](sprint5.md).
+
 ## Repository maintenance — 2026-11-11
 
 - **Keep the top-level boundaries and stable paths.** The audit found no static
