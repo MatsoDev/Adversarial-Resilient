@@ -38,6 +38,21 @@ The CLI import order now initializes torch before dataframe libraries on
 Windows. Tuning also reapplies its recorded thread budget after seeding, which
 otherwise silently reset torch to one thread. No torch installation changed.
 
+The [ten-epoch extension](results/sprint4_extended_10epochs.json) also retained
+epoch 3 and remained below the gate. Later selection NLL increased, providing
+evidence of overfitting rather than a benefit from a longer budget alone.
+Official test remained unopened. An affine-calibration diagnostic used only
+the calibration partition: NLL improved (0.231875 → 0.213967), while calibration
+accuracy worsened (92.00% → 91.76%); it was not adopted as an accuracy fix.
+
+The owner then explicitly authorized GPU use. A pre-existing CUDA torch 2.5.1
+installation successfully trained a synthetic smoke fixture using the GTX 1660
+SUPER; no packages were downloaded/replaced. A new
+[predeclared regularized search](results/sprint4_regularized_search_config.json)
+varies AdamW weight decay, dropout and width. The winner is still selected by
+selection NLL, with final calibration/operating/test evaluation on CPU. See
+[the optional runtime instructions](sprint4.md#optional-existing-gpu-runtime).
+
 ## Implemented
 
 - Predeclared CPU MLP hyperparameter search (learning rate, depth, dropout,

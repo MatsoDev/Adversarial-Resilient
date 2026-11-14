@@ -116,6 +116,52 @@ def test_cli_can_extend_only_a_declared_configuration(tmp_path, monkeypatch):
     assert calls[0]["trials"] == (default_trials(10)[1],)
 
 
+def test_regularized_trials_and_explicit_device_validation(tmp_path, monkeypatch):
+    Trial(optimizer="adamw", weight_decay=0.01).validate()
+    for trial in (
+        Trial(optimizer="unknown"),
+        Trial(weight_decay=-1),
+        Trial(weight_decay=float("nan")),
+    ):
+        with pytest.raises(ValueError):
+            trial.validate()
+    with pytest.raises(ValueError, match="Device"):
+        tune_baseline(tmp_path, tmp_path / "no-write", device="mps")
+    monkeypatch.setattr(torch.cuda, "is_available", lambda: False)
+    with pytest.raises(ValueError, match="no usable GPU"):
+        tune_baseline(tmp_path, tmp_path / "no-write", device="cuda")
+    assert not (tmp_path / "no-write").exists()
+
+
+def test_cli_reads_predeclared_regularized_trials(tmp_path, monkeypatch):
+    from scripts import tune_baseline as cli
+
+    config = tmp_path / "trials.json"
+    config.write_text(json.dumps([{"epochs": 7, "optimizer": "adamw", "weight_decay": 0.01}]))
+    calls = []
+
+    def tune(data, output, **kwargs):
+        calls.append(kwargs)
+        return {"status": "blocked_validation_accuracy"}
+
+    monkeypatch.setattr(cli, "tune_baseline", tune)
+    assert cli.main(["--trials-json", str(config), "--no-mlflow"]) == 2
+    assert calls[0]["trials"] == (Trial(epochs=7, optimizer="adamw", weight_decay=0.01),)
+    assert calls[0]["device"] == "cpu"
+
+
+def test_existing_torch_launcher_rejects_missing_package_without_replacing_torch(tmp_path):
+    import sys
+
+    from scripts import tune_with_existing_torch
+
+    existing = sys.modules["torch"]
+    with pytest.raises(SystemExit) as error:
+        tune_with_existing_torch.main(["--torch-package", str(tmp_path / "missing")])
+    assert error.value.code == 2
+    assert sys.modules["torch"] is existing
+
+
 def test_subset_search_never_opens_test_and_reproduces(ember, tmp_path):
     (ember / "test_X.npy").unlink()
     args = dict(trials=(Trial(hidden=(8,), epochs=2, batch_size=16),), log_mlflow=False)

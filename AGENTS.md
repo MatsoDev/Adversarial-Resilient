@@ -90,7 +90,10 @@ formatting, so run it before every commit.
 
 ## Hard constraints
 
-- **Python 3.11–3.12 only** (CI: 3.11); CPU-only, no CUDA assumptions.
+- **Python 3.11–3.12 only** (CI: 3.11); CPU-compatible defaults, no CUDA requirement.
+  Explicit owner authorization permits opt-in CUDA training (`docs/sprint4.md`);
+  keep calibration, final evaluation, API and CI CPU-compatible. Never replace
+  the pinned torch environment just to enable GPU use.
 - **Never commit** datasets, model weights, `.env`, or `mlruns/`; check
   `git status` before committing. Model metadata is runtime output too;
   `models/` contents and local `.env.*` are ignored except tracked placeholders

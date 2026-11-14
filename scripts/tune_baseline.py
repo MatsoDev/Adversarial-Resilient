@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import logging
 import sys
 from pathlib import Path
@@ -13,7 +14,7 @@ if __package__ in {None, ""}:
 import torch  # noqa: F401 — initialize native DLLs before dataframe libraries on Windows.
 from src.config import EMBER_PROCESSED_DIR, FROZEN_BASELINE_DIR, SEED
 from src.data.preprocessing import write_json_atomic
-from src.models.tuning import default_trials, tune_baseline
+from src.models.tuning import Trial, default_trials, tune_baseline
 
 
 def main(argv=None):
@@ -30,6 +31,10 @@ def main(argv=None):
         help="Run only one declared configuration, e.g. extend a selection winner",
     )
     parser.add_argument("--threads", type=int, default=2)
+    parser.add_argument(
+        "--trials-json", type=Path, help="Predeclared list of Trial configuration objects"
+    )
+    parser.add_argument("--device", choices=["cpu", "cuda"], default="cpu")
     parser.add_argument("--seed", type=int, default=SEED)
     parser.add_argument("--no-mlflow", action="store_true")
     parser.add_argument("--tracking-uri")
@@ -40,6 +45,10 @@ def main(argv=None):
     if args.trial_index is not None:
         trials = (trials[args.trial_index],)
     try:
+        if args.trials_json:
+            if args.trial_index is not None:
+                raise ValueError("--trials-json and --trial-index cannot be combined")
+            trials = tuple(Trial(**config) for config in json.loads(args.trials_json.read_text()))
         report = tune_baseline(
             args.data_dir,
             args.output_dir,
@@ -50,8 +59,9 @@ def main(argv=None):
             threads=args.threads,
             log_mlflow=not args.no_mlflow,
             tracking_uri=args.tracking_uri,
+            device=args.device,
         )
-    except (OSError, ValueError, KeyError) as error:
+    except (OSError, ValueError, KeyError, TypeError) as error:
         logging.error("Sprint 4 run failed: %s", error)
         return 1
     if args.report:

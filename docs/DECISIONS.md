@@ -2,6 +2,13 @@
 
 ## Sprint 5 — 2026-11-14
 
+- **Optional CUDA training follows explicit owner authorization.** Reuse an
+  existing trusted CUDA torch package in a fresh operator process, with no
+  installation or replacement of the pinned CPU environment. Record actual
+  runtime versions. Calibration, final test, application serving and CI retain
+  CPU support; CUDA is never required. Introduce a predeclared regularized
+  search after selection-loss overfitting, while official test remains unopened.
+
 - **Owner approval and technical feasibility are separate labels.** Following
   explicit owner approval, the initial measured probe may use the committed
   size-only policy (nondecreasing, integral, maximum 64 KiB increase). It is

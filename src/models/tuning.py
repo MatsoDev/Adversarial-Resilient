@@ -47,8 +47,16 @@ class Trial:
     learning_rate: float = 0.001
     batch_size: int = 256
     epochs: int = 10
+    optimizer: str = "adam"
+    weight_decay: float = 0.0
 
     def validate(self):
+        if (
+            self.optimizer not in {"adam", "adamw"}
+            or not np.isfinite(self.weight_decay)
+            or not 0 <= self.weight_decay <= 1
+        ):
+            raise ValueError("Invalid optimizer/weight decay")
         if self.architecture not in {"mlp", "cnn"}:
             raise ValueError("Unknown architecture")
         if not self.hidden or min(self.hidden) < 1 or max(self.hidden) > 2048:
@@ -118,30 +126,37 @@ class _Rows(Dataset):
 
 def logits_for(model, X, indices, mean, scale):
     model.eval()
+    device = next(model.parameters()).device
     values = []
     with torch.inference_mode():
         for start in range(0, len(indices), 512):
             batch = transform(X[indices[start : start + 512]], mean, scale)
-            values.append(model(torch.from_numpy(batch)).numpy())
+            values.append(model(torch.from_numpy(batch).to(device)).cpu().numpy())
     result = np.concatenate(values)
     if not np.isfinite(result).all():
         raise ValueError("Nonfinite logits")
     return result
 
 
-def _fit(X, y, train_indices, val_X, val_y, selection, mean, scale, trial, seed, threads=1):
+def _fit(
+    X, y, train_indices, val_X, val_y, selection, mean, scale, trial, seed, threads=1, device="cpu"
+):
     set_seed(seed)
     # set_seed establishes a conservative one-thread default; honor the
     # explicit CPU budget recorded by this experiment after seeding.
     torch.set_num_threads(threads)
-    model = make_model(asdict(trial), X.shape[1])
-    optimizer = torch.optim.Adam(model.parameters(), lr=trial.learning_rate)
+    model = make_model(asdict(trial), X.shape[1]).to(device)
+    optimizer_class = torch.optim.AdamW if trial.optimizer == "adamw" else torch.optim.Adam
+    optimizer = optimizer_class(
+        model.parameters(), lr=trial.learning_rate, weight_decay=trial.weight_decay
+    )
     loader = DataLoader(
         _Rows(X, y, train_indices, mean, scale),
         batch_size=trial.batch_size,
         shuffle=True,
         drop_last=len(train_indices) % trial.batch_size == 1,
         generator=torch.Generator().manual_seed(seed),
+        pin_memory=device == "cuda",
     )
     best_loss, best_state, best_epoch = float("inf"), None, None
     history = []
@@ -149,6 +164,7 @@ def _fit(X, y, train_indices, val_X, val_y, selection, mean, scale, trial, seed,
         model.train()
         total, count = 0.0, 0
         for batch, labels in loader:
+            batch, labels = batch.to(device), labels.to(device)
             optimizer.zero_grad()
             loss = nn.functional.binary_cross_entropy_with_logits(model(batch), labels)
             if not torch.isfinite(loss):
@@ -184,6 +200,7 @@ def tune_baseline(
     threads: int = 2,
     log_mlflow: bool = True,
     tracking_uri: str | None = None,
+    device: str = "cpu",
 ) -> dict:
     """Write a new immutable experiment directory. Test is never used for model choice.
 
@@ -192,6 +209,14 @@ def tune_baseline(
     retune on that test result. No existing experiment can be overwritten.
     """
     trials = default_trials() if trials is None else trials
+    if device not in {"cpu", "cuda"}:
+        raise ValueError("Device must be cpu or cuda")
+    if device == "cuda":
+        if not torch.cuda.is_available():
+            raise ValueError("CUDA requested but the existing torch runtime has no usable GPU")
+        os.environ.setdefault("CUBLAS_WORKSPACE_CONFIG", ":4096:8")
+        torch.backends.cuda.matmul.allow_tf32 = False
+        torch.backends.cudnn.allow_tf32 = False
     if not trials or threads < 1:
         raise ValueError("Trials and positive thread count required")
     for trial in trials:
@@ -260,6 +285,7 @@ def tune_baseline(
             trial,
             seed,
             threads,
+            device,
         )
         logits = logits_for(model, val.X, selection, scaler.mean_, scaler.scale_)
         records.append(
@@ -274,6 +300,8 @@ def tune_baseline(
         if loss < best_loss:
             best_model, best_loss, selected = model, loss, asdict(trial)
             selected_epoch, selected_trial = epoch, trial_index
+    # Final calibration and official evaluation use CPU, matching deployment.
+    best_model.cpu()
     calibration_logits = logits_for(best_model, val.X, calibration, scaler.mean_, scaler.scale_)
     temperature = fit_temperature(calibration_logits, val.y[calibration])
     operating_logits = logits_for(best_model, val.X, operating, scaler.mean_, scaler.scale_)
@@ -306,6 +334,9 @@ def tune_baseline(
         "code_revision": code_revision(),
         "seed": seed,
         "threads": threads,
+        "training_device": device,
+        "training_device_name": torch.cuda.get_device_name(0) if device == "cuda" else "CPU",
+        "evaluation_device": "cpu",
         "python_version": platform.python_version(),
         "torch_version": torch.__version__,
         "numpy_version": np.__version__,

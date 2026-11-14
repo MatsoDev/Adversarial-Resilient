@@ -1,0 +1,6 @@
+[
+  {"architecture":"mlp","hidden":[256,128],"dropout":0.2,"learning_rate":0.0003,"batch_size":512,"epochs":10,"optimizer":"adamw","weight_decay":0.01},
+  {"architecture":"mlp","hidden":[256,128],"dropout":0.4,"learning_rate":0.0003,"batch_size":512,"epochs":10,"optimizer":"adamw","weight_decay":0.1},
+  {"architecture":"mlp","hidden":[512,256,128],"dropout":0.4,"learning_rate":0.0003,"batch_size":512,"epochs":10,"optimizer":"adamw","weight_decay":0.01},
+  {"architecture":"mlp","hidden":[128,64],"dropout":0.3,"learning_rate":0.0003,"batch_size":512,"epochs":10,"optimizer":"adamw","weight_decay":0.01}
+]
