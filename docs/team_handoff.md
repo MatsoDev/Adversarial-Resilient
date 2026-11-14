@@ -1,14 +1,14 @@
 # Team handoff — recorded research results and current environment
 
-## Sprint 5 review branch
+## Sprint 5 on main
 
-Sprint 5 is pushed on `sprint5/attack-implementation` and remains unmerged.
+Sprint 5 was merged into `main` through [PR #19](https://github.com/MatsoDev/Adversarial-Resilient/pull/19).
 From a clean checkout, on Windows:
 
 ```powershell
 git fetch origin
-git switch sprint5/attack-implementation
-git pull --ff-only origin sprint5/attack-implementation
+git switch main
+git pull --ff-only origin main
 python scripts/setup_environment.py
 .\.venv\Scripts\python.exe -m uvicorn api.main:app --host 127.0.0.1 --port 8000
 ```
@@ -27,8 +27,8 @@ retraining and attack reproduction, use [Sprint 4](sprint4.md) and
 is optional and can reuse a trusted existing CUDA torch installation without
 replacing the main environment. The experiment's runtime is recorded.
 
-The remaining instructions describe the main branch and earlier recorded
-baseline results; they do not merge the Sprint 5 review branch automatically.
+The remaining instructions cover environment setup and earlier recorded
+baseline results, which remain available alongside the Sprint 5 explorer.
 
 ## Update your checkout and environment
 
