@@ -9,8 +9,12 @@ The primary UI is now plain HTML/CSS/JS under dashboard/web, served at
 /dashboard/ by FastAPI; dashboard/app.py is legacy Streamlit reference.
 Sprint 2 supplies cleaned/versioned datasets, loaders, EDA and manifests.
 See docs/progress.md and docs/sprint4_report.md for M1 status; implemented
-freezing/prediction does not establish a passing full-data baseline. Attacks
-against the real detectors and defenses remain later-sprint work.
+freezing/prediction does not establish a passing full-data baseline. Sprint 5
+adds offline ART/CleverHans adapters, a reviewed scalar-policy projector and a
+read-only HTML attack explorer with 21 measured exploratory EMBER configurations.
+Frozen-benchmark acceptance remains pending M1 and SS review; see docs/sprint5.md.
+Candidate exploration is explicit, operating-validation only, and cannot enable
+prediction. Defenses remain later-sprint work.
 
 ## Read first
 
@@ -88,7 +92,10 @@ formatting, so run it before every commit.
 
 ## Hard constraints
 
-- **Python 3.11–3.12 only** (CI: 3.11); CPU-only, no CUDA assumptions.
+- **Python 3.11–3.12 only** (CI: 3.11); CPU-compatible defaults, no CUDA requirement.
+  Explicit owner authorization permits opt-in CUDA training (`docs/sprint4.md`);
+  keep calibration, final evaluation, API and CI CPU-compatible. Never replace
+  the pinned torch environment just to enable GPU use.
 - **Never commit** datasets, model weights, `.env`, or `mlruns/`; check
   `git status` before committing. Model metadata is runtime output too;
   `models/` contents and local `.env.*` are ignored except tracked placeholders

@@ -1,5 +1,46 @@
 # Decisions log
 
+## Sprint 5 — 2026-11-14
+
+- **Delegated exploratory fallback does not freeze a weak candidate.** After
+  full-data searches missed 93%, the owner delegated the fallback choice.
+  Retain the freeze/prediction gate, but allow explicit offline development
+  experiments on hash-verified operating-validation rows. Reject official-test
+  requests in candidate mode and preserve model/version/stage labels in reports
+  and UI. This is exploratory evidence, not completed M1/frozen acceptance.
+
+- **Optional CUDA training follows explicit owner authorization.** Reuse an
+  existing trusted CUDA torch package in a fresh operator process, with no
+  installation or replacement of the pinned CPU environment. Record actual
+  runtime versions. Calibration, final test, application serving and CI retain
+  CPU support; CUDA is never required. Introduce a predeclared regularized
+  search after selection-loss overfitting, while official test remains unopened.
+
+- **Owner approval and technical feasibility are separate labels.** Following
+  explicit owner approval, the initial measured probe may use the committed
+  size-only policy (nondecreasing, integral, maximum 64 KiB increase). It is
+  labelled owner-authorized feature-space research, with SS validation pending;
+  it cannot be presented as a realizable PE append or a comprehensive attack.
+- **Honor the recorded CPU budget.** Apply the tuning thread setting after
+  seeding, which otherwise resets torch to one thread. Preload torch before
+  dataframe imports in the tuning CLI to avoid the observed Windows DLL error.
+
+- **Preserve M1 and Security gates.** Implement/test the attack pipeline using
+  synthetic fixtures while real measurements await a qualifying frozen bundle
+  and a reviewed policy. No Sprint 3 model substitution or seeded UI scores.
+- **Attack units are standardized model coordinates.** Apply raw bounds and
+  integer policies through inverse preprocessing; retain exact cohort/model/data
+  hashes. ASR conditions on originally correct rows across both classes.
+- **Constrained PGD projects each step; CW projects after optimization.** Label
+  this difference explicitly. Keep CW optimization parameters separate from
+  Linf epsilon curves; do not claim optimal feasible CW or valid executables.
+- **Use an optional torch-only CleverHans overlay.** Reuse the pinned CPU
+  environment without TensorFlow or replacement torch wheels. Missing checks
+  stay not run. The API reads bounded reports and never imports that overlay.
+- **Keep local reports outside Git.** The read-only HTML explorer selects one
+  exact experiment snapshot and norm; measured acceptance is still pending.
+  Protocol and limitations: [Sprint 5 guide](sprint5.md).
+
 ## Repository maintenance — 2026-11-11
 
 - **Keep the top-level boundaries and stable paths.** The audit found no static

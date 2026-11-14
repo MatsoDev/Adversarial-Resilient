@@ -73,6 +73,42 @@ scaled-feature neural logit model for subsequent research. Its external
 preprocessing and temperature are part of the frozen model identity. Hashes
 detect corruption, not hostile publishers: the operator must trust `models/`.
 
+## Optional existing GPU runtime
+
+CPU remains the default for training, CI, inference and attacks. The project
+owner explicitly authorized optional CUDA training during the 2026-11-14
+measurement session. No CUDA installation is required for normal operation.
+
+`--device cuda` requests an available CUDA runtime; unavailable CUDA fails
+clearly rather than falling back silently. `--trials-json` accepts a declared
+list of `Trial` objects, including `optimizer` (`adam`/`adamw`) and
+`weight_decay`. All actual configurations, device/runtime versions and source
+hashes are recorded. Set each JSON entry's epoch budget explicitly.
+
+If a trusted CUDA-enabled torch installation already exists, the optional
+launcher loads **only that torch package**, leaving the invoking project's
+other dependencies and installed files unchanged:
+
+```bash
+python scripts/tune_with_existing_torch.py --torch-package PATH/TO/EXISTING/torch -- --data-dir data/processed/ember2018 --output-dir models/sprint4/regularized-gpu10 --trials-json docs/results/sprint4_regularized_search_config.json --device cuda
+```
+
+Use the project environment's Python. The supplied path is trusted executable
+Python code, not an upload or HTTP input. The launcher does not install anything
+and must be invoked as a fresh process. It records the torch version actually
+loaded, which can differ from the pinned service runtime. CUDA selection uses
+seeded FP32 operations with TF32 disabled and CUBLAS workspace configuration;
+cross-runtime bitwise identity is not promised. After checkpoint selection the
+model is moved to CPU for calibration and official evaluation. API serving
+continues with the normal pinned CPU environment; verify its output separately
+before handoff. Model state dictionaries remain CPU-loadable.
+
+To run the same declared search without an existing GPU runtime:
+
+```bash
+python scripts/tune_baseline.py --data-dir data/processed/ember2018 --output-dir models/sprint4/regularized-cpu --trials-json docs/results/sprint4_regularized_search_config.json --device cpu
+```
+
 ## Feature inference
 
 Prediction is fail-closed until a genuine frozen bundle exists in

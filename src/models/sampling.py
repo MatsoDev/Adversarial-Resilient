@@ -12,6 +12,16 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 
 
+def validation_partitions(y, seed):
+    """Disjoint sorted selection/calibration/operating indices (50/25/25)."""
+    indices = np.arange(len(y))
+    selection, remainder = train_test_split(indices, test_size=0.5, stratify=y, random_state=seed)
+    calibration, operating = train_test_split(
+        remainder, test_size=0.5, stratify=y[remainder], random_state=seed
+    )
+    return tuple(np.sort(part) for part in (selection, calibration, operating))
+
+
 def sample_indices(y: np.ndarray, limit: int | None, seed: int) -> np.ndarray:
     """Return sorted stratified row indices, or every row when no reduction is needed."""
     indices = np.arange(len(y))

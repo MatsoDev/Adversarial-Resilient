@@ -43,6 +43,7 @@ models/*
 !models/.gitkeep
 results/baselines/
 docs/results/baselines/
+docs/results/attacks/
 *.joblib
 
 # MLflow

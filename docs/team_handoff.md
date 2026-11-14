@@ -1,4 +1,34 @@
-# Team handoff — recorded Sprint 3 results and current environment
+# Team handoff — recorded research results and current environment
+
+## Sprint 5 review branch
+
+Sprint 5 is pushed on `sprint5/attack-implementation` and remains unmerged.
+From a clean checkout, on Windows:
+
+```powershell
+git fetch origin
+git switch sprint5/attack-implementation
+git pull --ff-only origin sprint5/attack-implementation
+python scripts/setup_environment.py
+.\.venv\Scripts\python.exe -m uvicorn api.main:app --host 127.0.0.1 --port 8000
+```
+
+Open <http://localhost:8000/dashboard/attacks.html>. The committed measured
+reference includes 21 configurations and 21 completed CleverHans cross-checks;
+viewing it requires no dataset, weights, optional CleverHans install or token.
+It is explicitly a **development candidate, not frozen**, using 128 operating-
+validation rows and an owner-authorized size-only probe. Full validation was
+92.1778%, below the 93% gate. Prediction remains unavailable until M1 passes.
+
+There are no new mandatory runtime dependencies. Git pull does not install
+packages; the bootstrap above checks/synchronizes existing pins. For actual
+retraining and attack reproduction, use [Sprint 4](sprint4.md) and
+[Sprint 5](sprint5.md). Weights/datasets are not distributed in Git. GPU training
+is optional and can reuse a trusted existing CUDA torch installation without
+replacing the main environment. The experiment's runtime is recorded.
+
+The remaining instructions describe the main branch and earlier recorded
+baseline results; they do not merge the Sprint 5 review branch automatically.
 
 ## Update your checkout and environment
 

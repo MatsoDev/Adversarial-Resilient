@@ -1,0 +1,5 @@
+# Optional offline Sprint 5 torch-only cross-check. Do not install dependencies:
+# .venv/Scripts/python.exe -m pip install --no-deps --target data/external/cleverhans-torch -r requirements-cleverhans-torch.txt
+# The tested torch backend reuses the main environment's pinned CPU torch/numpy.
+# Do not use this overlay for API/dashboard processes or import TF backends.
+cleverhans==4.0.0

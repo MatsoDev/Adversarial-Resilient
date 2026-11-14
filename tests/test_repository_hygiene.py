@@ -53,11 +53,10 @@ def test_runtime_files_are_ignored_but_source_templates_and_evidence_are_not(tmp
         "docs/figures/art_samples.png",
     }
     result = subprocess.run(
-        [git, "-c", f"core.excludesFile={excludes}", "check-ignore", "--no-index", "--stdin"],
-        input="\n".join(sorted(ignored | maintained)) + "\n",
+        [git, "-c", f"core.excludesFile={excludes}", "check-ignore", "--no-index", "-z", "--stdin"],
+        input=("\0".join(sorted(ignored | maintained)) + "\0").encode(),
         cwd=tmp_path,
         capture_output=True,
-        text=True,
     )
     assert result.returncode in (0, 1), result.stderr
-    assert set(result.stdout.splitlines()) == ignored
+    assert set(result.stdout.decode().rstrip("\0").split("\0")) == ignored

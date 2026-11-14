@@ -3,6 +3,64 @@
 **Date:** 2026-11-11. Scope: [Sprint 4](sprint4.md), grounded in the original
 tune/freeze milestone and approved early feature prediction delivery.
 
+## Measured follow-up — 2026-11-14
+
+The full six-configuration, three-epoch search completed on the local Windows
+CPU environment, after all 14 processed EMBER artifacts passed verification.
+Unmodified generated evidence: [three-epoch report](results/sprint4_search_3epochs.json).
+All 510,000 training rows and the full 90,000-row validation allocation were
+used (45,000 selection / 22,500 calibration / 22,500 operating rows).
+
+| Configuration | Selection accuracy | Selection NLL |
+|---|---:|---:|
+| MLP 256/128, lr 0.001 | 91.9444% | 0.286667 |
+| MLP 256/128, lr 0.0003 | 91.8400% | 0.283261 |
+| MLP 512/256/128 | 92.2267% | 0.289325 |
+| MLP dropout 0.4 | 91.2089% | 0.294537 |
+| MLP batch 512 | 91.4133% | 0.307321 |
+| CNN | 81.2711% | 0.453088 |
+
+Selection by NLL chose lr 0.0003 at epoch 3. After independent temperature
+calibration (T=1.78625), operating-partition accuracy was **92.1778%**,
+ROC-AUC **0.968780**, F1 **0.936850**. Confusion matrix:
+`[[7685, 409], [1351, 13055]]`. This failed the 93% validation gate; the
+official test split was **not evaluated** and no frozen model was declared.
+
+The same selection-winning configuration is now being extended to the CLI's
+documented ten-epoch budget in a new directory. This extension was chosen from
+the selection-loss evidence while official test remained unopened. Reproduce:
+
+```bash
+python scripts/tune_baseline.py --data-dir data/processed/ember2018 --output-dir models/sprint4/extended-10epochs --epochs 10 --trial-index 1 --threads 2
+```
+
+The CLI import order now initializes torch before dataframe libraries on
+Windows. Tuning also reapplies its recorded thread budget after seeding, which
+otherwise silently reset torch to one thread. No torch installation changed.
+
+The [ten-epoch extension](results/sprint4_extended_10epochs.json) also retained
+epoch 3 and remained below the gate. Later selection NLL increased, providing
+evidence of overfitting rather than a benefit from a longer budget alone.
+Official test remained unopened. An affine-calibration diagnostic used only
+the calibration partition: NLL improved (0.231875 → 0.213967), while calibration
+accuracy worsened (92.00% → 91.76%); it was not adopted as an accuracy fix.
+
+The owner then explicitly authorized GPU use. A pre-existing CUDA torch 2.5.1
+installation successfully trained a synthetic smoke fixture using the GTX 1660
+SUPER; no packages were downloaded/replaced. A new
+[predeclared regularized search](results/sprint4_regularized_search_config.json)
+varies AdamW weight decay, dropout and width. The winner is still selected by
+selection NLL, with final calibration/operating/test evaluation on CPU. See
+[the optional runtime instructions](sprint4.md#optional-existing-gpu-runtime).
+
+The [completed regularized GPU report](results/sprint4_regularized_gpu10.json)
+selected the 128/64 AdamW model at epoch 3 (selection NLL 0.27918). Its
+operating-validation accuracy was **91.4311%**, ROC-AUC **0.967061**, below 93%.
+Official test again remained unopened. This result does not improve on the
+earlier 92.1778% candidate's accuracy; GPU acceleration is not a quality fix.
+No model was manually marked frozen. The owner's delegated fallback permits
+only explicitly labelled validation exploration; see [Sprint 5](sprint5.md).
+
 ## Implemented
 
 - Predeclared CPU MLP hyperparameter search (learning rate, depth, dropout,
