@@ -5,11 +5,13 @@ from __future__ import annotations
 import sys
 
 import numpy as np
+import pytest
 from scripts.art_quickstart import cleverhans_check, eval_attack, load_mnist, parse_args
 
 
 def test_eval_attack_reports_accuracy_asr_and_perturbation_sizes():
     y_true = np.asarray([0, 1, 0, 1])
+    y_clean = np.asarray([0, 1, 1, 1])
     y_pred = np.asarray([0, 0, 1, 1])
     x_orig = np.zeros((4, 1, 2, 2), dtype=np.float32)
     x_adv = x_orig.copy()
@@ -19,14 +21,40 @@ def test_eval_attack_reports_accuracy_asr_and_perturbation_sizes():
     x_adv[3, 0, 1, 1] = 1.0
     original_adv = x_adv.copy()
 
-    result = eval_attack(y_true, y_pred, x_orig, x_adv, eps=0.3)
+    result = eval_attack(y_true, y_pred, x_orig, x_adv, eps=0.3, y_pred_clean=y_clean)
 
     assert result["eps"] == 0.3
     assert result["adv_accuracy"] == 0.5
-    assert result["attack_success_rate"] == 0.5
+    assert result["attack_success_rate"] == pytest.approx(1 / 3)
     assert result["mean_l2"] == 2.0
     assert result["mean_linf"] == 1.75
     np.testing.assert_array_equal(x_adv, original_adv)
+
+
+@pytest.mark.parametrize(
+    ("y_true", "y_clean", "y_adv", "expected"),
+    [
+        ([0, 1], [0, 0], [1, 1], 1.0),
+        ([0, 1], [0, 1], [0, 1], 0.0),
+        ([0, 1, 2], [0, 1, 0], [0, 0, 0], 0.5),
+        ([0, 1], [1, 0], [0, 1], None),
+    ],
+    ids=["repaired_original_error", "unchanged_predictions", "multiclass", "no_clean_correct_rows"],
+)
+def test_eval_attack_asr_uses_only_clean_correct_rows(y_true, y_clean, y_adv, expected):
+    features = np.zeros((len(y_true), 1, 2, 2), dtype=np.float32)
+    result = eval_attack(
+        np.asarray(y_true),
+        np.asarray(y_adv),
+        features,
+        features,
+        eps=0.1,
+        y_pred_clean=np.asarray(y_clean),
+    )
+    if expected is None:
+        assert result["attack_success_rate"] is None
+    else:
+        assert result["attack_success_rate"] == pytest.approx(expected)
 
 
 def test_parse_args_defaults_match_the_documented_demo_contract():

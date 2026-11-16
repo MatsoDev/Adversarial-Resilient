@@ -1,8 +1,4 @@
-"""Small demo-era classifiers, separate from the trained tabular architectures.
-
-Kept deliberately small so students can read them in one sitting. The MNIST
-demo trains SmallCNN; Sprint 3/4 baselines use src.models.tabular instead.
-"""
+"""MNIST demo classifiers; trained tabular architectures live in src.models.tabular."""
 
 from __future__ import annotations
 

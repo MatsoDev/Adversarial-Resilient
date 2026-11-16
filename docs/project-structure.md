@@ -42,8 +42,8 @@ Adversarial-Resilient/
 │   │   ├── training.py          # classical/MLP validation-only comparison
 │   │   ├── tuning.py            # CPU search, calibration and held-out test gate
 │   │   └── frozen.py            # verified bundles and raw/scaled inference
-│   ├── evaluation/              # binary metrics and bounded artifact readers
-│   ├── attacks/                 # reserved boundary; no real-detector attacks yet
+│   ├── evaluation/              # binary/attack metrics, report validation, artifact readers
+│   ├── attacks/                 # offline ART/CleverHans, feature policies, measured cases
 │   └── defenses/                # reserved boundary; no defense implementation yet
 ├── scripts/                     # runnable operator entry points
 │   ├── setup_environment.py     # synchronize/check .venv; no data or hooks
@@ -51,7 +51,8 @@ Adversarial-Resilient/
 │   ├── preprocess.py            # dataset pipeline and verification CLI
 │   ├── eda_datasets.py          # EDA JSON/figures/report generator
 │   ├── train_baselines.py       # Sprint 3 comparison CLI
-│   └── tune_baseline.py         # Sprint 4 tune/calibrate/evaluate/freeze CLI
+│   ├── tune_baseline.py         # Sprint 4 tune/calibrate/evaluate/freeze CLI
+│   └── run_attacks.py           # gated frozen/candidate feature-space experiments
 ├── tests/                       # flat pytest suite; see docs/testing.md
 │   ├── conftest.py              # Windows torch import-order workaround
 │   └── data_fixtures.py         # reusable synthetic inputs
@@ -83,7 +84,8 @@ uses only the standard library so it can run before dependencies are installed.
 |---|---|---|
 | `src/data/` | Reusable parsing, preprocessing, loaders, artifact integrity | Training/model choice or HTTP |
 | `src/models/` | Architectures, shared experiment sampling, training, tuning, verified inference | Routes, browser UI or CLI parsing |
-| `src/evaluation/` | Metrics, thresholds, bounded research-artifact readers | API transport or training orchestration |
+| `src/attacks/` | Offline attack adapters, feature-policy projection, paired experiments and measured cases | HTTP execution or executable construction |
+| `src/evaluation/` | Metrics, thresholds, attack-report validation, bounded research-artifact readers | API transport or training orchestration |
 | `src/utils/` | Small genuinely shared helpers such as seeding | A catch-all for domain logic |
 | `api/` | HTTP routing, validation, authentication, middleware, static serving | Training or dataset processing |
 | `dashboard/web/` | Primary browser UI, static assets and same-origin HTTP calls | Local model/array loading or a frontend build |
@@ -163,8 +165,10 @@ or Python `run_demo(output_dir=...)` for checks that must not replace evidence.
 ## Deliberate exceptions and retained history
 
 The legacy Streamlit UI still has documented commands and real process tests;
-it is not unused code. `src/attacks/`, `src/defenses/` and `notebooks/` reserve
-explicit plan boundaries; do not implement speculative abstractions to fill them.
+it is not unused code. `src/attacks/` contains the Sprint 5 offline implementation;
+its frozen-benchmark acceptance still depends on M1 and technical policy review.
+`src/defenses/` and `notebooks/` remain planned boundaries; do not implement
+speculative abstractions to fill them.
 Historical reports/PR snapshots remain evidence, not current setup manuals.
 The original project-plan HTML export is available in Git history (`c8a9d0a`);
 the maintained scope document is Markdown. Existing runtime bundle directories

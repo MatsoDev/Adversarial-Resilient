@@ -1,8 +1,6 @@
-"""Small reusable loaders for the processed Sprint 2 datasets.
+"""Load processed EMBER and CIC-IDS-2017 splits.
 
-Sprint 3+ should import these instead of guessing artifact names. The loaders
-never download data and raise a clear error when the preprocessing step has not
-been run yet.
+Missing artifacts raise errors; loaders never download data.
 """
 
 from __future__ import annotations
@@ -116,28 +114,15 @@ def load_ember(
     standardize: bool = False,
     mmap_mode: str | None = None,
 ) -> ProcessedDataset:
-    """Load one processed EMBER split (X float32, y int8 0/1).
+    """Load float32 features and int8 binary labels (0=benign, 1=malicious).
 
-    Parameters
-    ----------
-    split:
-        ``"train"``, ``"val"`` or ``"test"``.
-    root:
-        Directory written by ``scripts/preprocess.py --dataset ember``.
-    standardize:
-        Apply the saved train-only mean/scale statistics when True.
+    ``split`` is train, val or test; ``root`` is the output directory from
+    ``scripts/preprocess.py --dataset ember``. ``standardize`` applies saved
+    train-only statistics; ``mmap_mode`` applies to the feature array only.
 
-    Returns
-    -------
-    ProcessedDataset
-        The requested split with the binary target and metadata when present.
-
-    Raises
-    ------
-    FileNotFoundError
-        If an expected array, metadata, or scaler artifact is missing.
-    ValueError
-        If the split name, array shapes, or scaler dimensions are invalid.
+    Returns a ProcessedDataset with metadata when present. Missing required
+    artifacts raise FileNotFoundError; invalid splits, shapes or scaler
+    dimensions raise ValueError.
     """
     _validate_split(split)
     root = Path(root).expanduser()
@@ -187,33 +172,17 @@ def load_cicids2017(
     standardize: bool = False,
     mmap_mode: str | None = None,
 ) -> ProcessedDataset:
-    """Load one processed CIC-IDS-2017 split.
+    """Load a processed CIC-IDS-2017 split with binary or multiclass labels.
 
-    Parameters
-    ----------
-    split:
-        ``"train"``, ``"val"`` or ``"test"``.
-    target:
-        ``"binary"`` (BENIGN=0, attack=1) or ``"multiclass"`` (the sorted
-        label-to-integer mapping is returned in ``label_mapping``).
-    root:
-        Directory written by ``scripts/preprocess.py --dataset cicids2017``.
-    standardize:
-        Apply the saved train-only mean/scale statistics when True.
+    ``split`` is train, val or test; ``root`` is the output directory from
+    ``scripts/preprocess.py --dataset cicids2017``. Binary labels use BENIGN=0,
+    attack=1; multiclass labels use the sorted mapping in ``label_mapping``.
+    ``standardize`` applies saved train-only statistics; ``mmap_mode`` applies
+    to the feature array only.
 
-    Returns
-    -------
-    ProcessedDataset
-        The requested split with the selected target and metadata when
-        present.
-
-    Raises
-    ------
-    FileNotFoundError
-        If an expected array, metadata, or scaler artifact is missing.
-    ValueError
-        If the split/target name, array shapes, or scaler dimensions are
-        invalid.
+    Returns a ProcessedDataset with metadata when present. Missing required
+    artifacts raise FileNotFoundError; invalid splits, targets, shapes or
+    scaler dimensions raise ValueError.
     """
     _validate_split(split)
     if target not in CICIDS_TARGETS:

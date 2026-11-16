@@ -1,4 +1,4 @@
-"""HTTP security regression tests for the FastAPI placeholder."""
+"""HTTP security regression tests for the research API."""
 
 from __future__ import annotations
 
@@ -32,7 +32,7 @@ def client(monkeypatch):
         yield test_client
 
 
-def test_health_and_root_still_work(client):
+def test_health_returns_ok_and_root_identifies_service(client):
     assert client.get("/health").json() == {"status": "ok"}
     assert "Adversarial-Resilient" in client.get("/").json()["message"]
 

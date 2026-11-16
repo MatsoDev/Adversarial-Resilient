@@ -18,7 +18,7 @@ make check                # lint + test (run before pushing)
 
 python -m pytest -q
 python -m pytest tests/test_data_loader.py -q          # one file
-python -m pytest tests/test_api_health.py::test_health_returns_ok -q
+python -m pytest tests/test_api_security.py::test_health_returns_ok_and_root_identifies_service -q
 python -m pytest -k "loader or preprocess" -q          # name/keyword filter
 python -m pytest --cov=src --cov=api --cov=dashboard --cov=scripts \
   --cov-report=term-missing
@@ -43,8 +43,7 @@ datasets. Three optional real-data checks are skipped unless
 | `tests/test_data_resolution.py` | Dataset resolution precedence: CLI > env > repo-local > `~/Documents` |
 | `tests/test_seed.py` | `set_seed()` determinism for stdlib, numpy, torch, and `PYTHONHASHSEED` |
 | `tests/test_preprocessing.py` | Scaler statistics, standardisation, stratified/time splits, hashing, atomic writes, manifest verification |
-| `tests/test_api_health.py` | `health()` return value and `/health` route registration (no HTTP client needed) |
-| `tests/test_api_security.py` | Security headers on success/error responses, Host validation, HSTS, docs switch, env flags |
+| `tests/test_api_security.py` | Health/root responses, security headers on success/error responses, Host validation, HSTS, docs switch, env flags |
 | `tests/test_dashboard_security.py` | `API_URL` scheme/credential validation, IPv6 handling, same-origin redirects, bounded JSON responses |
 | `tests/test_dashboard_app.py` | Legacy Streamlit behavior with a fake `st` module and AppTest navigation/error checks |
 | `tests/test_dashboard_entrypoint.py` | Real legacy Streamlit process and script-health check |
