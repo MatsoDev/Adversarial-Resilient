@@ -51,11 +51,11 @@ class AttackConfig:
         return "L2" if self.attack == "CW-L2" else "Linf"
 
     def parameters(self):
-        r = asdict(self)
+        config = asdict(self)
         if self.attack == "CW-L2":
             return {
-                k: r[k]
-                for k in (
+                name: config[name]
+                for name in (
                     "iterations",
                     "confidence",
                     "learning_rate",
@@ -63,10 +63,10 @@ class AttackConfig:
                     "initial_const",
                 )
             }
-        p = {"epsilon": self.epsilon, "random_start": False}
+        parameters = {"epsilon": self.epsilon, "random_start": False}
         if self.attack == "PGD":
-            p.update(step_size=self.step_size, iterations=self.iterations)
-        return p
+            parameters.update(step_size=self.step_size, iterations=self.iterations)
+        return parameters
 
 
 class BinaryLogits(nn.Module):

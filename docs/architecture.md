@@ -1,9 +1,10 @@
 # Architecture overview
 
-Current implementation: Sprint 4 training/tuning and gated feature inference,
-plus the Sprint 1 MNIST demo and Sprint 2 data pipeline. Implementation of a
-freeze gate is **not** proof of a passing baseline; consult [progress](progress.md)
-and the [Sprint 4 report](sprint4_report.md) for measured status.
+The project implements dataset preprocessing, baseline training/tuning, gated
+feature inference and offline feature-space attacks. The MNIST demo is a
+separate environment check. A freeze gate is **not** proof of a passing baseline;
+consult [progress](progress.md) and the [Sprint 5 guide](sprint5.md) for measured
+status and pending acceptance gates.
 
 ## Components and boundaries
 
@@ -21,6 +22,10 @@ flowchart LR
     Train --> Bundle
     Train --> Docs
     Train --> MLflow[MLflow tracking]
+    Data --> Attacks[scripts/run_attacks.py]
+    Bundle --> Attacks
+    Policy[Feature policy] --> Attacks
+    Attacks --> Docs
 ```
 
 FastAPI also serves the static HTML/CSS/JS under `dashboard/web/` at
@@ -33,15 +38,18 @@ arrays or checkpoints. Legacy Streamlit runs separately and uses the bounded
 | Shared configuration | `src/config.py`: repository paths, dataset resolution, seed defaults; `src/utils/seed.py`: Python/NumPy/torch seeding |
 | Data | `src/data/`: clean-room EMBER v2 vectorization, CICIDS cleaning/deduplication, splitting, atomic output, loaders and manifest verification |
 | Models | `src/models/sampling.py`: shared deterministic selection/provenance; `training.py`: classical/MLP validation comparison; `tuning.py`: selection/calibration/test gates; `frozen.py`: verified CPU bundle loading/inference; `tabular.py`: MLP and 1D-CNN |
-| Evaluation | `src/evaluation/binary.py`: binary metrics and operating thresholds; `artifacts.py`: bounded, allowlisted research artifact readers |
+| Attacks | `src/attacks/runner.py`: ART/CleverHans adapters; `constraints.py`: raw-feature policies and projection; `experiment.py`: offline experiment gates; `examples.py`: measured case selection |
+| Evaluation | `src/evaluation/binary.py`: binary metrics and operating thresholds; `attacks.py`: paired attack metrics; `attack_results.py`: report validation; `artifacts.py`: bounded, allowlisted research artifact readers |
 | HTTP | `api/main.py`: app factory, middleware and static mount; `api/artifacts.py`: read-only routes; `api/prediction.py`: token, body validation and query budget |
-| Operator tools | `scripts/setup_environment.py`, `preprocess.py`, `eda_datasets.py`, `train_baselines.py`, `tune_baseline.py`, `art_quickstart.py` |
+| Operator tools | `scripts/setup_environment.py`, `preprocess.py`, `eda_datasets.py`, `train_baselines.py`, `tune_baseline.py`, `run_attacks.py`, `art_quickstart.py` |
 
-`src/attacks/` and `src/defenses/` are still placeholders. FGSM/PGD/CW-L2
-currently run only in the standalone MNIST demo, not against security detectors.
+`src/attacks/` implements offline FGSM/PGD/CW-L2 against verified EMBER model
+bundles. `src/defenses/` remains a placeholder. Feature-space attack results do
+not establish valid executable edits or a completed frozen benchmark.
 Public contracts live in the [API README](../api/README.md),
 [data module README](../src/data/README.md), [model README](../src/models/README.md)
-and [evaluation README](../src/evaluation/README.md).
+and [evaluation README](../src/evaluation/README.md); the
+[attack module README](../src/attacks/README.md) describes the offline interfaces.
 
 ## Execution and data flows
 
@@ -82,8 +90,8 @@ can replace both manifest and data. Do not allow untrusted artifact writers.
   Other outcomes remain blocked candidates. Default prediction uses 0.5, not
   the separately recorded operating threshold. See [the full protocol](sprint4.md).
 
-Both training paths are operator-invoked, synchronous CPU jobs. MLflow defaults
-to the local `mlruns/` file store (explicit file-store opt-in); `--tracking-uri`
+Both training paths are operator-invoked, synchronous jobs with CPU defaults.
+MLflow defaults to the local `mlruns/` file store (explicit file-store opt-in); `--tracking-uri`
 can select another store and `--no-mlflow` disables logging. The serving API does
 not query MLflow. No scheduler, job queue or training-over-HTTP is implemented.
 
@@ -93,6 +101,17 @@ tuning selects indices without constructing a dummy feature matrix or importing
 Sprint 3 training. Mandatory digest validation is shared through
 `src.data.preprocessing.verify_manifest_artifacts(..., require_hashes=True)`.
 Canonical filename checks and the test-opening/freeze gates remain caller-owned.
+
+### Offline attacks
+
+`scripts/run_attacks.py` verifies the model bundle, dataset identity, cohort and
+explicit feature policy before running ART and optional CleverHans attacks.
+Frozen benchmarks require M1 and a reviewed policy. Explicit candidate mode uses
+only operating-validation rows and cannot enable prediction or complete M1.
+Reports record policy-review status, paired metrics, provenance and selected
+cases, not executable samples or full arrays. The API serves these reports through
+`/v1/attacks`; it never runs attacks over HTTP. See [Sprint 5](sprint5.md) for
+projection semantics, policy limits and reproduction commands.
 
 ### HTTP request lifecycle
 
@@ -155,10 +174,11 @@ does not constitute a full Sprint 4 assessment.
 3. Reusable logic belongs in `src/<concern>/`; runnable orchestration belongs in
    `scripts/`. Tests may import all layers and must write only into temporary dirs.
 4. Paths/constants come from `src/config.py`, seeds from `src/utils/seed.py`.
-5. Python 3.11–3.12 only; CPU-only torch; no CUDA assumptions. Fixed seeds improve
-   repeatability but do not promise bit-identical results across platforms.
+5. Python 3.11–3.12 only; CPU-compatible defaults. Opt-in CUDA training requires
+   owner authorization; calibration, final evaluation, serving and CI remain
+   CPU-compatible. Fixed seeds do not promise bit-identical results across platforms.
 6. Preserve test isolation, manifest provenance and the no-test-driven-tuning
-   gate. Do not implement planned attacks/defenses as part of unrelated work.
+   gate. Do not implement future attacks/defenses as part of unrelated work.
 7. Public feature datasets only, no live malware or weaponized tooling.
 
 For a new endpoint, keep transport/auth/validation in `api/`, reusable behavior

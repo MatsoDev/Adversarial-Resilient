@@ -189,7 +189,7 @@ Compose's `api` and `dashboard` services both run this app, on container ports
 8000 and 8501 respectively, with reports/bundles mounted read-only, non-root
 execution and dropped capabilities. See [Docker operations](../docs/development.md#run-the-docker-stack).
 
-Regression suites: `tests/test_api_health.py`, `test_api_security.py`,
+Regression suites: `tests/test_api_security.py`,
 `test_artifact_security.py`, `test_sprint3.py`, `test_sprint4.py`,
 `test_prediction_streaming.py` and `test_html_dashboard.py`.
 See [testing](../docs/testing.md) and [architecture](../docs/architecture.md).

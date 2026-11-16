@@ -167,6 +167,15 @@ Outputs:
 - `docs/figures/art_accuracy_vs_eps.png`: accuracy-vs-epsilon curves.
 - `mlruns/`: local MLflow tracking data (gitignored).
 
+ASR is the fraction of clean-correct rows made incorrect by the attack. It is
+JSON `null` when none of the clean predictions is correct, and no ASR metric
+is logged to MLflow for that cohort. Python callers of `eval_attack()` must
+pass the paired clean predictions as `y_pred_clean=...`.
+
+The committed Sprint 1 JSON and reports retain the older overall adversarial
+error rate under the ASR label. They have not been regenerated and are not
+measurements of the corrected conditional ASR.
+
 The JSON and figures are committed reference outputs; regenerate them with the
 demo rather than editing them by hand. **The demo CLI has no `--output-dir`
 flag**: even `--synthetic` writes to the default committed output paths. For an
