@@ -67,17 +67,25 @@ exercised, and the official MLflow container runs as root. See the
 
 ## Quick start
 
-Prerequisites: Git and Python 3.11–3.12. Docker is optional. The first install
-and the MNIST demo need internet access.
-Run these commands from the cloned repository root:
+Prerequisites: Git and Python 3.11–3.12 on Linux or Windows. The Linux example
+uses GNU Make and `python3.11`; use `PY=python3.12` if that is your installed
+supported interpreter. Docker is optional. The first install needs internet;
+viewing recorded results does not download MNIST.
+
+**Native macOS setup is not supported by the current exact CPU torch pins:**
+the configured index has no matching macOS wheels. Do not replace the pins
+silently. See the [platform notes](docs/development.md#prerequisites).
 
 ```bash
-make setup     # .venv, pinned dependencies, pre-commit hooks
+git clone https://github.com/MatsoDev/Adversarial-Resilient.git
+cd Adversarial-Resilient
+python3.11 --version  # must report Python 3.11.x
+make setup PY=python3.11  # .venv, pinned dependencies, attempts Git-hook installation
 make lint      # ruff check + format check (same as CI)
 make test      # pytest, synthetic fixtures only
 make coverage  # pytest with line/branch coverage
 make security  # dependency + static security checks
-source .venv/bin/activate  # Linux/macOS; Make uses .venv automatically, Python does not
+source .venv/bin/activate  # Linux; Make uses .venv automatically, Python does not
 python -m uvicorn api.main:app --host 127.0.0.1 --port 8000
 ```
 
@@ -86,13 +94,20 @@ datasets, trained models, token, database, or `.env`. Prediction remains disable
 without both a qualifying frozen bundle and a local token; implementation is
 not evidence that M1 has passed. See [current status](docs/progress.md).
 
-Expected: lint is clean and all tests pass; the three optional real-data checks
-are skipped unless `RUN_REAL_DATA_TESTS=1`. Node.js is optional for running the
-JavaScript component test (skipped when unavailable); it is not a UI runtime dependency.
+Success: `/health` returns `{"status":"ok"}`, the dashboard shows recorded
+results, lint is clean and tests pass. Three real-data tests skip without
+`RUN_REAL_DATA_TESTS=1`; three CleverHans cases skip without its optional
+installation. Four JavaScript component cases skip without Node.js, which is
+test tooling, not a UI runtime dependency. See [optional checks](docs/testing.md).
+
+The existing Linux environment, checks and HTTP responses were verified on
+2026-11-17; a fresh clone/install was not rerun. See the
+[documentation audit](docs/documentation_audit.md) for evidence and limits.
 
 Windows and non-Make setups are documented in the
-[development guide](docs/development.md). If your system only provides
-`python3`, run `make setup PY=python3`. The same commands without `make` are:
+[development guide](docs/development.md). `make setup PY=python3` is also valid
+if `python3 --version` reports 3.11 or 3.12, not a newer unsupported version.
+With the environment active, the equivalent lint/test commands without Make are:
 
 ```bash
 python -m ruff check src scripts tests api dashboard

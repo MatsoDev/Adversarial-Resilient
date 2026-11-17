@@ -11,7 +11,13 @@ and residual risks are in [`security/SECURITY_AUDIT.md`](security/SECURITY_AUDIT
 
 - Git.
 - Python 3.11–3.12. Tested with Python 3.12.1 on Windows and Python 3.11 in
-  CI; the pins in `requirements*.txt` support 3.11–3.12 (Python 3.10 support ends in October 2026).
+  Linux CI. Both older and newer Python releases are outside the supported range.
+- Native Linux/Windows installation requires wheels compatible with your
+  architecture. **Native macOS cannot install the current exact `+cpu` torch
+  and torchvision pins:** neither has a macOS wheel on the configured index
+  (checked 2026-11-17). The path handling is cross-platform, but that does not
+  establish platform installation support. No alternative macOS pins or native
+  macOS procedure have been validated; keep dependency changes separate.
 - About 3 GB free disk for the Python environment and MNIST demo. Full
   preprocessing additionally needs roughly 9 GB for EMBER processed arrays
   (7.6 GB of arrays plus headroom) and 1 GB for CICIDS (stored under gitignored
@@ -20,16 +26,20 @@ and residual risks are in [`security/SECURITY_AUDIT.md`](security/SECURITY_AUDIT
 - Docker (optional, only for the container stack).
 - GNU Make (optional; the commands below also run directly with `python`).
 
-Check your versions:
+Check the interpreter you will use to create the environment. On Linux:
 
 ```bash
-python --version
+python3.11 --version
 git --version
 ```
 
+The Python command must report `Python 3.11.x` (or select `python3.12` for
+3.12.x); Git must exit successfully. In PowerShell use `python --version`
+and confirm 3.11 or 3.12. Do not assume that an unversioned `python3` is supported.
+
 ## Setup
 
-For both new and existing team checkouts, the cross-platform bootstrap is
+For both new and existing Linux/Windows team checkouts, the bootstrap is
 `python scripts/setup_environment.py` (Python 3.11–3.12). It creates/reuses
 `.venv`, synchronizes runtime/developer and CPU torch requirements (not optional
 CleverHans), and checks the installed versions.
@@ -39,16 +49,19 @@ After activation (or using `.venv/bin/python` / `.venv\Scripts\python.exe`), the
 runs with `python -m uvicorn api.main:app --port 8000`, at
 <http://localhost:8000/dashboard/>. See [team_handoff.md](team_handoff.md).
 
-### Linux / macOS (Makefile shortcut)
+### Linux (Makefile shortcut)
 
 ```bash
-make setup
+make setup PY=python3.11
 ```
 
 This creates `.venv`, installs `requirements-dev.txt` (which includes
-`requirements.txt`) and the separate CPU torch requirements, and installs the
-pre-commit hooks. If `python` is not on `PATH` (common on Linux
-distributions that only install `python3`), run `make setup PY=python3`.
+`requirements.txt`) and the separate CPU torch requirements, then attempts to
+install pre-commit hooks. Hook-install failure is reported but does not fail
+`make setup`. Substitute `PY=python3.12`, or `PY=python3` only after checking
+that it is a supported version. Success means the dependency installs finish
+and `.venv/bin/python` exists; verify the pins below rather than relying on
+the Make target's exit code alone.
 
 ### Manual setup
 
@@ -73,12 +86,12 @@ use the venv interpreter directly for each command, for example:
 .\.venv\Scripts\python.exe -m uvicorn api.main:app --port 8000
 ```
 
-Linux / macOS:
+Linux:
 
 ```bash
 git clone https://github.com/MatsoDev/Adversarial-Resilient.git
 cd Adversarial-Resilient
-python3 -m venv .venv
+python3.11 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
 pip install -r requirements-dev.txt
@@ -86,8 +99,25 @@ pip install -r requirements-torch.txt
 pre-commit install
 ```
 
-All commands below assume the virtual environment is active and that you are
-in the repository root.
+The fresh-install commands above were not rerun in the 2026-11-17 documentation
+audit, nor was Windows installation repeated. Their success criterion is a
+created venv, completed installs and the following existing-environment check:
+
+```bash
+python scripts/setup_environment.py --check-only
+```
+
+With the venv active, this was verified on Linux and printed:
+
+```text
+All direct requirements match the project pins.
+No broken requirements found.
+Ready: .venv Python -m uvicorn api.main:app --port 8000; open /dashboard/
+```
+
+In PowerShell, `.\.venv\Scripts\python.exe scripts/setup_environment.py --check-only`
+checks the same contract without activation. All commands below assume the
+virtual environment is active and that you are in the repository root.
 
 ## Verification and quality checks
 
@@ -97,10 +127,15 @@ make test      # pytest; synthetic fixtures, no datasets required
 make coverage  # same suite + line/branch coverage (CI runs this)
 make security  # pip-audit + bandit (same as CI)
 make docker-scan  # Trivy scan of adversarial-resilient:dev (after docker-build)
-make format    # rewrite files with ruff format
 make check     # lint + test
-make clean     # remove caches and mlruns/ (committed demo/EDA artifacts stay)
 ```
+
+These checks should exit 0; Ruff reports `All checks passed!`, pytest has no
+failures, pip-audit reports no known vulnerabilities in its audited requirements,
+and Bandit reports no medium/high findings. Docker scanning requires a built
+image and was not rerun for this documentation pass. `make format` rewrites
+Python formatting; `make clean` deletes caches **and `mlruns/`**. Neither is a
+verification step.
 
 Without Make, use the equivalent commands:
 
@@ -114,8 +149,11 @@ python -m pip_audit -r requirements-dev.txt
 python -m bandit -q -r src scripts api dashboard -ll
 ```
 
-Runtime depends on the machine. Fast tests use synthetic fixtures; three
-optional real-data checks are skipped unless `RUN_REAL_DATA_TESTS=1`.
+Runtime depends on the machine. Fast tests use synthetic fixtures. Three
+real-data checks skip unless `RUN_REAL_DATA_TESTS=1`; three optional CleverHans
+cases skip without its torch backend. Four Node-backed component cases skip
+when Node is absent. The 2026-11-17 Linux baseline had 468 passing cases and six
+skips, with Node available and neither optional dataset checks nor CleverHans enabled.
 Tests write only to pytest temporary directories, never to committed
 `docs/results/`, `docs/figures/`, or `docs/data/` artifacts. Test layout,
 single-test commands, and the optional real-data checks are documented in
@@ -124,7 +162,9 @@ single-test commands, and the optional real-data checks are documented in
 ## Run the ART demo
 
 The demo proves the FGSM/PGD/CW tooling works end to end on MNIST (CPU only).
-It is an environment check, not a security result.
+It is an environment check, not a security result. The real-MNIST commands below
+were not rerun for this documentation pass; the numerical expectations come
+from the dated [Sprint 1 report](sprint1_report.md), not a new measurement.
 
 Fast version first (recommended). After the one-time MNIST download (about
 60 MB into `data/raw/`), it takes a few minutes on a CPU laptop:
@@ -134,7 +174,7 @@ python scripts/art_quickstart.py --fast
 # or: make demo
 ```
 
-What to expect: clean test accuracy around 0.92 on the subset, FGSM and PGD
+The historical fast run had clean test accuracy around 0.92, FGSM and PGD
 adversarial accuracy near 0.05 at epsilon 0.3, and CW-L2 evaluated on
 20 samples. Exact numbers differ slightly by machine.
 
@@ -145,8 +185,10 @@ Full version (trains on all of MNIST for 3 epochs, CW on 200 samples; takes
 python scripts/art_quickstart.py --epochs 3
 ```
 
-What to expect: clean accuracy around 0.99. The accuracy-vs-epsilon grid is
-the slowest part; `--cw-samples 20` keeps CW tractable.
+The historical partial full-data check reached clean accuracy around 0.99;
+its epsilon grid timed out. The accuracy-vs-epsilon grid is the slowest part;
+`--cw-samples 20` limits CW work. A completed run writes the outputs listed below.
+Inspect the CW result's `failed` field rather than assuming every attack completed.
 
 Flags:
 
@@ -187,7 +229,18 @@ results, figures and MLflow under a chosen directory. Browse a logged run with:
 MLFLOW_ALLOW_FILE_STORE=true python -m mlflow ui
 ```
 
-Then open http://127.0.0.1:5000 in your browser.
+Then open http://127.0.0.1:5000 in your browser. Success means the local run and
+its logged artifacts are visible; the MLflow UI was not started in this pass.
+
+The demo's optional CleverHans path is separate from the measured Sprint 5
+cross-checks. Sprint 5 uses an isolated torch-only install from
+`requirements-cleverhans-torch.txt`, with explicit path flags; see
+[Sprint 5 setup](sprint5.md#attack-adapters). The older
+`requirements-cleverhans.txt` environment includes TensorFlow and recorded
+advisory risks; it is neither required for normal setup nor the Sprint 5 overlay.
+The MNIST helper's gradient-context concern remains
+[flagged, not changed](documentation_audit.md); completed Sprint 5 checks do not
+verify that helper.
 
 ## Run the API and dashboard without Docker
 
@@ -242,6 +295,8 @@ Compose mounts `docs/` and `models/sprint4/` read-only into both services;
 raw/processed datasets are not required to browse reports. Check service state
 and logs with `docker compose ps` and `docker compose logs api dashboard mlflow`.
 The MLflow service has no Compose healthcheck; inspect its endpoint separately.
+Compose startup was not rerun for this documentation pass; the historical smoke
+test above does not establish a fresh installation or complete browser workflow.
 
 Provision prediction only after a genuine freeze, following [Sprint 4](sprint4.md).
 Native uvicorn does **not** load `.env` automatically: export settings before
@@ -261,8 +316,9 @@ processed-data loaders.
 
 | Problem | Fix |
 |---|---|
-| `python --version` shows 3.10 or older, or install fails on your Python | Install Python 3.11–3.12 (CI uses 3.11). Then recreate `.venv` from scratch. |
-| `make setup` fails with `python: No such file or directory` | Only `python3` is installed. Run `make setup PY=python3` (or create the venv manually as shown above). |
+| Python is outside 3.11–3.12, or install fails on your Python | Select Python 3.11 or 3.12 before creating the venv. A newer system Python is not a supported substitute. |
+| `make setup` fails with `python: No such file or directory` | Select an installed supported interpreter, for example `make setup PY=python3.11`; use `PY=python3` only after checking its version. |
+| macOS reports no matching `torch==...+cpu` distribution | The exact CPU pins have no macOS wheels on the configured index. Native macOS setup is not validated; do not replace pins as a troubleshooting shortcut. |
 | `ModuleNotFoundError: No module named 'pkg_resources'` when importing mlflow | Your environment predates the current pins. Recreate `.venv` with `make setup` (mlflow 3.17.2 + setuptools 84.2.1). |
 | `ruff` or `pytest` not found | The venv is not activated, or dev requirements are missing. Activate `.venv` and run `pip install -r requirements-dev.txt`. |
 | torch download is very slow or fails | The CPU wheel is about 200 MB. Check disk space and connection, then rerun the same `pip install` command; pip resumes. |
@@ -275,7 +331,7 @@ processed-data loaders.
 | Prediction returns 401 / 422 / 429 | Check the exact bearer token / ordered features and bundle identities / wait for the 60-second per-peer window. See [API errors](../api/README.md#prediction-errors). |
 | `docker compose up` fails with `env file ... not found` | Run `cp .env.example .env` first; compose uses it for host ports. |
 | MNIST download shows `HTTP Error 404` for `yann.lecun.com` | Expected: torchvision automatically retries its mirror and continues. No action needed. |
-| `--cleverhans` prints `CleverHans not available, skipping` | Expected: CleverHans lives in the separate `requirements-cleverhans.txt` because version 4.0.0 conflicts with the ART/torch stack. Only install it in an isolated env if you need the cross-check. |
+| `--cleverhans` prints `CleverHans not available, skipping` | Normal without the optional library. For Sprint 5 use its documented torch-only overlay and explicit path flags, not the older TensorFlow environment; MNIST helper verification is separate. |
 | `git clone` fails on Windows with filename-too-long errors | Enable long paths once: `git config --system core.longpaths true` (needs an elevated prompt), then clone again. |
 | `scripts/preprocess.py` says the source directory is missing | Set `EMBER_DATA_DIR` / `CICIDS_DATA_DIR`, pass `--source`, or place the dataset under `data/raw/` or `~/Documents/`. The pipeline never downloads data. |
 | EMBER preprocessing is killed or runs out of disk | Plan for about 9–10 GB (arrays plus headroom). Use `--max-samples` for smoke work or free space under `data/processed/`; the pipeline preallocates `.npy.tmp` files and only publishes them after success. |

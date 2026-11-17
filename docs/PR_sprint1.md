@@ -15,6 +15,12 @@ ART MNIST demo (FGSM/PGD/CW-L2 + eps plots + JSON + MLflow), Docker placeholders
 Semester 1 Weeks 1–2 deliverable; unblocks Sprint 2 (EMBER/CIC-IDS-2017 EDA).
 
 ## Verification (original run, Windows, Python 3.12.1)
+
+> Metric clarification (2026-11-17): this snapshot retains the original numbers.
+> Values called ASR below are overall adversarial error rates, not the current
+> clean-correct conditional ASR. See [the demo guide](development.md#run-the-art-demo).
+> No historical score or generated artifact has been changed.
+
 - `python -m ruff check src scripts tests api dashboard` → All checks passed!
 - `python -m pytest -q` → 4 passed.
 - `python scripts/art_quickstart.py --fast --seed 42` → clean 0.92, FGSM adv

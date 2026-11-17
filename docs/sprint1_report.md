@@ -38,6 +38,14 @@ CI canonical Python is 3.11 (see `ci.yml`); pins verified on 3.12.1 here.
   → `CleverHans not available, skipping: No module named 'cleverhans'` (graceful).
 
 ## Real results (art_quickstart, --fast, seed 42, eps 0.3)
+
+> Historical metric clarification (2026-11-17): the ASR numbers below and in the
+> committed Sprint 1 JSON are **overall adversarial error rates**
+> (`1 - adv_accuracy`), not clean-correct conditional ASR. They are preserved
+> unchanged as the original evidence. The current demo uses the
+> [corrected paired definition](development.md#run-the-art-demo); these results
+> have not been regenerated under that definition.
+
 - Clean test accuracy (10k): **0.92** (subset clean: 0.909 FGSM/PGD, 0.95 CW-20).
 - FGSM (n=1000, eps=0.3): adv_acc **0.066**, ASR **0.934**,
   mean L2 **6.446**, mean Linf **0.300**.
