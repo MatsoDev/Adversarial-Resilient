@@ -23,18 +23,21 @@ def _write_artifacts(
     labels,
     metadata: bool = True,
     scaler=None,
+    split: str = "train",
 ):
     root.mkdir(parents=True)
-    np.save(root / "train_X.npy", X)
+    np.save(root / f"{split}_X.npy", X)
     for name, array in labels.items():
-        np.save(root / f"train_{name}.npy", array)
+        np.save(root / f"{split}_{name}.npy", array)
     (root / "feature_names.json").write_text(json.dumps(feature_names), encoding="utf-8")
     (root / "label_mapping.json").write_text(
         json.dumps({"dataset": "synthetic", "labels": ["benign", "attack"]}),
         encoding="utf-8",
     )
     if metadata:
-        pd.DataFrame({"split": ["train"] * len(X)}).to_csv(root / "train_metadata.csv", index=False)
+        pd.DataFrame({"split": [split] * len(X)}).to_csv(
+            root / f"{split}_metadata.csv", index=False
+        )
     if scaler is not None:
         mean, scale = scaler
         np.save(root / "scaler_mean.npy", mean)
@@ -126,18 +129,20 @@ def test_load_ember_minimal_artifacts_without_metadata(tmp_path):
     np.testing.assert_array_equal(dataset.y, np.asarray([0, 1]))
 
 
-def test_load_ember_standardize_requires_both_scaler_files(tmp_path):
+@pytest.mark.parametrize("missing", ["scaler_mean.npy", "scaler_scale.npy"])
+def test_load_ember_standardize_requires_both_scaler_files(tmp_path, missing):
     root = _write_artifacts(
         tmp_path / "ember",
         X=np.zeros((2, 3), dtype=np.float32),
         feature_names=["a", "b", "c"],
         labels={"y": np.asarray([0, 1], dtype=np.int8)},
         metadata=False,
+        scaler=(np.zeros(3), np.ones(3)),
     )
-    with pytest.raises(FileNotFoundError, match="scaler_mean.npy"):
+    (root / missing).unlink()
+    with pytest.raises(FileNotFoundError, match=missing) as error:
         load_ember("train", root=root, standardize=True)
-    with pytest.raises(FileNotFoundError, match="preprocess.py --dataset ember"):
-        load_ember("train", root=root, standardize=True)
+    assert "preprocess.py --dataset ember" in str(error.value)
 
 
 def test_load_ember_validates_shapes_and_scaler_dimensions(tmp_path):
@@ -210,3 +215,70 @@ def test_load_cicids_minimal_binary_and_multiclass_artifacts(tmp_path):
     np.testing.assert_array_equal(multiclass.y, np.asarray([0, 1, 2]))
     assert binary.label_mapping["dataset"] == "synthetic"
     assert len(binary) == 3
+
+
+@pytest.mark.parametrize("split", ["val", "test"])
+@pytest.mark.parametrize(
+    ("loader", "target", "label_name"),
+    [
+        pytest.param(load_ember, None, "y", id="ember"),
+        pytest.param(load_cicids2017, "binary", "y_binary", id="cicids-binary"),
+        pytest.param(load_cicids2017, "multiclass", "y_multiclass", id="cicids-multiclass"),
+    ],
+)
+def test_holdout_standardization_uses_saved_training_statistics_without_modifying_files(
+    tmp_path, split, loader, target, label_name
+):
+    features = np.array([[14, 2, -2], [18, 6, 10]], dtype=np.float32)
+    labels = np.array([0, 1], dtype=np.int8)
+    mean, scale = np.array([10, -2, 2]), np.array([2, 4, 2])
+    root = _write_artifacts(
+        tmp_path / "processed",
+        X=features,
+        feature_names=["a", "b", "c"],
+        labels={label_name: labels},
+        scaler=(mean, scale),
+        split=split,
+    )
+    original_files = {path.name: path.read_bytes() for path in root.iterdir()}
+    options = {"target": target} if target is not None else {}
+
+    raw = loader(split, root=root, mmap_mode="r", **options)
+    standardized = loader(split, root=root, standardize=True, mmap_mode="r", **options)
+
+    # Explicit (X - mean) / scale values distinguish saved scaling from refitting
+    # on holdout data, signed-log preprocessing, or accidentally returning raw rows.
+    np.testing.assert_array_equal(standardized.X, [[2, 1, -2], [4, 2, 4]])
+    np.testing.assert_array_equal(raw.X, features)
+    np.testing.assert_array_equal(standardized.y, labels)
+    assert standardized.X.dtype == np.float32
+    assert not raw.X.flags.writeable
+    assert not np.shares_memory(raw.X, standardized.X)
+    assert standardized.split == split
+    assert standardized.metadata["split"].tolist() == [split, split]
+    assert {path.name: path.read_bytes() for path in root.iterdir()} == original_files
+
+
+@pytest.mark.parametrize(
+    ("features", "labels", "message"),
+    [
+        pytest.param(np.zeros(2), [0, 1], "has shape", id="one-dimensional-features"),
+        pytest.param(np.zeros((2, 2)), [0, 1], r"expected \(N, 3\)", id="wrong-feature-width"),
+        pytest.param(
+            np.zeros((2, 3)),
+            [0, 1, 0],
+            r"2 rows but train_y_binary\.npy has 3",
+            id="misaligned-labels",
+        ),
+    ],
+)
+def test_load_cicids_rejects_misaligned_feature_artifacts(tmp_path, features, labels, message):
+    root = _write_artifacts(
+        tmp_path / "cicids",
+        X=features.astype(np.float32),
+        feature_names=["a", "b", "c"],
+        labels={"y_binary": np.array(labels, dtype=np.int8)},
+        metadata=False,
+    )
+    with pytest.raises(ValueError, match=message):
+        load_cicids2017(root=root)
