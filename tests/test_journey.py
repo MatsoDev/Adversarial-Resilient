@@ -7,6 +7,7 @@ from copy import deepcopy
 
 import numpy as np
 import pytest
+from src.attacks.constraints import FeaturePolicy
 from src.attacks.examples import measured_examples
 from src.config import ROOT
 from src.evaluation.attack_results import validate_attack_report
@@ -63,6 +64,129 @@ def test_measured_selection_and_scores_match_real_model():
     assert results[0]["changes"][0]["raw_after_approx"] == pytest.approx(np.expm1(1))
     assert results[1]["changes"] == []
     assert results[1]["norms"]["L0"] == 0
+
+
+def test_measured_cases_select_first_cohort_position_not_lowest_split_index():
+    clean = np.array([[0, 0], [1, 0], [0, 0], [1, 0], [0, 0], [0, 0]], dtype=np.float32)
+    attacked = np.array([[0, 0], [1, 0], [1, 0], [0, 0], [1, 0], [0, 0]], dtype=np.float32)
+    raw = np.expm1(clean)
+    y = np.array([1, 1, 0, 1, 1, 0])
+    indices = np.array([90, 70, 50, 30, 10, 0])
+    snapshots = [array.copy() for array in (clean, attacked, raw, y, indices)]
+
+    results = measured_examples(
+        model(), clean, attacked, raw, y, indices, np.zeros(2), np.ones(2), policy()
+    )
+
+    assert [(r["outcome"], r["cohort_position"], r["split_row_index"]) for r in results] == [
+        ("successful_attack", 2, 50),
+        ("remained_correct", 1, 70),
+        ("preexisting_error", 0, 90),
+    ]
+    for actual, original in zip((clean, attacked, raw, y, indices), snapshots, strict=True):
+        np.testing.assert_array_equal(actual, original)
+
+
+@pytest.mark.parametrize(
+    ("truth", "attacked_values", "outcome"),
+    [
+        pytest.param([0, 1], [0, 1], "remained_correct", id="unchanged-correct"),
+        pytest.param([1, 0], [0, 1], "preexisting_error", id="unchanged-errors"),
+        pytest.param([1, 0], [1, 0], "preexisting_error", id="repaired-errors-are-not-successes"),
+        pytest.param([0, 1], [1, 0], "successful_attack", id="all-clean-correct-rows-broken"),
+    ],
+)
+def test_measured_cases_omit_absent_outcomes(truth, attacked_values, outcome):
+    clean = np.array([[0, 0], [1, 0]], dtype=np.float32)
+    attacked = clean.copy()
+    attacked[:, 0] = attacked_values
+
+    results = measured_examples(
+        model(),
+        clean,
+        attacked,
+        np.expm1(clean),
+        np.array(truth),
+        np.array([42, 17]),
+        np.zeros(2),
+        np.ones(2),
+        policy(),
+    )
+
+    assert len(results) == 1
+    assert results[0]["outcome"] == outcome
+    assert results[0]["cohort_position"] == 0
+    assert results[0]["split_row_index"] == 42
+
+
+def test_measured_case_scores_use_calibration_and_class_one_wins_threshold_ties():
+    calibrated_model = model()
+    calibrated_model.temperature = 2
+    clean = np.array([[0.5, 0], [0.5, 0]], dtype=np.float32)
+    attacked = np.zeros((2, 2), dtype=np.float32)
+
+    results = measured_examples(
+        calibrated_model,
+        clean,
+        attacked,
+        np.expm1(clean),
+        np.array([1, 0]),
+        np.array([42, 17]),
+        np.zeros(2),
+        np.ones(2),
+        policy(),
+    )
+
+    assert [r["outcome"] for r in results] == ["successful_attack", "preexisting_error"]
+    for row in results:
+        assert row["clean_prediction"] == 1
+        assert row["clean_malicious_score"] == 0.5
+        assert row["attacked_prediction"] == 0
+        # Native logit -2 / temperature 2 gives sigmoid(-1), not sigmoid(-2).
+        assert row["attacked_malicious_score"] == pytest.approx(1 / (1 + np.e), abs=1e-7)
+
+
+@pytest.mark.parametrize(
+    ("integer", "before", "after", "offset", "scale_value"),
+    [
+        pytest.param(False, -3, -1, -2, 2, id="negative-continuous-feature"),
+        pytest.param(True, 2, 3, 2, 0.5, id="integer-count-feature"),
+    ],
+)
+def test_measured_changes_invert_saved_scaling_and_signed_log(
+    integer, before, after, offset, scale_value
+):
+    record = deepcopy(policy(integer=integer).record)
+    if not integer:
+        record["features"][0]["minimum"] = -5
+    p = FeaturePolicy(record, 2)
+    mean, scale = np.array([offset, 0]), np.array([scale_value, 1])
+    raw = np.array([[before, 7]], dtype=np.float32)
+    attacked_raw = np.array([[after, 7]], dtype=np.float32)
+    clean = ((np.sign(raw) * np.log1p(np.abs(raw)) - mean) / scale).astype(np.float32)
+    attacked = ((np.sign(attacked_raw) * np.log1p(np.abs(attacked_raw)) - mean) / scale).astype(
+        np.float32
+    )
+
+    results = measured_examples(
+        model(), clean, attacked, raw, np.array([0]), np.array([42]), mean, scale, p
+    )
+
+    assert len(results) == 1
+    assert results[0]["changes"] == [
+        {
+            "index": 0,
+            "operation": "synthetic scalar test",
+            "raw_before": before,
+            "raw_after_approx": pytest.approx(after, abs=1e-6),
+            "model_before": float(clean[0, 0]),
+            "model_after": float(attacked[0, 0]),
+        }
+    ]
+    if integer:
+        assert type(results[0]["changes"][0]["raw_after_approx"]) is int
+    step = abs(float(attacked[0, 0]) - float(clean[0, 0]))
+    assert results[0]["norms"] == {"L0": 1, "L2": pytest.approx(step), "Linf": pytest.approx(step)}
 
 
 @pytest.mark.parametrize(
