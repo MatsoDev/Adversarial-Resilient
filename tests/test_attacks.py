@@ -293,80 +293,112 @@ def test_optional_cleverhans_cpu_cross_check(attack, monkeypatch):
         np.testing.assert_allclose(art, other, atol=1e-6)
 
 
-@pytest.mark.parametrize("candidate", [False, True])
-def test_offline_harness_identity_projection_and_optional_status(tmp_path, monkeypatch, candidate):
+@pytest.fixture
+def experiment_inputs(tmp_path, monkeypatch):
     import src.attacks.experiment as experiment
 
     # Substitute only the bundle reader, retaining real dataset hashing, ART,
     # sampling, projection, metrics, serialization and API reader validation.
-    raw = np.zeros((8, 2381), dtype=np.float32)
-    raw[:, 616] = np.tile([0, 1], 4)
-    y = np.tile([0, 1], 4).astype(np.int8)
-    split = "val" if candidate else "test"
-    np.save(tmp_path / f"{split}_X.npy", raw)
-    np.save(tmp_path / f"{split}_y.npy", y)
-    (tmp_path / "feature_names.json").write_text(json.dumps([f"f{i}" for i in range(2381)]))
-    (tmp_path / "label_mapping.json").write_text("{}")
-    artifacts = {
-        p.stem: {"file": p.name, "sha256": sha256_file(p), "size_bytes": p.stat().st_size}
-        for p in tmp_path.iterdir()
-    }
-    (tmp_path / "manifest.json").write_text(
-        json.dumps({"dataset": "ember2018", "subset": False, "artifacts": artifacts})
-    )
-    (tmp_path / "bundle.json").write_text("Synthetic bundle-reader boundary fixture")
-    linear = nn.Linear(2381, 1)
-    with torch.no_grad():
-        linear.weight.zero_()
-        linear.weight[0, 616] = 4
-        linear.bias[:] = -2
-    schema = sha256_file(tmp_path / "feature_names.json")
-    baseline = SimpleNamespace(
-        model=linear,
-        mean=np.zeros(2381),
-        scale=np.ones(2381),
-        record={
-            "temperature": 1,
-            "manifest_sha256": sha256_file(tmp_path / "manifest.json"),
-            "feature_schema_sha256": schema,
-            "preprocessing_sha256": "a" * 64,
-            "model_version": "sprint4_candidate" if candidate else "baseline_v1",
-        },
-    )
-    if candidate:
-        _, _, operating = experiment.validation_partitions(y, 42)
-        baseline.record.update(
-            status="blocked_validation_accuracy",
-            subset=False,
-            seed=42,
-            test_evaluated=False,
-            test_metrics=None,
-            validation_metrics={"accuracy": 0.9},
-            partitions={
-                "operating": {
-                    "rows": len(operating),
-                    "indices_sha256": experiment.index_hash(operating),
-                }
+
+    def build(*, candidate=False):
+        raw = np.zeros((8, 2381), dtype=np.float32)
+        raw[:, 616] = np.tile([0, 1], 4)
+        y = np.tile([0, 1], 4).astype(np.int8)
+        split = "val" if candidate else "test"
+        np.save(tmp_path / f"{split}_X.npy", raw)
+        np.save(tmp_path / f"{split}_y.npy", y)
+        (tmp_path / "feature_names.json").write_text(json.dumps([f"f{i}" for i in range(2381)]))
+        (tmp_path / "label_mapping.json").write_text("{}")
+        artifacts = {
+            p.stem: {"file": p.name, "sha256": sha256_file(p), "size_bytes": p.stat().st_size}
+            for p in tmp_path.iterdir()
+        }
+        manifest = {"dataset": "ember2018", "subset": False, "artifacts": artifacts}
+        (tmp_path / "manifest.json").write_text(json.dumps(manifest))
+        (tmp_path / "bundle.json").write_text("Synthetic bundle-reader boundary fixture")
+        linear = nn.Linear(2381, 1)
+        with torch.no_grad():
+            linear.weight.zero_()
+            linear.weight[0, 616] = 4
+            linear.bias[:] = -2
+        schema = sha256_file(tmp_path / "feature_names.json")
+        baseline = SimpleNamespace(
+            model=linear,
+            mean=np.zeros(2381),
+            scale=np.ones(2381),
+            record={
+                "temperature": 1,
+                "manifest_sha256": sha256_file(tmp_path / "manifest.json"),
+                "feature_schema_sha256": schema,
+                "preprocessing_sha256": "a" * 64,
+                "model_version": "sprint4_candidate" if candidate else "baseline_v1",
             },
         )
-    monkeypatch.setattr(experiment, "FrozenBaseline", lambda path, **kwargs: baseline)
-    p = deepcopy(policy(2381).record)
-    p["feature_schema_sha256"] = schema
-    p["features"][0]["index"] = 616
-    p["features"][0]["integer"] = True
-    policy_path = tmp_path / "policy.json"
-    policy_path.write_text(json.dumps(p))
-    out = tmp_path / "report.json"
+        if candidate:
+            _, _, operating = experiment.validation_partitions(y, 42)
+            baseline.record.update(
+                status="blocked_validation_accuracy",
+                subset=False,
+                seed=42,
+                test_evaluated=False,
+                test_metrics=None,
+                validation_metrics={"accuracy": 0.9},
+                partitions={
+                    "operating": {
+                        "rows": len(operating),
+                        "indices_sha256": experiment.index_hash(operating),
+                    }
+                },
+            )
+        monkeypatch.setattr(experiment, "FrozenBaseline", lambda path, **kwargs: baseline)
+        p = deepcopy(policy(2381).record)
+        p["feature_schema_sha256"] = schema
+        p["features"][0]["index"] = 616
+        p["features"][0]["integer"] = True
+        policy_path = tmp_path / "policy.json"
+        policy_path.write_text(json.dumps(p))
+        return SimpleNamespace(
+            root=tmp_path,
+            baseline=baseline,
+            manifest=manifest,
+            policy_path=policy_path,
+            output=tmp_path / "report.json",
+            options={
+                "split": split,
+                "allow_candidate": candidate,
+                "candidate_reason": "Synthetic candidate fixture",
+            },
+        )
+
+    return build
+
+
+def _publish_experiment_manifest(inputs):
+    path = inputs.root / "manifest.json"
+    path.write_text(json.dumps(inputs.manifest))
+    # Keep model/data identity valid so each test reaches its intended artifact gate.
+    inputs.baseline.record["manifest_sha256"] = sha256_file(path)
+
+
+@pytest.fixture
+def forbid_attack_generation(monkeypatch):
+    def unexpected_generation(*args, **kwargs):
+        pytest.fail("Invalid experiment inputs must be rejected before attack generation")
+
+    monkeypatch.setattr("src.attacks.experiment.generate", unexpected_generation)
+
+
+@pytest.mark.parametrize("candidate", [False, True], ids=["frozen", "candidate"])
+def test_offline_harness_identity_projection_and_optional_status(experiment_inputs, candidate):
+    inputs = experiment_inputs(candidate=candidate)
     result = run_experiment(
-        tmp_path,
-        tmp_path,
-        policy_path,
+        inputs.root,
+        inputs.root,
+        inputs.policy_path,
         [AttackConfig("FGSM", 0.8)],
-        out,
+        inputs.output,
         samples=4,
-        split=split,
-        allow_candidate=candidate,
-        candidate_reason="Synthetic candidate fixture",
+        **inputs.options,
     )
     expected = 2 if candidate else 4
     assert result["identity"]["samples"] == expected
@@ -375,18 +407,142 @@ def test_offline_harness_identity_projection_and_optional_status(tmp_path, monke
         assert result["identity"]["cohort"] == "operating_validation"
         assert result["experiment_stage"] == "development_candidate_not_frozen"
     assert result["results"][0]["cross_check"]["status"] == "not_run"
-    assert validate_attack_report(json.loads(out.read_text())) == result
+    assert validate_attack_report(json.loads(inputs.output.read_text())) == result
     with pytest.raises(ValueError, match="overwrite"):
-        run_experiment(tmp_path, tmp_path, policy_path, [AttackConfig("FGSM", 0.8)], out)
-    baseline.record["manifest_sha256"] = "b" * 64
+        run_experiment(
+            inputs.root,
+            inputs.root,
+            inputs.policy_path,
+            [AttackConfig("FGSM", 0.8)],
+            inputs.output,
+        )
+    inputs.baseline.record["manifest_sha256"] = "b" * 64
     with pytest.raises(ValueError, match="manifest mismatch"):
         run_experiment(
-            tmp_path, tmp_path, policy_path, [AttackConfig("FGSM", 0.8)], tmp_path / "mismatch.json"
+            inputs.root,
+            inputs.root,
+            inputs.policy_path,
+            [AttackConfig("FGSM", 0.8)],
+            inputs.root / "mismatch.json",
         )
     record = deepcopy(policy().record)
     record["features"] *= 2
     with pytest.raises(ValueError):
         FeaturePolicy(record, 2)
+
+
+@pytest.mark.parametrize("candidate", [False, True], ids=["frozen", "candidate"])
+@pytest.mark.parametrize("artifact", ["X", "y", "feature_names"])
+def test_experiment_rejects_hashed_decoys_for_canonical_inputs(
+    experiment_inputs, forbid_attack_generation, candidate, artifact
+):
+    inputs = experiment_inputs(candidate=candidate)
+    key = artifact if artifact == "feature_names" else f"{inputs.options['split']}_{artifact}"
+    record = inputs.manifest["artifacts"][key]
+    decoy = inputs.root / ("decoy-" + record["file"])
+    decoy.write_bytes((inputs.root / record["file"]).read_bytes())
+    record["file"] = decoy.name
+    _publish_experiment_manifest(inputs)
+
+    with pytest.raises(ValueError, match="artifact filename"):
+        run_experiment(
+            inputs.root,
+            inputs.root,
+            inputs.policy_path,
+            [AttackConfig("FGSM", 0.8)],
+            inputs.output,
+            **inputs.options,
+        )
+    assert not inputs.output.exists()
+
+
+@pytest.mark.parametrize("candidate", [False, True], ids=["frozen", "candidate"])
+@pytest.mark.parametrize("artifact", ["X", "y", "feature_names"])
+@pytest.mark.parametrize("corruption", ["missing-digest", "same-size-tamper"])
+def test_experiment_requires_verified_content_for_every_input(
+    experiment_inputs, forbid_attack_generation, candidate, artifact, corruption
+):
+    inputs = experiment_inputs(candidate=candidate)
+    key = artifact if artifact == "feature_names" else f"{inputs.options['split']}_{artifact}"
+    record = inputs.manifest["artifacts"][key]
+    if corruption == "missing-digest":
+        del record["sha256"]
+        _publish_experiment_manifest(inputs)
+    else:
+        path = inputs.root / record["file"]
+        content = path.read_bytes()
+        # Same byte count, still parseable: neither size checks nor parser errors suffice.
+        if artifact == "feature_names":
+            content = content.replace(b'"f0"', b'"g0"', 1)
+        elif artifact == "y":
+            content = content[:-1] + bytes([1 - content[-1]])
+        else:
+            rows = np.load(path)
+            rows[0, 616] = 1
+            np.save(path, rows)
+            content = path.read_bytes()
+        path.write_bytes(content)
+        assert path.stat().st_size == record["size_bytes"]
+        assert sha256_file(path) != record["sha256"]
+
+    with pytest.raises(ValueError, match="artifact verification failed"):
+        run_experiment(
+            inputs.root,
+            inputs.root,
+            inputs.policy_path,
+            [AttackConfig("FGSM", 0.8)],
+            inputs.output,
+            **inputs.options,
+        )
+    assert not inputs.output.exists()
+
+
+@pytest.mark.parametrize(
+    "change",
+    [
+        pytest.param({"model_version": "baseline_v1"}, id="frozen-version"),
+        pytest.param({"status": "frozen"}, id="frozen-status"),
+        pytest.param({"status": "blocked_subset"}, id="unqualified-status"),
+        pytest.param({"subset": True}, id="subset-candidate"),
+        pytest.param({"subset": None}, id="unknown-subset-status"),
+    ],
+)
+def test_candidate_exploration_requires_a_full_data_blocked_candidate(
+    experiment_inputs, forbid_attack_generation, change
+):
+    inputs = experiment_inputs(candidate=True)
+    inputs.baseline.record.update(change)
+
+    with pytest.raises(ValueError, match="only verified full-data blocked candidates"):
+        run_experiment(
+            inputs.root,
+            inputs.root,
+            inputs.policy_path,
+            [AttackConfig("FGSM", 0.8)],
+            inputs.output,
+            **inputs.options,
+        )
+    assert not inputs.output.exists()
+
+
+@pytest.mark.parametrize("field", ["rows", "indices_sha256"])
+def test_candidate_exploration_rejects_a_different_operating_partition(
+    experiment_inputs, forbid_attack_generation, field
+):
+    inputs = experiment_inputs(candidate=True)
+    operating = inputs.baseline.record["partitions"]["operating"]
+    operating[field] = operating[field] + 1 if field == "rows" else "b" * 64
+
+    with pytest.raises(ValueError, match="operating-partition identity mismatch"):
+        run_experiment(
+            inputs.root,
+            inputs.root,
+            inputs.policy_path,
+            [AttackConfig("FGSM", 0.8)],
+            inputs.output,
+            **inputs.options,
+        )
+    assert not inputs.output.exists()
 
 
 def test_candidate_mode_never_opens_official_test_or_accepts_missing_reason(tmp_path):
