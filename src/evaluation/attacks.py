@@ -7,6 +7,13 @@ import torch
 
 
 def labels(model, x):
+    """Return int64 binary decisions (N,) from finite CPU two-class logits.
+
+    ``model`` is a torch module; the caller chooses its evaluation mode.
+    ``x`` is numeric array-like (N, D), converted to float32 without preprocessing.
+    Inference disables gradients; output must be finite (N, 2) or ValueError is
+    raised. Class 1 wins ties, matching the inclusive 0.5 probability threshold.
+    """
     with torch.inference_mode():
         output = model(torch.from_numpy(np.asarray(x, dtype=np.float32))).numpy()
     if output.shape != (len(x), 2) or not np.isfinite(output).all():
@@ -15,6 +22,19 @@ def labels(model, x):
 
 
 def attack_metrics(y, clean_labels, attacked_labels, clean, attacked):
+    """Return paired accuracy, conditional ASR, counts and mean perturbation norms.
+
+    ``y``, ``clean_labels`` and ``attacked_labels`` are matching nonempty binary
+    array-likes (N,). ``clean``/``attacked`` are finite numeric arrays (N, D) in
+    the same representation and row order. Invalid shapes/labels/features raise
+    ValueError. No preprocessing, prediction or policy enforcement is performed.
+
+    The dict includes integer sample/correct/success/denominator counts, float
+    clean/attacked accuracy, float ASR (or None when no clean row is correct), and
+    ``mean_norms`` with L0/L2/Linf floats across all rows. ASR conditions on
+    clean-correct rows from both classes; L0 counts absolute differences >1e-6.
+    Norm units are the caller's feature coordinates, not inherently bytes.
+    """
     y, before, after = map(np.asarray, (y, clean_labels, attacked_labels))
     clean, attacked = map(np.asarray, (clean, attacked))
     if (

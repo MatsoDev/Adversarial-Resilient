@@ -27,6 +27,15 @@ python -m pytest --cov=src --cov=api --cov=dashboard --cov=scripts \
 The default suite does not download MNIST or read the raw EMBER/CICIDS
 datasets. Three optional real-data checks are skipped unless
 `RUN_REAL_DATA_TESTS=1` is set (see below).
+Three CleverHans cross-check cases also skip without its optional torch backend.
+Four Node-backed cases (prediction, explorer and two journey cases) skip without
+Node; platform-dependent filesystem cases can skip when unsupported. Use `-rs`
+to see the actual reason rather than comparing a fixed skip count.
+
+Success means no failures and no unexpected skips. The 2026-11-17 Linux baseline
+was **468 passed, 6 skipped**, with Node available, CleverHans absent and real-data
+opt-ins unset; coverage rounded to **88%**. Current verification is recorded in
+[the documentation audit](documentation_audit.md), not inferred from older sprint counts.
 
 ## Test layout
 
@@ -49,6 +58,9 @@ datasets. Three optional real-data checks are skipped unless
 | `tests/test_dashboard_entrypoint.py` | Real legacy Streamlit process and script-health check |
 | `tests/test_html_dashboard.py` | Primary HTML/assets delivery and separate CSP |
 | `tests/test_sprint4_ui.py` | Prediction JavaScript component with a minimal DOM; skips if Node is absent |
+| `tests/test_attacks.py` | Synthetic configuration, policy projection, paired metrics, report validation, frozen/candidate harness and artifact listing; three optional CleverHans cases |
+| `tests/test_attacks_ui.py` | Node-backed snapshot/norm filters, curve coordinates and escaping; no browser |
+| `tests/test_journey.py` | Measured case selection/validation, recorded reference delivery, bilingual rendering, release identity and Node-backed journey controls |
 | `tests/test_sprint3.py` | Synthetic baseline training, CLI, artifact/provenance contracts, MLflow and legacy model views |
 | `tests/test_artifact_security.py` | Aggregate response, nonfinite JSON and special-file handling |
 | `tests/test_sprint3_real.py` | Opt-in processed EMBER counts/schema/labels and sampled finite/features checks |
@@ -126,6 +138,27 @@ RUN_REAL_DATA_TESTS=1 python -m pytest tests/test_sprint3_real.py -q
 It skips if no processed manifest exists, even after opt-in. It does not train
 or evaluate a detector, re-hash every artifact, or assert standardized mean/variance.
 None of these opt-in tests replaces full preprocessing/manifest verification.
+The real-data commands in this section were not rerun for the documentation pass.
+Availability success means the two source checks pass. Processed verification
+must exit 0 with no reported artifact errors; the processed-EMBER test must
+execute rather than skip to establish that particular check.
+
+## Optional CleverHans checks
+
+Install the separate torch-only overlay using [Sprint 5](sprint5.md#attack-adapters),
+not the legacy TensorFlow requirements. From an activated environment on Linux:
+
+```bash
+CLEVERHANS_TORCH_PATH="$PWD/data/external/cleverhans-torch" \
+  python -m pytest tests/test_attacks.py -k optional_cleverhans -q -rs
+```
+
+The path is trusted executable Python code. In PowerShell set
+`$env:CLEVERHANS_TORCH_PATH = (Resolve-Path data/external/cleverhans-torch).Path`
+before running the same pytest selection. Success means three cases execute
+without skips or failures. This backend was absent in the documentation pass,
+so only the expected three-case skip path was observed. No optional installation
+is needed to view the committed cross-check results.
 
 ## Adding tests
 
@@ -149,7 +182,7 @@ Trivy scan (`make docker-scan`). The local equivalents are `make check`,
 `make coverage`, `make security`, `make docker-build`, and `make docker-scan`.
 Coverage is reported as a diagnostic; there is no arbitrary global threshold.
 
-A healthy default run passes with the three real-data checks skipped. Warnings
+A healthy default run passes with optional-dependency/data skips as described above. Warnings
 from third-party packages (for example matplotlib/pyparsing deprecations) are
 not test failures. `make security` must report no known vulnerabilities and no
 medium/high Bandit findings.
@@ -168,7 +201,23 @@ unit/integration markers. From the repository root:
 .venv/bin/python -m pytest tests/test_sprint4.py tests/test_prediction_streaming.py -q
 # HTML delivery and JavaScript component behavior (Node required for the latter)
 .venv/bin/python -m pytest tests/test_sprint4_ui.py tests/test_html_dashboard.py -q
+# Offline attack/case contracts and explorer/journey components
+.venv/bin/python -m pytest tests/test_attacks.py tests/test_attacks_ui.py tests/test_journey.py -q -rs
 ```
+
+All groups must have no failures, with only the documented optional skips.
+For JavaScript syntax, the six current files can also be checked directly:
+
+```bash
+node --check dashboard/web/app.js
+node --check dashboard/web/prediction.js
+node --check dashboard/web/attacks.js
+node --check dashboard/web/journey.js
+node --check dashboard/web/locale.js
+node --check dashboard/web/release.js
+```
+
+All six commands exited 0 without output in the documentation audit.
 
 The prediction integration tests load actual CPU torch checkpoints, assert known
 temperature-calibrated probabilities and labels (including equality at 0.5), and
@@ -177,8 +226,8 @@ so one failure cannot hide later cases behind an exhausted query budget.
 Manifest tests distinguish the general optional-hash contract from mandatory
 SHA-256 verification at Sprint 4 training, held-out test and inference boundaries.
 
-The Node test uses a minimal DOM, not a real browser; there is no browser
-end-to-end runner. No separate type checker is configured. Ruff, pytest coverage,
+The Node cases use pure helpers or minimal DOMs, not a real browser; there is no
+browser end-to-end runner. No separate type checker is configured. Ruff, pytest coverage,
 Bandit, dependency auditing and the Docker build remain the existing quality gates.
 
 The architecture check inspects static absolute imports, including deferred and

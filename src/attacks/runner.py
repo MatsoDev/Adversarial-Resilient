@@ -16,6 +16,16 @@ from src.utils.seed import set_seed
 
 @dataclass(frozen=True)
 class AttackConfig:
+    """Validated immutable configuration for one untargeted attack.
+
+    ``attack`` is "FGSM", "PGD" or "CW-L2". FGSM/PGD require a finite
+    nonnegative float ``epsilon`` in standardized Linf units; CW requires None.
+    Positive float ``step_size`` controls PGD. Integer ``iterations`` (1–10000)
+    controls PGD/CW. CW uses nonnegative float ``confidence``, positive floats
+    ``learning_rate``/``initial_const`` and integer ``binary_search_steps`` (1–100).
+    Defaults are the dataclass field values below. Invalid values raise ValueError.
+    """
+
     attack: str
     epsilon: float | None = None
     step_size: float = 0.01
@@ -48,9 +58,11 @@ class AttackConfig:
 
     @property
     def norm(self):
+        """Return the report norm label: CW is L2, FGSM/PGD are Linf."""
         return "L2" if self.attack == "CW-L2" else "Linf"
 
     def parameters(self):
+        """Return only the chosen family's parameters, never a CW epsilon."""
         config = asdict(self)
         if self.attack == "CW-L2":
             return {
@@ -70,7 +82,12 @@ class AttackConfig:
 
 
 class BinaryLogits(nn.Module):
-    """[0, calibrated logit] preserves the frozen binary decision and gradients."""
+    """Wrap a binary-logit torch module as differentiable [0, calibrated logit].
+
+    ``model`` maps float tensors (N, D) to (N,); positive float ``temperature``
+    defaults to 1.0. Forward returns (N, 2) logits with no preprocessing.
+    Supply the bundle's temperature and scaler separately to preserve its identity.
+    """
 
     def __init__(self, model, temperature=1.0):
         super().__init__()
@@ -95,11 +112,19 @@ def art_classifier(model, dimension, bounds):
 
 
 def generate(model, raw, y, mean, scale, policy, config, *, library="ART", seed=SEED):
-    """Untargeted attacks. True labels, no random starts, shared final projection.
+    """Return paired float32 standardized candidates shaped (N, D), not raw values.
 
-    PGD applies the policy after every gradient step. CW uses final projection
-    only, so results are explicitly labelled post-projected CW, not a constrained
-    CW optimum. All reported scores evaluate the projected candidate.
+    ``model`` is a differentiable CPU torch module returning (N, 2) logits.
+    ``raw`` is a finite NumPy (N, D) matrix and ``y`` its binary (N,) true labels.
+    ``mean``/``scale`` are fitted signed-log1p scaler arrays (D,), with positive
+    scale; ``policy`` is FeaturePolicy and ``config`` is validated AttackConfig.
+    ``library`` is "ART" (default) or "CleverHans"; integer ``seed`` defaults to 42.
+
+    Sets seeds and puts the model in evaluation mode. True labels are supplied,
+    with no random starts. PGD projects after every step against original clean
+    rows; CW projects only at the end, not to a constrained optimum. Epsilon zero
+    returns transformed clean rows. Unsupported libraries/invalid projected
+    outputs raise ValueError; import and attack-runtime failures propagate.
     """
     if library not in {"ART", "CleverHans"}:
         raise ValueError("Unknown attack library")

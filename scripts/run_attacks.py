@@ -1,4 +1,8 @@
-"""Run Sprint 5 offline attacks against a verified frozen Sprint 4 baseline."""
+"""Run offline Sprint 5 attacks; frozen baseline required by default.
+
+Explicit candidate mode accepts only verified full-data blocked candidates and
+their operating-validation rows. It does not freeze a model or enable prediction.
+"""
 
 from __future__ import annotations
 

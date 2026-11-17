@@ -31,6 +31,10 @@ produce an actionable error instead of using a personal absolute path.
 
 ## Environment variables
 
+Environment values are strings. Path settings identify local directories;
+boolean and numeric forms are shown below. None of these variables downloads
+data, creates a model or changes a frozen bundle's qualification.
+
 | Variable | Required | Default | Read by | Purpose |
 |---|---|---|---|---|
 | `EMBER_DATA_DIR` | No | Resolution order above | `src.config.resolve_ember_source()` | Raw EMBER2018 v2 directory |
@@ -45,6 +49,8 @@ produce an actionable error instead of using a personal absolute path.
 | `MLFLOW_PORT` | No | `5000` | Docker Compose | Host port mapped to the MLflow container; not read by Python |
 | `RUN_REAL_DATA_TESTS` | No | Unset (tests skip) | `tests/test_data_real_optional.py` | Set to `1` to run the two local-dataset availability checks |
 | `MLFLOW_ALLOW_FILE_STORE` | For local file tracking | Project scripts set `true` if absent | Demo, training/tuning scripts and MLflow | MLflow 3.17 requires opt-in for the local `mlruns/` store. Compose sets `true`; set it explicitly for `mlflow ui`. An existing value is not overridden by scripts. |
+| `CLEVERHANS_TORCH_PATH` | Only to expose an isolated backend to tests | Unset | `tests/test_attacks.py` | Trusted installation directory prepended to the test import path; absent/unimportable CleverHans skips three cases. The attack CLI instead uses `--cleverhans-path`. |
+| `CUBLAS_WORKSPACE_CONFIG` | No; internal default for opt-in CUDA training | `:4096:8` if absent when set by tuning/launcher | `src/models/tuning.py`, `scripts/tune_with_existing_torch.py` | CUDA reproducibility setting; an existing value is retained. It does not install or enable CUDA and is not a serving/Compose requirement. |
 
 Notes:
 
@@ -66,6 +72,10 @@ Notes:
   `/predict`; there is no separate browser API URL or CORS configuration.
 - Training/tuning use explicit `--tracking-uri` or the local `mlruns/` default,
   not `MLFLOW_TRACKING_URI`, to select tracking storage.
+- The CleverHans test-path setting is not read by API/dashboard startup. Follow
+  [the torch-only overlay instructions](sprint5.md#attack-adapters); do not install
+  the older TensorFlow environment into the serving venv. These are existing
+  test/training settings, not new Compose variables requiring `.env` entries.
 
 ## `.env` and Docker
 
@@ -75,6 +85,11 @@ Notes:
 cp .env.example .env
 docker compose up --build
 ```
+
+Copy only when creating a new local `.env`; do not overwrite existing settings.
+Compose startup was not rerun for this documentation pass. Success means the
+configured API `/health`, HTML `/dashboard/` and MLflow endpoint respond on their
+loopback ports; see [operations](development.md#run-the-docker-stack).
 
 - Compose requires `.env` because the services declare `env_file: .env`.
 - `BIND_ADDR` plus the three `*_PORT` variables control host binding/ports;
@@ -110,6 +125,7 @@ paths in modules. The main locations are:
 | `ADVERSARIAL_DIR` | `data/adversarial/` (reserved for later sprints) |
 | `MODELS_DIR` | `models/` (gitignored checkpoints) |
 | `BASELINE_MODELS_DIR` / `BASELINE_RESULTS_DIR` | `models/baselines/`, `docs/results/baselines/` (ignored development outputs) |
+| `ATTACK_RESULTS_DIR` | `docs/results/attacks/` (ignored local measured attack reports) |
 | `FROZEN_BASELINE_DIR` | `models/sprint4/baseline_v1/` (default trusted inference bundle; no environment override) |
 | `FIGURES_DIR` / `RESULTS_DIR` | `docs/figures/`, `docs/results/` (committed demo/EDA outputs) |
 | `DATA_MANIFESTS_DIR` | `docs/data/manifests/` (committed full-run manifests) |
@@ -128,18 +144,44 @@ export CICIDS_DATA_DIR="$HOME/datasets/CIC-IDS-Dataset"
 python scripts/preprocess.py --dataset all
 ```
 
+Replace the paths with existing official source directories. This full-data
+example was not run in the documentation pass. Success means exit 0 and
+per-dataset manifests/arrays, followed by a passing `--verify-only` run; it
+regenerates committed full-run manifests when using default output directories.
+
 Run the primary dashboard on a non-default port (no `API_URL` needed):
 
 ```bash
-python -m uvicorn api.main:app --host 127.0.0.1 --port 8001
+API_DOCS_ENABLED=false python -m uvicorn api.main:app --host 127.0.0.1 --port 8001
 # Open http://localhost:8001/dashboard/
 ```
+
+Success means `/health` returns `{"status":"ok"}` and `/docs` returns 404 while
+the dashboard still works. These settings/responses were checked using an
+ephemeral loopback port; the port number itself is not a Python environment setting.
+In PowerShell set `$env:API_DOCS_ENABLED = 'false'` before the uvicorn command.
 
 Run the optional real-data tests (requires both local datasets):
 
 ```bash
 RUN_REAL_DATA_TESTS=1 python -m pytest tests/test_data_real_optional.py -q
 ```
+
+This opt-in was not run here. Success means the two availability checks execute
+without failure; they do not verify processed hashes or train a detector.
+
+Enable the three optional CleverHans tests only after installing its isolated
+torch-only overlay:
+
+```bash
+CLEVERHANS_TORCH_PATH="$PWD/data/external/cleverhans-torch" \
+  python -m pytest tests/test_attacks.py -k optional_cleverhans -q -rs
+```
+
+Success means all three parameterized cases execute without skips/failures.
+They were not executed in this pass because that backend is absent. PowerShell
+uses `$env:CLEVERHANS_TORCH_PATH = (Resolve-Path data/external/cleverhans-torch).Path`
+before the same pytest command. This variable has no effect on recorded playback.
 
 The commands above assume the virtual environment is active. For equivalent
 Make targets and troubleshooting see [`development.md`](development.md), for

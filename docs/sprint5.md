@@ -3,17 +3,21 @@
 Status: implementation with frozen-baseline acceptance **pending M1 and Security
 review**. An explicitly labelled operating-validation exploration is supported
 under the owner's delegated fallback decision. See [progress](progress.md) and
-[Sprint 4 report](sprint4_report.md). The remote Sprint 4 branch is already
-merged into main; it contains no completed frozen bundle or completed measured
-baseline report. Weights are deliberately not distributed through Git.
+[Sprint 4 report](sprint4_report.md). Sprint 4 is merged into main, with three
+completed measured search reports; none passed the freeze gate. No qualifying
+frozen bundle is distributed. Weights are deliberately not stored in Git.
 
 ## Team prerequisites
 
+The following prerequisites describe the frozen benchmark. The separately
+authorized [candidate mode](#explicit-exploratory-candidate-mode) does not
+complete that benchmark or waive its acceptance gates.
+
 1. Synchronize the environment with `python scripts/setup_environment.py`.
    `--check-only` checks without installing; satisfied pins reuse existing torch.
-2. Finish Sprint 4 using [its protocol](sprint4.md). On this Windows checkout the
-   full processed data is `data/processed/ember2018`; no dataset redownload is
-   needed. A bundle at `models/sprint4/baseline_v1` must pass the existing full-data
+2. Finish Sprint 4 using [its protocol](sprint4.md). Use your local full processed
+   EMBER directory (`data/processed/ember2018` by default); a fresh checkout has
+   no arrays. A bundle at `models/sprint4/baseline_v1` must pass the existing full-data
    93% validation/test gates. A development candidate cannot substitute for M1.
 3. SS-A reviews concrete feature-space operations against
    [the feasibility table](feature_feasibility.md). Copy
@@ -47,7 +51,8 @@ This is a scalar sensitivity probe; unchanged coupled features mean it is not
 a realizable append transformation. Owner authorization is not SS validation.
 It does not establish the strength of a broader attack or general robustness.
 
-Once M1 passes, this policy can produce the first bounded measurements:
+After M1 passes, this policy can run a bounded probe on the frozen model. Its
+technical review still remains pending; CLI completion is not benchmark acceptance:
 
 ```bash
 python scripts/run_attacks.py --policy docs/sprint5_size_probe_policy.json --cleverhans --cleverhans-path data/external/cleverhans-torch --output docs/results/attacks/size-probe-001.json
@@ -75,6 +80,43 @@ It uses memory-mapped arrays and stratified sampling without replacement.
 The same ordered rows, labels, threshold and model are used for every
 configuration and optional cross-check. No test data is used for tuning.
 The default 0 epsilon entry is an identity control for FGSM/PGD, not CW.
+
+### CLI options and success criteria
+
+Run `python scripts/run_attacks.py --help` to check argument discovery; it exited
+0 in this documentation pass. The real-data commands above and below were **not
+rerun**; they require matching local data, a trusted bundle and an unused output
+path. Their measured reference remains [the Sprint 5 report](sprint5_report.md).
+
+| Option | Type / default | Effect |
+|---|---|---|
+| `--data-dir`, `--bundle-dir` | Paths; `data/processed/ember2018`, `models/sprint4/baseline_v1` | Processed EMBER inputs and verified model bundle; their manifest identities must match |
+| `--policy` | Required JSON path | Explicit feature-space policy with the matching feature-schema hash |
+| `--output` | Path; `docs/results/attacks/sprint5.json` | Write one validated report; refuse an existing path |
+| `--samples` | Integer; `128`, allowed 2–4096 | Stratified row cap without replacement; use all eligible rows if fewer are available |
+| `--split` | `val` or `test`; `test` | Frozen mode uses the selected split; candidate mode requires `val` and restricts it to operating rows |
+| `--seed` | Integer; `42` | Cohort sampling and attack seed; candidate partition reconstruction uses the bundle's original seed |
+| `--epsilon` | One or more floats; `0 0.05 0.1 0.2` | Nonnegative standardized Linf budgets for FGSM/PGD only |
+| `--step-size` | One or more positive floats; `0.01` | PGD step sizes; effective step is capped at epsilon |
+| `--iterations` | One or more integers; `10 20`, allowed 1–10000 | PGD iteration budgets |
+| `--cw-iterations` | Integer; `100`, allowed 1–10000 | CW-L2 iteration budget, not an epsilon |
+| `--cleverhans` | Flag; off | Request an independent optional cross-check; missing/unsupported imports remain `not_run` |
+| `--cleverhans-path` | Optional trusted directory | Prepend an isolated installation to this CLI process's import path; installs nothing |
+| `--allow-candidate`, `--candidate-reason` | Flag off; reason string empty | Explicit operating-validation exploration; a nonblank reason is required when enabled |
+
+The CLI forms every FGSM epsilon, every PGD epsilon × step-size × iteration
+combination, then one CW-L2 configuration. Defaults produce **13** configurations;
+the two step sizes in the reproduction command produce **21**. The harness
+accepts at most 100 configurations and rejects duplicate configurations when
+validating the report. CW's other solver parameters are available through the
+Python `AttackConfig` interface, not separate CLI flags; see the
+[attack API](../src/attacks/README.md).
+
+Success means exit 0, a `Saved N measured attack configurations` log and a new
+JSON report with `status: "completed"`. Inspect its `experiment_stage`, model/
+policy identities and each `cross_check.status`; completion does not require
+CleverHans to have run or any attack to succeed. Handled file/validation errors
+exit 1; argparse errors exit 2. No success criterion includes passing M1.
 
 ## ART and CleverHans
 
@@ -142,6 +184,9 @@ abort the experiment rather than invent a completed cross-check.
 Completed checks include library versions, their own accuracy/ASR/norm metrics,
 prediction agreement and mean L2 candidate difference on the exact same rows.
 Agreement is evidence for inspection, not proof of implementation equivalence.
+This install command was not rerun in the documentation pass. Its success
+criterion is importable `cleverhans.torch` through the explicit overlay path,
+without replacing the main environment's torch or installing TensorFlow.
 
 ## Metrics and comparison identity
 
@@ -187,16 +232,21 @@ baselines. PGD curves separate step sizes and iteration counts. CW-L2 appears
 under L2 with optimization settings and no epsilon axis. Exact table values
 back the plots; ASR counts, norm means and provenance remain visible.
 The page is read-only: refresh loads reports, not long-running attacks.
+The documentation HTTP smoke returned one completed recorded experiment with
+21 configurations from `/v1/attacks`. That verifies playback, not an attack rerun.
+For the complete response envelope see [the API reference](../api/README.md).
 
 ## Verification
 
 ```bash
-python -m pytest tests/test_attacks.py tests/test_attacks_ui.py
+python -m pytest tests/test_attacks.py tests/test_attacks_ui.py tests/test_journey.py -q -rs
 ```
 
+Success means no test failures; optional-dependency skips are expected as follows.
 Tests use synthetic fixtures and temporary output directories. To execute the
 optional CleverHans test cases, set `CLEVERHANS_TORCH_PATH` to the absolute
-isolated install directory. Without it, three cross-check cases skip cleanly.
-The Node-backed UI test is optional when Node is unavailable. Test scores are
+isolated install directory. Without an importable backend, three cross-check
+cases skip cleanly. The explorer and two journey Node cases skip when Node is
+unavailable. Test scores are
 never copied into production dashboard reports. Real-data attack acceptance
 remains pending the two prerequisites above.

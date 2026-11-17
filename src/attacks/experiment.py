@@ -43,10 +43,25 @@ def run_experiment(
     allow_candidate=False,
     candidate_reason="",
 ):
-    """Require M1, exact dataset/schema identity, and a reviewed explicit policy.
+    """Verify inputs, run paired attacks and write one new completed JSON report.
 
-    Missing/unsupported optional cross-checks remain not_run. Other runtime
-    failures are errors, not silently swallowed or replaced with zero ASR.
+    ``data_dir``, ``bundle_dir``, ``policy_path`` and ``output`` are path-like.
+    ``configs`` is a nonempty sequence of at most 100 AttackConfig objects.
+    ``samples`` is an integer cap in [2, 4096]; ``split`` is "val" or "test";
+    ``seed`` controls cohort sampling and attack generation.
+
+    By default the bundle must pass M1. ``allow_candidate=True`` instead requires
+    a full-data blocked candidate, ``split="val"`` and a nonblank string
+    ``candidate_reason``; only its hash-verified operating partition is eligible.
+    Both modes require matching data/schema identities and an explicit policy.
+    Owner-authorized policies retain pending technical review, not SS acceptance.
+
+    Return the validated report dict and atomically write it to ``output``.
+    Existing outputs and invalid gates/inputs raise ValueError; filesystem and
+    malformed-input errors can propagate. ``cleverhans=True`` requests an optional
+    cross-check: missing/unsupported imports remain "not_run". Other runtime
+    failures propagate rather than becoming zero scores. No arrays are published,
+    and candidate execution never changes the bundle or prediction readiness.
     """
     if split not in {"val", "test"} or type(samples) is not int or not 2 <= samples <= 4096:
         raise ValueError("Use val/test and 2–4096 rows for bounded offline runs")

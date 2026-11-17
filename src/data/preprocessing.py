@@ -198,8 +198,12 @@ def compute_scaler_stats(
 ) -> tuple[np.ndarray, np.ndarray]:
     """Compute train-only mean/scale (population std) in bounded memory.
 
-    Zero-variance columns get ``scale = 1`` so standardisation is a no-op for
-    them. The source may be an in-memory array or a path to a ``.npy`` file.
+    ``source`` is a finite nonempty 2-D numeric array or a path to a ``.npy``
+    file; ``chunk_size`` is a positive row count (default 50,000). Return two
+    float64 arrays shaped (D,): population mean and standard deviation.
+    Zero-variance columns use ``scale = 1`` to avoid division by zero; centering
+    still applies, so a constant training column becomes zero. Invalid shape,
+    empty rows or nonfinite values raise ValueError.
     """
     array = _as_array(source)
     if array.ndim != 2:
@@ -467,7 +471,18 @@ def _resolve_manifest_artifact(root: Path, relative: object) -> Path | None:
 def verify_manifest_artifacts(
     manifest: dict[str, Any], root: str | Path, *, require_hashes: bool = False
 ) -> list[str]:
-    """Check artifacts; opt into mandatory SHA-256 for training/inference trust boundaries."""
+    """Return artifact-verification errors; an empty list means checks passed.
+
+    ``manifest`` is a dict with a nonempty ``artifacts`` mapping; each record
+    names a regular file relative to the path-like ``root``. Check containment,
+    existence and any supplied byte size/SHA-256 against the actual file.
+
+    ``require_hashes=False`` allows omitted hashes for the general reader.
+    Training/inference callers use True to require lowercase 64-hex digests
+    before reading model/data inputs. Failures are collected as strings rather
+    than used to repair files. Hashes do not authenticate the publisher or
+    protect against hostile concurrent filesystem mutation.
+    """
     root = Path(root)
     errors: list[str] = []
     artifacts = manifest.get("artifacts", {})

@@ -14,6 +14,9 @@ python -m uvicorn api.main:app --host 127.0.0.1 --port 8000 --reload
 Open <http://localhost:8000/dashboard/>. Native uvicorn does not load `.env`
 unless you pass `--env-file .env`; alternatively export variables before startup.
 The [configuration reference](../docs/configuration.md) covers settings/ports.
+Success means `/health` returns `{"status":"ok"}` and the dashboard loads recorded
+results. These responses were checked with a temporary loopback uvicorn process
+in the documentation audit; a fresh install and browser interaction were not rerun.
 
 ## Endpoints
 
@@ -44,7 +47,7 @@ complete response/error models are declared. Supply the header yourself.
 
 No authentication, request bodies or supported query/filter/pagination options
 on artifact routes. Unknown IDs return 404; known missing/invalid artifacts
-return 503. `/v1/runs` instead excludes invalid batches and counts them.
+return 503. `/v1/runs` and `/v1/attacks` instead exclude invalid inputs and count them.
 
 Allowlisted IDs are defined in
 [`src/evaluation/artifacts.py`](../src/evaluation/artifacts.py):
@@ -72,6 +75,70 @@ The [Sprint 3 contract](../docs/sprint3_contract.md) explains comparison identit
 score/threshold semantics and provenance; `RunSummary`/`Metrics` in the source
 define validation requirements.
 
+#### Attack listing
+
+`GET /v1/attacks` takes no parameters and returns HTTP 200 for both completed
+and empty/pending listings:
+
+| Field | Type / meaning |
+|---|---|
+| `schema_version` | Integer `1` |
+| `experiments` | List of validated completed report objects; empty when none are available |
+| `status` | String `"completed"` when the list is nonempty, otherwise `"pending"` |
+| `pending_reason` | String included in both states; general prerequisite guidance, not a live model-readiness check |
+| `unavailable_reports` | Integer count of invalid/unavailable reports encountered before a limit stops reading |
+| `truncated` | Boolean; the local-file count or aggregate byte budget prevented a complete listing |
+
+The committed `docs/results/attack_reference.json` is considered first, followed
+by up to 100 local `docs/results/attacks/*.json` files in descending filename order.
+Reports with the same `(compatibility_id, generated_at)` are deduplicated.
+Each file is capped at 2 MiB; reports are kept whole within a conservative
+4 MiB aggregate response budget. An invalid or absent reference does not invent
+a result: an empty accepted listing is `pending`, not an ASR of zero.
+
+Each experiment contains:
+
+- `schema_version: 1`, `status: "completed"`, string `compatibility_id` and
+  `generated_at`. The compatibility digest binds the exact `identity` dictionary.
+- `identity`: dataset/model/status, manifest/model/schema/preprocessing/policy
+  and row-index digests, split, cohort, row count, seed, representation and threshold.
+- `experiment_stage`: `"frozen_baseline"` or `"development_candidate_not_frozen"`
+  for current runner output. Older frozen reports may omit it. Candidate reports
+  retain a nonblank `candidate_reason` and operating-validation labels.
+- `constraint` and `baseline_qualification`: policy/review status and recorded
+  validation/test qualification. A completed experiment is not proof of M1.
+- `results`: a list of ART configurations. Each has `attack`, `norm`, `parameters`,
+  `projection`, library/version, paired `metrics`, `cross_check`, and optional
+  deliberately selected `examples` (up to three). Missing cross-checks are
+  `"not_run"` with a reason, not zero-valued measurements.
+
+Metric counts/types and report validation are documented in
+[the evaluation reference](../src/evaluation/README.md); projection and case
+limitations are in [Sprint 5](../docs/sprint5.md). No model or arrays are loaded
+by this route, and neither filters nor HTTP attack execution are supported.
+
+Read-only client example, with the API running:
+
+```python
+import json
+from urllib.request import urlopen
+
+with urlopen("http://127.0.0.1:8000/v1/attacks", timeout=10) as response:
+    listing = json.load(response)
+print(f"{listing['status']}: {len(listing['experiments'])} experiment(s)")
+```
+
+The reference-only listing printed `completed: 1 experiment(s)` in the
+documentation HTTP smoke; local reports can increase the count.
+
+#### MNIST evidence
+
+`GET /v1/demo` wraps the recorded JSON in `result`. Its historical
+`attack_success_rate` values are **overall adversarial error rates**, not the
+current demo's clean-correct conditional ASR. The evidence has not been
+regenerated. See [the demo guide](../docs/development.md#run-the-art-demo);
+do not compare these fields directly with Sprint 5 conditional ASR.
+
 Reads accept contained regular files only, up to 2 MiB each; malformed or
 nonfinite JSON (including numeric overflow) is unavailable. Do not give
 untrusted writers access to artifact directories; limits do not make hostile
@@ -82,6 +149,10 @@ curl --fail-with-body http://127.0.0.1:8000/health
 curl --fail-with-body http://127.0.0.1:8000/v1/runs
 curl --fail-with-body http://127.0.0.1:8000/v1/reports/sprint4
 ```
+
+These requests should return HTTP 200 with the documented JSON fields. The
+documentation smoke checked all three routes; health returned `{"status":"ok"}`
+and the reference-only run listing contained four Sprint 3 runs.
 
 ## Feature prediction
 
@@ -122,7 +193,10 @@ Label 1 means malicious (`score >= 0.5`), label 0 benign. This default threshold
 is **not** the validation-selected 95%-TPR operating threshold. Scores are not a
 file-safety guarantee or adversarial verdict.
 
-Example using a real locally held feature vector, only after provisioning:
+Example using a real locally held feature vector, only after provisioning.
+This client was syntax-checked but **not executed against a real frozen bundle**
+in the documentation pass. Success means one calibrated prediction in input
+order, with the matching identities; the example does not create a model:
 
 ```python
 import json
