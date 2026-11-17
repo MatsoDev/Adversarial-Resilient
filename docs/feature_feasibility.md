@@ -2,13 +2,15 @@
 
 This is a research planning artifact for constrained feature-space attacks. It
 does not claim that a changed feature produces a valid executable. The security
-team must review each row before it is used by an attack implementation.
+team must review each concrete operation before it is treated as an accepted
+benchmark constraint. The separately authorized Sprint 5 scalar probe below is
+not technical review or problem-space validation.
 
 | EMBER feature group | Candidate change | Initial status | Reason / validation needed |
 |---|---|---|---|
 | `section` | Add a section or append data | Conditionally modifiable | Must preserve a valid PE and remain functionality-preserving; validate only in an isolated lab with benign test files. |
 | `imports` | Add an existing library/function reference | Conditionally modifiable | Requires a realizable PE edit and may change behavior; feature-only perturbations are insufficient evidence. |
-| `general` | File size / section count | Conditionally modifiable | May follow a valid structural edit; never edit independently without a problem-space check. |
+| `general` | File size / import/export counts | Conditionally modifiable | May follow a valid structural edit; never claim a realizable independent edit without a problem-space check. |
 | `histogram` / `byteentropy` | Append bytes | Conditionally modifiable | Must be tied to a valid append operation and valid ranges; these groups are normalized summaries. |
 | `strings` | Statistics changed by appended content | Conditionally modifiable | Counts, averages, distributions and entropy must be recomputed together from a realizable edit. |
 | `header` | Timestamp or header fields | Review required | Many fields are structural or loader-sensitive; keep immutable until the security review approves a concrete operation. |
@@ -21,7 +23,7 @@ require changing the protocol state remain non-modifiable until SS-B documents
 a safe simulation. All attacks report whether evidence is feature-space only,
 problem-space validated, or unavailable.
 
-## Constraints for the upcoming attack implementation
+## Constraints for the attack implementation
 
 All group offsets refer to the raw feature vector before standardization; use
 the [2381-dimensional layout](data/ember_feature_layout.md). Hashed coordinates
@@ -38,6 +40,13 @@ executable. Do not enable a mutation solely because a column is numeric.
 | Flags / header-dependent counts | Immutable initially | Protocol-state and aggregate consistency review by SS-B |
 | Labels, hashes, IDs and dataset metadata | Immutable; exclude from attack inputs | Preserve ground truth and sample identity |
 
-SS-A and SS-B must review and approve concrete operations before Sprint 5
-generates constrained attacks. This table is a proposal for review; no
-problem-space mutation or live malware execution is implemented in Sprint 3.
+SS-A and SS-B must review and approve concrete operations for the accepted frozen
+benchmark. This table remains a proposal, not the runner's executable policy.
+Sprint 5 now implements scalar projection and records an
+[owner-authorized size-only sensitivity probe](sprint5.md#run-measured-experiments-offline):
+only raw feature 616 (`general.size`) may increase integrally by at most 64 KiB;
+all other coordinates stay fixed. Its policy explicitly retains
+`security_review: "pending"` and `problem_space_validated: false` in the report.
+Coupled features are not recomputed, so neither owner authorization nor measured
+decision changes establish a realizable append operation. No problem-space
+mutation or live malware execution is implemented.

@@ -8,6 +8,9 @@ only; no attacks, defenses, uploads, database, history or network-domain expansi
 
 Use Python 3.11–3.12 with the existing CPU environment. No new dependencies.
 Raw public feature datasets are read in place; nothing is downloaded.
+Run from the repository root with the environment active. The real-data
+commands in this guide were not rerun for the documentation pass; historical
+measurements are in [the Sprint 4 report](sprint4_report.md).
 
 ```bash
 python scripts/preprocess.py --dataset ember --output-dir data/processed/sprint4-ember --jobs 2
@@ -30,6 +33,12 @@ For development only, use `--max-train 10000 --max-val 5000` and a **different**
 Exit codes: **0** frozen, **2** measured but blocked by the M1 gate, **1** error.
 Output directories must not already exist, even after a failed run. Keep the
 locked selection and results; never overwrite evidence to rerun against test.
+Choose an unused `--report` path as well: unlike the experiment-directory gate,
+optional report publication can replace its target. Success means a new
+`bundle.json` with the actual `status` and the listed artifacts, not necessarily
+exit 0. Exit 2 with a measured blocked candidate is an expected research outcome,
+not permission to change the gate. The three recorded searches all remained
+blocked; their official test was unopened.
 
 ## Locked evaluation protocol
 
@@ -62,8 +71,13 @@ locked selection and results; never overwrite evidence to rerun against test.
    threshold measure transfer; test TPR is **not assumed to remain 95%**.
 8. Freeze as `baseline_v1` only if full-data test accuracy also reaches 93%.
    95–97% remains a target, not an invented result. A test miss blocks M1:
-   do not tune on the revealed test result or start Sprint 5. Revisit data/
+   do not tune on the revealed test result or start the frozen Sprint 5 benchmark. Revisit data/
    methodology with the team and supervisor instead.
+
+The owner subsequently authorized a separate
+[operating-validation candidate exploration](sprint5.md#explicit-exploratory-candidate-mode).
+It is not frozen-benchmark acceptance, cannot open official test in candidate
+mode and cannot enable prediction. This exception does not change the gates above.
 
 The final bundle contains weights (`torch` state dictionary), scaler NPZ,
 ordered feature names and a JSON manifest, all under ignored `models/`.
@@ -102,12 +116,19 @@ cross-runtime bitwise identity is not promised. After checkpoint selection the
 model is moved to CPU for calibration and official evaluation. API serving
 continues with the normal pinned CPU environment; verify its output separately
 before handoff. Model state dictionaries remain CPU-loadable.
+The launcher/CUDA commands were not executed in this pass; `--help` exited 0.
+After an authorized run, check recorded `training_device`, actual torch version
+and CPU `evaluation_device` alongside the measured status. A CUDA launch that
+silently falls back is not the implemented contract.
 
 To run the same declared search without an existing GPU runtime:
 
 ```bash
 python scripts/tune_baseline.py --data-dir data/processed/ember2018 --output-dir models/sprint4/regularized-cpu --trials-json docs/results/sprint4_regularized_search_config.json --device cpu
 ```
+
+Use a new output directory. Success has the same measured-report and exit-status
+criteria as the primary reproduction; no CPU/GPU score equivalence is promised.
 
 ## Feature inference
 
@@ -121,7 +142,7 @@ the UI; there is no history. Do not use a shared/public deployment without
 TLS and external authentication/authorization; this single local research
 token is not a multi-user identity system.
 
-With the venv active, Linux/macOS shell setup:
+With the venv active, Linux shell setup:
 
 ```bash
 export PREDICTION_API_TOKEN="$(python -c 'import secrets; print(secrets.token_urlsafe(32))')"
@@ -132,6 +153,11 @@ PowerShell uses `$env:PREDICTION_API_TOKEN = python -c "import secrets; print(se
 Native uvicorn does not read `.env` automatically; use exported variables or
 explicit `--env-file .env`. A generated token does not create a frozen bundle.
 Do not manually change a blocked candidate's status to enable serving.
+This provisioning example was not executed against a real frozen bundle in the
+documentation pass. Once both prerequisites are met, the authenticated metadata
+route must return HTTP 200 with `status: "frozen"` and `model_version: "baseline_v1"`.
+With no token, the verified default response was HTTP 503
+`{"detail":"Prediction is disabled"}`; `/health` still returned 200.
 
 `GET /v1/baseline` returns verified frozen identity/test metrics. `POST /predict`
 accepts 1–32 ordered 2381-dimensional numeric feature rows with matching schema/

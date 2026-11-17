@@ -13,8 +13,16 @@ model/data views (`app.js`) and gated prediction; `attacks.html` retains the
 attack explorer. `theme.css` supplies the shared dark navy/cyan palette and
 `release.js` supplies the visible v0.5.2 / Sprint 05 UI identity. See the
 [journey guide](../docs/ai_journey.md). It is served by FastAPI at **/dashboard/** and reads `/v1/*` on the
-same origin. Start `python -m uvicorn api.main:app --host 127.0.0.1 --port 8000`
-and open <http://localhost:8000/dashboard/>. `make dashboard` or the Compose
+same origin. From the repository root with the environment active:
+
+```bash
+python -m uvicorn api.main:app --host 127.0.0.1 --port 8000
+```
+
+Open <http://localhost:8000/dashboard/>. Success means the release label is
+**v0.5.2 · Sprint 05 · AI Journey** and recorded cases load. All three HTML
+routes and the stored experiment were checked over HTTP; browser interaction
+was not rerun in the documentation pass. `make dashboard` or the Compose
 dashboard service uses <http://localhost:8501/dashboard/>.
 
 No frontend build or third-party CDN is needed. CSS/JavaScript are local files;
@@ -48,13 +56,19 @@ absolute same-origin `/v1/*` and `/predict` paths. `API_URL` does not change the
 Serve at `/dashboard/` (including the trailing slash for relative assets).
 
 ```bash
-python -m pytest tests/test_html_dashboard.py tests/test_sprint4_ui.py -q
+python -m pytest tests/test_html_dashboard.py tests/test_sprint4_ui.py tests/test_attacks_ui.py tests/test_journey.py -q
 node --check dashboard/web/app.js
 node --check dashboard/web/prediction.js
+node --check dashboard/web/attacks.js
+node --check dashboard/web/journey.js
+node --check dashboard/web/locale.js
+node --check dashboard/web/release.js
 ```
 
-Node.js is optional test tooling, not required to serve the UI. The component
-test skips without Node and uses a minimal DOM, not a full browser. There is no
+Success means pytest has no failures and syntax checks exit 0 without output.
+These files were checked in the documentation pass. Node.js is optional test
+tooling, not required to serve the UI. Four component cases skip without Node
+and use pure helpers/minimal DOMs, not a full browser. There is no
 frontend package manager, build pipeline or browser end-to-end runner.
 
 The Streamlit implementation below is legacy reference only; it is no longer
@@ -94,6 +108,9 @@ the primary FastAPI/HTML UI on the same port, so choose one. Streamlit initializ
 change it. After changing the environment, use a new session. If the
 API is not running, the button reports the configured endpoint without echoing
 the underlying exception details.
+Success means Streamlit opens its navigation and can load recorded API results.
+The existing real-process regression test ran in pytest; an interactive legacy
+browser session was not repeated for this documentation pass.
 
 `dashboard/client.py` validates `API_URL` before any request: it must be an
 absolute `http`/`https` URL with a host and no credentials, query string,
