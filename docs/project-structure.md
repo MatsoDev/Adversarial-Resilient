@@ -13,7 +13,7 @@ Adversarial-Resilient/
 ├── CONTRIBUTING.md, LICENSE      # contribution workflow and MIT license
 ├── Makefile                     # canonical setup/check/service/data commands
 ├── pyproject.toml               # Ruff, pytest and coverage; no package build
-├── requirements*.txt            # runtime, dev, CPU torch, isolated CleverHans
+├── requirements*.txt            # runtime, dev, CPU torch, two optional CleverHans workflows
 ├── Dockerfile, docker-compose.yml
 ├── .env.example                 # safe local/Compose settings template
 ├── .gitignore, .dockerignore, .gitattributes
@@ -43,7 +43,7 @@ Adversarial-Resilient/
 │   │   ├── tuning.py            # CPU search, calibration and held-out test gate
 │   │   └── frozen.py            # verified bundles and raw/scaled inference
 │   ├── evaluation/              # binary/attack metrics, report validation, artifact readers
-│   ├── attacks/                 # offline ART/CleverHans, feature policies, measured cases
+│   ├── attacks/                 # runner.py, constraints.py, experiment.py, examples.py
 │   └── defenses/                # reserved boundary; no defense implementation yet
 ├── scripts/                     # runnable operator entry points
 │   ├── setup_environment.py     # synchronize/check .venv; no data or hooks
@@ -52,6 +52,7 @@ Adversarial-Resilient/
 │   ├── eda_datasets.py          # EDA JSON/figures/report generator
 │   ├── train_baselines.py       # Sprint 3 comparison CLI
 │   ├── tune_baseline.py         # Sprint 4 tune/calibrate/evaluate/freeze CLI
+│   ├── tune_with_existing_torch.py # opt-in trusted existing torch launcher; no installer
 │   └── run_attacks.py           # gated frozen/candidate feature-space experiments
 ├── tests/                       # flat pytest suite; see docs/testing.md
 │   ├── conftest.py              # Windows torch import-order workaround
@@ -60,9 +61,10 @@ Adversarial-Resilient/
 │   ├── data/                   # guide, feature layout, generated EDA/manifests
 │   ├── data_cards/             # dataset composition, license and limitations
 │   ├── literature/             # linked paper notes and templates
+│   ├── plans/                  # dated, self-contained team-facing HTML plan snapshot
 │   ├── security/               # dated audit and residual risks
 │   ├── figures/                # intentionally committed reference PNGs
-│   └── results/                # committed reference JSON; local baselines/ ignored
+│   └── results/                # measured reference JSON; local baselines/ and attacks/ ignored
 ├── data/                        # runtime data, contents ignored except .gitkeep
 │   ├── raw/                    # downloaded MNIST and optional dataset links
 │   ├── processed/              # derived arrays, metadata, scalers and manifests
@@ -119,6 +121,7 @@ uses only the standard library so it can run before dependencies are installed.
 | `requirements-dev.txt` | Runtime plus tests, formatting, hooks and security tooling |
 | `requirements-torch.txt` | CPU-only wheels with the PyTorch index scoped to this file |
 | `requirements-cleverhans.txt` | Optional isolated legacy cross-check; not default setup |
+| `requirements-cleverhans-torch.txt` | Optional Sprint 5 `--no-deps --target` torch-only overlay; no TensorFlow or replacement torch |
 | `Dockerfile`, `docker-compose.yml` | Non-root app image; two same-app instances plus local MLflow |
 | `.env.example` | Local settings template; `.env` and local `.env.*` remain ignored |
 | `.gitignore`, `.dockerignore` | Separate version-control and container-build-context policies |
@@ -137,7 +140,12 @@ do not assume automatic version-update PRs are currently enabled.
 | `docs/data/manifests/*.json` | Full default-output `scripts/preprocess.py` runs; intentionally committed |
 | `docs/data/eda_report.md`, `docs/results/data_eda.json`, `docs/figures/data_*.png` | `scripts/eda_datasets.py` / `make eda`; intentionally committed |
 | `docs/results/baseline_reference.json` | Compact measured Sprint 3 snapshot; preserve scores/provenance, see [handoff](team_handoff.md) |
+| `docs/results/attack_reference.json` | Measured Sprint 5 candidate/case snapshot from the offline runner; preserve identities/scores, see [Sprint 5](sprint5.md) |
+| `docs/results/sprint4_search_3epochs.json`, `docs/results/sprint4_extended_10epochs.json`, `docs/results/sprint4_regularized_gpu10.json` | Measured tuning reports; regenerate through authorized experiments, never hand-edit results |
+| `docs/results/sprint4_regularized_search_config.json`, `docs/sprint5_*policy*.json` | Maintained declared configuration/policy inputs, not measured outputs |
 | `docs/results/baselines/` | Ignored local Sprint 3 comparison JSON |
+| `docs/results/attacks/` | Ignored local completed attack reports |
+| `docs/plans/project_plan_v0.5.2.html` | Dated exported planning snapshot; current status remains in `progress.md` |
 | `data/`, `models/`, `mlruns/`, `mlartifacts/` contents | Ignored runtime data/checkpoints/tracking; retain tracked directory placeholders |
 | `.venv/`, `__pycache__/`, `.pytest_cache/`, `.ruff_cache/`, coverage outputs | Local environment/tool artifacts, not source |
 
@@ -158,7 +166,9 @@ or Python `run_demo(output_dir=...)` for checks that must not replace evidence.
   `DECISIONS.md` and historical `PR_sprint1.md`); new general docs use
   `lower_snake_case.md`. Avoid cosmetic renames of stable links.
 - Ruff is the formatter (`line-length = 100`); use logging in library code.
-  Python 3.11–3.12 and CPU-only operation remain required.
+  Python 3.11–3.12 and CPU-compatible defaults remain required. Native macOS
+  wheel limitations and optional authorized CUDA training are documented in
+  [setup](development.md#prerequisites) and [Sprint 4](sprint4.md#optional-existing-gpu-runtime).
 - [Contribution rules](../CONTRIBUTING.md) own branching/commits/PR review.
   `main` receives changes through PRs, not direct pushes.
 
@@ -171,7 +181,8 @@ its frozen-benchmark acceptance still depends on M1 and technical policy review.
 speculative abstractions to fill them.
 Historical reports/PR snapshots remain evidence, not current setup manuals.
 The original project-plan HTML export is available in Git history (`c8a9d0a`);
-the maintained scope document is Markdown. Existing runtime bundle directories
+the newer team-facing v0.5.2 snapshot is under [plans/](plans/README.md), while
+the maintained scope document remains Markdown. Existing runtime bundle directories
 do not prove that a qualifying freeze exists or that M1 passed.
 
 The [repository audit](repository_audit.md) records cleanup evidence and retained

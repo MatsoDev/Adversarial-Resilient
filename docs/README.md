@@ -16,7 +16,7 @@ and how to get it running; this page is the map to everything else.
 - **Current status:** [progress](progress.md); **scope:** [project plan](project_plan.md).
 - **Why:** [decisions](DECISIONS.md); **dated evidence:** sprint and audit reports, not new setup instructions.
 
-- [AI journey and UI v0.5.1](ai_journey.md): guided measured cases, team version check and future sprint work.
+- [AI journey and UI v0.5.2](ai_journey.md): guided measured cases, team version check and future sprint work.
 
 ## Getting oriented
 
@@ -32,7 +32,7 @@ The complete versioned HTML plan is in [plans/](plans/README.md), including the
 | [`configuration.md`](configuration.md) | Environment variables, dataset resolution, Compose ports, paths/seeds |
 | [`testing.md`](testing.md) | Test layout, commands, synthetic fixtures, optional real-data checks |
 | [`testing_hardening_report.md`](testing_hardening_report.md) | Verified metrics/integrity regressions, prediction-boundary tests and before/after measurements |
-| [`documentation_audit.md`](documentation_audit.md) | Documentation findings, fixes, validation evidence and remaining gaps |
+| [`documentation_audit.md`](documentation_audit.md) | Dated documentation audits, complete inventory, file-by-file fixes, verified examples and remaining gaps |
 | [`repository_audit.md`](repository_audit.md) | Structural audit, cleanup evidence, regression guards, validation and retained exceptions |
 | [`progress.md`](progress.md) | Where are we now: sprint/milestone status, current checklist |
 
@@ -48,7 +48,7 @@ The complete versioned HTML plan is in [plans/](plans/README.md), including the
 | [`../src/models/README.md`](../src/models/README.md) | Model classes, training/tuning interfaces, verified frozen bundles and CLI discovery |
 | [`../src/attacks/README.md`](../src/attacks/README.md) | ART/CleverHans FGSM/PGD/CW, policies and gated/exploratory experiments |
 | [`../src/defenses/README.md`](../src/defenses/README.md) | Planned hardening methods (placeholder) |
-| [`../src/evaluation/README.md`](../src/evaluation/README.md) | Binary metrics/threshold semantics and bounded artifact readers |
+| [`../src/evaluation/README.md`](../src/evaluation/README.md) | Binary/paired attack metrics, report validation and bounded artifact readers |
 
 ## Data
 
@@ -86,7 +86,7 @@ The complete versioned HTML plan is in [plans/](plans/README.md), including the
 | [`sprint4.md`](sprint4.md) | Tuning, calibration, freeze gates, reproducibility and authenticated feature prediction |
 | [`sprint4_report.md`](sprint4_report.md) | Sprint 4 measured evidence, verification and M1 status |
 | [`sprint5.md`](sprint5.md) | Offline constrained attacks, metrics, cross-checks and HTML explorer; prerequisites |
-| [`sprint5_report.md`](sprint5_report.md) | Sprint 5 implementation evidence and pending real-data acceptance |
+| [`sprint5_report.md`](sprint5_report.md) | Measured exploratory EMBER results; frozen-benchmark and technical-review acceptance still pending |
 | [`PR_sprint1.md`](PR_sprint1.md) | Snapshot of the Sprint 1 pull request description (historical) |
 
 ## Generated artifacts (do not edit by hand)
@@ -110,3 +110,9 @@ Sprint 3 evidence; do not edit its scores by hand. Local comparison reports in
 `docs/results/baselines/`, `mlruns/`, `data/raw/`, `data/processed/`, and model bundles
 are generated at runtime but are gitignored, not committed. The tracked
 `.gitkeep` files reserve runtime directories; they are not datasets or weights.
+
+The measured [Sprint 5 reference](results/attack_reference.json) and
+[Sprint 4 reports](sprint4_report.md) are also committed evidence, not editable
+examples. Preserve their original scores, identities and source hashes.
+Local attack outputs under `results/attacks/` are ignored; use the
+[offline runner](sprint5.md) for new measurements.
