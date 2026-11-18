@@ -335,7 +335,9 @@
     const {map,pattern} = converters.get(language);
     return text.replace(pattern, match => map.get(match));
   }
-  if (typeof module !== 'undefined') module.exports = {translate, copy};
+  // Keep an entire formatted number in one directional run (including commas).
+  const isolate = text => text.replace(/[A-Za-z0-9][A-Za-z0-9_.,:/+%∞⁻⁶–-]*/g, value => `\u2066${value}\u2069`);
+  if (typeof module !== 'undefined') module.exports = {translate, isolate, copy};
   if (typeof document === 'undefined') return;
   let language = 'en';
   try { if (localStorage.getItem('arsm-language') === 'ar') language = 'ar'; } catch (_) { /* Session-only choice. */ }
@@ -370,7 +372,7 @@
       // Isolate Latin identifiers, timestamps, counts and ratios inside Arabic.
       // Stored source text and numeric evidence stay unchanged.
       if (language === 'ar' && !node.parentElement.closest('[dir="ltr"],bdi')) {
-        record.rendered = record.rendered.replace(/[A-Za-z0-9][A-Za-z0-9_.:/+%∞⁻⁶–-]*/g, value => `\u2066${value}\u2069`);
+        record.rendered = isolate(record.rendered);
       }
       originals.set(node,record);
       if (node.textContent !== record.rendered) node.textContent = record.rendered;

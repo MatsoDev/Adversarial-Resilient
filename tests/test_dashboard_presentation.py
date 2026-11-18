@@ -46,7 +46,10 @@ def test_primary_navigation_and_local_assets_are_consistent(page):
 def test_formal_arabic_status_copy_and_identifier_boundaries():
     script = r"""
 const assert=require('node:assert/strict');
-const {translate,copy}=require(process.argv[1]);
+const {translate,isolate,copy}=require(process.argv[1]);
+for(const number of ['1,000,000','22,500','92.18%','1/122','10⁻⁶']) {
+  assert.equal(isolate(number),'\u2066'+number+'\u2069');
+}
 for(const text of ['sprint4_candidate','step_size','random_start','MODELXYZ',
                   'a1fb1499fc5b','92.18% / 1/122 / 22,500']) {
   assert.equal(translate(text,'ar'),text);

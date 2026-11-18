@@ -68,6 +68,9 @@ feature-space decision does not establish a valid executable modification.
   status copy, technical-identifier boundaries, measured-case rendering and
   prediction success, unavailable/unauthorized states and invalid inputs.
   Python coverage does not measure JavaScript line coverage.
+  A final screenshot review caught reversed comma-group ordering in Arabic
+  counts; whole-number directional isolation now has explicit regression cases
+  for `1,000,000`, `22,500`, percentages, ratios and measurement tolerances.
 - JavaScript syntax checks, `git diff --check` and task-file pre-commit hooks
   passed, including private-key and large-file guards.
 - Cached Chromium, real local FastAPI on loopback: all four routes in both
