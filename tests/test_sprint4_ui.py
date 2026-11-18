@@ -14,7 +14,10 @@ def test_prediction_javascript_success_invalid_input_and_unavailable():
     script = r"""
 const assert = require('node:assert/strict');
 const elements = {};
-global.document = {getElementById: id => elements[id] ||= {value: '', textContent: '', disabled: false}};
+global.document = {getElementById: id => elements[id] ||= {
+  value: '', textContent: '', disabled: false, attributes:new Set(),
+  toggleAttribute(name,on){on?this.attributes.add(name):this.attributes.delete(name)}
+}};
 let status = 200, calls = [];
 const identity = {model_version:'baseline_v1', preprocessing_sha256:'a'.repeat(64), feature_schema_sha256:'b'.repeat(64)};
 global.fetch = async (path, options) => {

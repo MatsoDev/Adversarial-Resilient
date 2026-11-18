@@ -8,6 +8,13 @@ short. Evidence of record stays in the sprint reports, PRs, and MLflow runs.
 
 ## Sprint 6 implementation — v0.6.0
 
+- Academic presentation follow-up: consistent four-route navigation, restrained
+  shared styling, formal Arabic/RTL and localized prediction/chart/status copy.
+  Local lint/coverage: 625 passed, 6 optional skips, 90% coverage; bilingual
+  desktop/mobile-width browser review completed. See
+  [presentation evidence and limits](dashboard_presentation.md).
+  No research milestone or acceptance blocker changed.
+
 - Offline source-only transfer crafting, matched target white-box evaluation,
   provenance/partition gates, explicit metric denominators and read-only API.
 - Bilingual threat/realism page and source/target journey evidence support;

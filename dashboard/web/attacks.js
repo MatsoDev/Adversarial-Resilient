@@ -26,7 +26,7 @@
       values.sort((a,b) => a.parameters.epsilon - b.parameters.epsilon);
       const color = `c${i%5}`;
       body += `<polyline class="series ${color}" points="${values.map(r => `${x(r.parameters.epsilon)},${y(r.metrics.attacked_accuracy)}`).join(' ')}"/>`;
-      values.forEach(r => body += `<circle class="${color}" cx="${x(r.parameters.epsilon)}" cy="${y(r.metrics.attacked_accuracy)}" r="4"><title>${esc(key)} · ε ${r.parameters.epsilon} · ${pct(r.metrics.attacked_accuracy)}</title></circle>`);
+      values.forEach(r => body += `<circle class="${color}" cx="${x(r.parameters.epsilon)}" cy="${y(r.metrics.attacked_accuracy)}" r="4"><title>${esc(r.attack)} · ε ${r.parameters.epsilon} · Accuracy: ${pct(r.metrics.attacked_accuracy)}</title></circle>`);
       const first = values[0];
       const label = first.attack === 'PGD' ? `PGD · step ${first.parameters.step_size} · ${first.parameters.iterations} iterations` : first.attack;
       legend += `<p class="attack-series-label ${color}">${esc(label)}</p>`;
@@ -41,7 +41,7 @@
     const qualification = experiment.baseline_qualification;
     const candidate = experiment.experiment_stage === 'development_candidate_not_frozen';
     const provenance = `<section class="panel"><h2>Comparison identity</h2>
-      <p>${esc(id.dataset)} · ${esc(id.model_version)} · ${esc(id.split)}<br>${number(id.samples)} rows · seed ${esc(id.seed)} · threshold ${id.threshold}</p>
+      <p><bdi data-evidence>${esc(id.dataset)}</bdi> · <bdi data-evidence>${esc(id.model_version)}</bdi> · ${esc(id.split)}<br>${number(id.samples)} rows · seed ${esc(id.seed)} · threshold ${id.threshold}</p>
       <details><summary>Model, cohort and policy provenance</summary><div class="identity-grid">
       <p>Model bundle SHA-256<br><code>${esc(id.model_sha256)}</code></p>
       <p>Exact row indices SHA-256<br><code>${esc(id.indices_sha256)}</code></p>
@@ -61,7 +61,7 @@
     rows.forEach(r => {
       const m = r.metrics, c = r.cross_check;
       const cross = c.status === 'completed' ? `CleverHans ${esc(c.version)} · accuracy ${pct(c.metrics.attacked_accuracy)} · ASR ${pct(c.metrics.attack_success_rate)} (${c.metrics.successful_attacks}/${c.metrics.asr_denominator}) · prediction agreement ${pct(c.prediction_agreement)} · mean candidate L2 difference ${number(c.mean_candidate_l2_difference)}` : `CleverHans: Not run · ${esc(c.reason)}`;
-      html += `<tr><td><strong>${esc(r.attack)}</strong><br>${esc(JSON.stringify(r.parameters))}<br>${esc(r.projection)}</td><td>${pct(m.clean_accuracy)}<br>${m.clean_correct}/${m.samples}</td><td>${pct(m.attacked_accuracy)}<br>${m.attacked_correct}/${m.samples}</td><td>${pct(m.attack_success_rate)}<br>${m.successful_attacks}/${m.asr_denominator}</td><td>${['L0','L2','Linf'].map(k => number(m.mean_norms[k])).join(' / ')}</td><td>ART ${esc(r.library_version)}<br>${cross}</td></tr>`;
+      html += `<tr><td><strong>${esc(r.attack)}</strong><br><code>${esc(JSON.stringify(r.parameters))}</code><br>${esc(r.projection)}</td><td>${pct(m.clean_accuracy)}<br>${m.clean_correct}/${m.samples}</td><td>${pct(m.attacked_accuracy)}<br>${m.attacked_correct}/${m.samples}</td><td>${pct(m.attack_success_rate)}<br>${m.successful_attacks}/${m.asr_denominator}</td><td>${['L0','L2','Linf'].map(k => number(m.mean_norms[k])).join(' / ')}</td><td>ART ${esc(r.library_version)}<br>${cross}</td></tr>`;
     });
     return html + `</tbody></table></div><details><summary>Full stored experiment and reproducibility data</summary><pre class="attack-detail">${esc(JSON.stringify(experiment,null,2))}</pre></details></section>` + provenance;
   }

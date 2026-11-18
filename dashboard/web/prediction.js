@@ -3,6 +3,13 @@
 (() => {
   const element = id => document.getElementById(id);
   let identity = null;
+  function status(id, message, evidence=false) {
+    const target = element(id);
+    target.toggleAttribute('data-ui-copy', !evidence);
+    target.textContent = message;
+  }
+  const failure = error => error instanceof TypeError || error.name === 'AbortError'
+    ? 'Connection failed or timed out. Please retry.' : error.message;
   async function request(path, payload) {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 15000);
@@ -24,19 +31,26 @@
   element('baseline-load').onclick = async () => {
     identity = null;
     element('prediction-submit').disabled = true;
+    element('baseline-load').disabled = true;
+    status('baseline-info','Loading frozen model identity…');
     try {
       identity = await request('/v1/baseline');
-      element('baseline-info').textContent = JSON.stringify(identity, null, 2);
+      status('baseline-info',JSON.stringify(identity, null, 2),true);
       element('prediction-submit').disabled = false;
-    } catch (error) { element('baseline-info').textContent = error.message; }
+    } catch (error) { status('baseline-info',failure(error)); }
+    finally { element('baseline-load').disabled = false; }
   };
   element('prediction-submit').onclick = async () => {
     if (!identity) return;
     element('prediction-submit').disabled = true;
+    element('baseline-load').disabled = true;
+    status('prediction-result','Classifying feature rows…');
     try {
       const text = element('prediction-rows').value;
       if (text.length > 2 * 1024 * 1024) throw new Error('Request too large.');
-      const rows = JSON.parse(text);
+      let rows;
+      try { rows = JSON.parse(text); }
+      catch (_) { throw new Error('Invalid JSON. Enter an array of numeric rows.'); }
       if (!Array.isArray(rows) || rows.length < 1 || rows.length > 32 ||
           rows.some(row => !Array.isArray(row) || row.length !== 2381 ||
             row.some(value => typeof value !== 'number' || !Number.isFinite(value)))) {
@@ -46,8 +60,11 @@
         representation: element('prediction-representation').value,
         preprocessing_id: identity.preprocessing_sha256,
         feature_schema_sha256: identity.feature_schema_sha256, rows});
-      element('prediction-result').textContent = JSON.stringify(result, null, 2);
-    } catch (error) { element('prediction-result').textContent = error.message; }
-    finally { element('prediction-submit').disabled = !identity; }
+      status('prediction-result',JSON.stringify(result, null, 2),true);
+    } catch (error) { status('prediction-result',failure(error)); }
+    finally {
+      element('prediction-submit').disabled = !identity;
+      element('baseline-load').disabled = false;
+    }
   };
 })();

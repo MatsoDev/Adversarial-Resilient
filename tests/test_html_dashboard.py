@@ -18,7 +18,7 @@ def test_dashboard_html_and_assets_keep_separate_csp():
     assert "script-src 'self'" in page.headers["content-security-policy"]
     assert "unsafe-inline" not in page.headers["content-security-policy"]
     assert "default-src 'none'" in client.get("/v1/runs").headers["content-security-policy"]
-    assert 'lang="ar" dir="rtl"' in page.text
+    assert 'lang="en" dir="ltr"' in page.text
     research = client.get("/dashboard/research.html")
     assert 'id="prediction-rows"' in research.text
     assert 'id="prediction-token" type="password"' in research.text

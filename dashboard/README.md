@@ -8,9 +8,9 @@ See [Sprint 5](../docs/sprint5.md) for prerequisites and commands.
 ## Current UI: HTML / CSS / JavaScript
 
 The primary dashboard is `dashboard/web/index.html` with `journey.js` and
-`journey.css`: a bilingual measured-case journey (English default, optional Egyptian Arabic). `research.html` retains the
+`journey.css`: a bilingual measured-case journey (English default, formal Modern Standard Arabic). `research.html` retains the
 model/data views (`app.js`) and gated prediction; `attacks.html` retains the
-attack explorer. `theme.css` supplies the shared dark navy/cyan palette and
+attack explorer. `theme.css` supplies the shared academic ink/slate/teal palette and
 `release.js` supplies the visible v0.6.0 / Sprint 06 UI identity. See the
 [journey guide](../docs/ai_journey.md). It is served by FastAPI at **/dashboard/** and reads `/v1/*` on the
 same origin. From the repository root with the environment active:
@@ -77,7 +77,10 @@ realism layers and proposed versioned mappings. Unmeasured transfer is pending,
 never relabelled white-box evidence. The same language switch applies; recorded
 transfer cases join the journey only when they contain actual individual evidence.
 Run `tests/test_transfer_ui.py` and `node --check dashboard/web/transfer.js`.
-See [Sprint 6 evidence and browser limits](../docs/sprint6_report.md).
+See [Sprint 6 research evidence](../docs/sprint6_report.md) and the newer
+[academic presentation review](../docs/dashboard_presentation.md) for current
+design, localization and browser checks. `tests/test_dashboard_presentation.py`
+covers local assets, consistent navigation, Arabic copy and prediction states.
 
 The Streamlit implementation below is legacy reference only; it is no longer
 the default dashboard entry point.

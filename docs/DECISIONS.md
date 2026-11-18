@@ -1,5 +1,19 @@
 # Decisions log
 
+## Academic presentation follow-up — 2026-11-18
+
+- **Formal Arabic, one shared visual identity.** Keep the plain frontend and
+  existing dark-only behavior. Use restrained ink/slate/teal tokens and local
+  Arabic/Latin system fonts rather than CDN fonts or a new dependency pipeline.
+- **Translate UI, preserve evidence.** English is the source for journey markup;
+  `locale.js` supplies Modern Standard Arabic, direction and numeric isolation.
+  Raw JSON/identifiers/documents remain unchanged. Localize status `<pre>` blocks
+  explicitly, and fix option values before translating labels so API identifiers
+  cannot become translated text.
+- **Presentation readiness is not research acceptance.** Prominent maturity
+  labels retain M1, transfer, realism and defense limitations. See the
+  [review and verification limits](dashboard_presentation.md).
+
 ## Sprint 6 — 2026-11-18
 
 - **No laptop training/downloads.** Owner assigned training and all downloads

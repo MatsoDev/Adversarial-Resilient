@@ -52,7 +52,7 @@ assert.ok(!ui.renderReport(hostile).includes('<img'));
 const mapped=ui.renderMappings(data.context,'ar');
 assert.ok(mapped.includes(data.context.mappings[1].rationale_ar));
 assert.ok(locale.translate('Threat context and transfer','ar').includes('نقل الهجوم'));
-assert.ok(locale.translate('Black-box transfer','ar').includes('نقل هجوم'));
+assert.ok(locale.translate('Black-box transfer','ar').includes('نقل الهجوم'));
 assert.ok(locale.translate('Pending / unavailable','ar').includes('غير متاح'));
 assert.equal(ui.ratio({numerator:0,denominator:0,rate:null}),'0/0 · Pending / unavailable');
 const rows=journey.journeyRows(data.report);
