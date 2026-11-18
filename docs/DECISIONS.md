@@ -1,5 +1,18 @@
 # Decisions log
 
+## Light academic presentation — 2026-11-19
+
+- **Projector-oriented default:** replace the dark-only palette with a light,
+  tokenized report style and larger text; preserve the existing stack and
+  avoid adding a theme toggle, remote fonts, dependencies or product features.
+- **Evidence and accessibility:** label the current reference's pending and
+  exploratory status separately from data-driven per-experiment qualification.
+  Give charts non-color patterns and table alternatives; identify the historical
+  MNIST error-rate definition rather than changing its stored measurements.
+- **Editorial scope:** revise interface prose in both languages, keep technical
+  artifacts unchanged, and flag the Arabic glossary and actual projector
+  readability for human review. See [verification limits](light_dashboard_review.md).
+
 ## Academic presentation follow-up — 2026-11-18
 
 - **Formal Arabic, one shared visual identity.** Keep the plain frontend and

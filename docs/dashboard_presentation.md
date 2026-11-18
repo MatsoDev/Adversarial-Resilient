@@ -1,5 +1,8 @@
 # Academic dashboard presentation review
 
+> Historical dark-theme review. The current light-mode design and newer checks
+> are documented in [the light dashboard review](light_dashboard_review.md).
+
 Date: 2026-11-18. Scope: `dashboard/web/`, not legacy Streamlit.
 This is presentation work, not completion of a research milestone.
 
