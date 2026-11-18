@@ -4,7 +4,7 @@ Living status of the project against [`project_plan.md`](project_plan.md).
 Update this file as work lands (at least at each sprint boundary); keep it
 short. Evidence of record stays in the sprint reports, PRs, and MLflow runs.
 
-**Last updated:** 2026-11-14 · **Current sprint:** Sprint 5 implementation and real exploratory validation complete; frozen-benchmark acceptance remains pending M1 and technical feature-policy review. See [Sprint 5 report](sprint5_report.md).
+**Last updated:** 2026-11-18 · **Current sprint:** Sprint 5 implementation and real exploratory validation complete; frozen-benchmark acceptance remains pending M1 and technical feature-policy review. See [Sprint 5 report](sprint5_report.md).
 
 ## Sprint 5 UI release — v0.5.2
 
@@ -150,6 +150,16 @@ known issues, skipped items).
 - [x] Add pytest guards for layer boundaries, documentation navigation and ignore
   semantics; update the contributor/agent map. Research milestone status is unchanged.
 - Evidence and verification: [repository audit](repository_audit.md).
+
+## CI efficiency and CLI characterization — 2026-11-18 (local)
+
+- PR/main-only CI triggers and persistent Docker layers configured; image
+  publishing remains disabled. Hosted cache reuse awaits an authorized push.
+- Added 16 attack-CLI characterization cases and two CI configuration guards:
+  567 passed, 6 optional skips; 90% combined coverage, 96% for the CLI.
+  Lint, security checks, local image/cache builds and filtered Trivy scan passed.
+- Evidence and limits: [efficiency audit](efficiency_audit.md). No research
+  milestone or prediction gate changed; commits remain local and unmerged.
 
 ## How to update this file
 

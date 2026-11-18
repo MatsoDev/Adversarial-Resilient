@@ -34,6 +34,7 @@ The complete versioned HTML plan is in [plans/](plans/README.md), including the
 | [`testing_hardening_report.md`](testing_hardening_report.md) | Verified metrics/integrity regressions, prediction-boundary tests and before/after measurements |
 | [`documentation_audit.md`](documentation_audit.md) | Dated documentation audits, complete inventory, file-by-file fixes, verified examples and remaining gaps |
 | [`repository_audit.md`](repository_audit.md) | Structural audit, cleanup evidence, regression guards, validation and retained exceptions |
+| [`efficiency_audit.md`](efficiency_audit.md) | CI deduplication, Docker caching and CLI characterization; local before/after measurements and hosted-verification limits |
 | [`progress.md`](progress.md) | Where are we now: sprint/milestone status, current checklist |
 
 ## Architecture and structure
