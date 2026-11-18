@@ -310,7 +310,7 @@ for(const {row,example} of ui.cases(report)) {
   assert.ok(arabic.includes('قرار'));
 }
 const release=require(process.argv[4]);
-assert.equal(release.version,'0.5.2'); assert.equal(release.sprint,'05');
+assert.equal(release.version,'0.6.0'); assert.equal(release.sprint,'06');
 """
     result = subprocess.run(
         [

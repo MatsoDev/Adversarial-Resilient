@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ARSM · Threat context and transfer</title>
+<link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="attacks.css"><link rel="stylesheet" href="theme.css"><link rel="stylesheet" href="transfer.css">
+<script src="release.js" defer></script><script src="locale.js" defer></script><script src="transfer.js" defer></script></head>
+<body>
+<aside><a class="brand official-brand" href="index.html" aria-label="ARSM dashboard"><img class="official-logo" src="arsm-logo.png" alt="ARSM — Adversarial-Resilient Security Models" width="1254" height="1254"></a>
+<nav aria-label="Main navigation"><a href="index.html">AI journey</a><a href="attacks.html">Attack comparison</a><a href="transfer.html" aria-current="page">Threat context and transfer</a><a href="research.html">Models and data</a></nav><div class="sidebar-bottom"><span data-release></span></div></aside>
+<main><header><span class="breadcrumb">Threat context and transfer</span><button id="transfer-refresh" type="button">↻ Refresh results</button></header>
+<div class="content"><h1>White-box and black-box evidence</h1><p>Recorded results only. No training, live attacks or uploads.</p>
+<div id="transfer-state" role="status">Loading measured results…</div>
+<section class="panel"><label>Experiment snapshot<select id="transfer-experiment" disabled></select></label><p>One exact model, dataset, split, row subset and policy per snapshot. Norms stay separate.</p></section>
+<div id="transfer-content" aria-live="polite"></div>
+<section class="panel"><h2>Four separate realism questions</h2>
+<dl><dt>Scalar feature feasibility</dt><dd>Policy projection checks numeric bounds, integer values and immutable coordinates only.</dd>
+<dt>Coupled structural consistency</dt><dd>Not established. Derived features are not recomputed together.</dd>
+<dt>Executable realizability</dt><dd>Not established. No authorized isolated-lab PE demonstration.</dd>
+<dt>Preserved behavior</dt><dd>Not established. No executable was modified or run.</dd></dl>
+<p>Owner authorization is not technical Security review. A feature edit proves none of the other three properties.</p></section>
+<section class="panel"><h2>Proposed threat mappings</h2><p>Technical Security review pending. Mappings describe methods and intent, not successful real-world compromise.</p><div id="transfer-mappings"></div></section>
+<section class="panel"><h2>Scope and missing evidence</h2><p>HopSkipJump and ZOO: not implemented, not run. CICIDS: inactive; no trained IDS evidence. Problem-space lab: not authorized, not run. M1 and frozen-benchmark acceptance remain separate.</p><p>Transfer ASR uses target-clean-correct rows, not source successes. Conditional transfer additionally requires both models initially correct and source attack success. Preexisting errors are never attack successes.</p><p>Malware evasion counts initially detected malicious rows made benign. False-positive induction counts initially correct benign rows made malicious. Empty denominators are unavailable, not zero.</p><p>Shared training data and preprocessing are attacker knowledge assumptions, not a strict unknown-data black-box scenario.</p></section>
+<footer><a href="index.html">AI journey</a><span data-release></span></footer></div></main></body></html>

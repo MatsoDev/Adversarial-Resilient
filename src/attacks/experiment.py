@@ -14,6 +14,7 @@ import torch
 from src.attacks.constraints import FeaturePolicy
 from src.attacks.examples import measured_examples
 from src.attacks.runner import BinaryLogits, generate, library_version
+from src.attacks.transfer import array_hash, directional_metrics, evaluate_transfer, source_bundle
 from src.config import ROOT, SEED
 from src.data.loader import load_ember
 from src.data.preprocessing import (
@@ -42,6 +43,8 @@ def run_experiment(
     cleverhans=False,
     allow_candidate=False,
     candidate_reason="",
+    surrogate_dir=None,
+    transfer_authorization="",
 ):
     """Verify inputs, run paired attacks and write one new completed JSON report.
 
@@ -62,6 +65,11 @@ def run_experiment(
     cross-check: missing/unsupported imports remain "not_run". Other runtime
     failures propagate rather than becoming zero scores. No arrays are published,
     and candidate execution never changes the bundle or prediction readiness.
+
+    ``surrogate_dir`` additionally requests source-only crafting and a matched
+    target white-box comparator. Two distinct verified bundles must share data,
+    scaler and partition contracts. Candidate transfer also requires a separate
+    real owner decision in ``transfer_authorization``; a flag is not permission.
     """
     if split not in {"val", "test"} or type(samples) is not int or not 2 <= samples <= 4096:
         raise ValueError("Use val/test and 2–4096 rows for bounded offline runs")
@@ -72,12 +80,19 @@ def run_experiment(
         raise ValueError("Refusing to overwrite an existing experiment")
     if allow_candidate and (split != "val" or not candidate_reason.strip()):
         raise ValueError("Exploratory candidates require val split and an explicit reason")
+    if surrogate_dir is not None and allow_candidate and not transfer_authorization.strip():
+        raise ValueError("Candidate transfer requires explicit Sprint 6 owner authorization")
     baseline = (
         FrozenBaseline(bundle_dir, require_frozen=False)
         if allow_candidate
         else FrozenBaseline(bundle_dir)
     )
     record = baseline.record
+    source = None
+    if surrogate_dir is not None:
+        source, source_identity = source_bundle(
+            Path(surrogate_dir), baseline, bundle_dir, allow_candidate=allow_candidate
+        )
     if allow_candidate and (
         record.get("model_version") != "sprint4_candidate"
         or record.get("status") not in {"blocked_validation_accuracy", "blocked_test_accuracy"}
@@ -141,6 +156,24 @@ def run_experiment(
         operating = record["partitions"]["operating"]
         if operating["indices_sha256"] != index_hash(pool) or operating["rows"] != len(pool):
             raise ValueError("Candidate operating-partition identity mismatch")
+    if source is not None:
+        # Reconstruct every partition, not only operating: provenance must show
+        # training rows are train-only and evaluation rows never fit either model.
+        partitions = record["partitions"]
+        train_rows = manifest["splits"]["train"]["rows"]
+        if partitions["train"] != {
+            "rows": train_rows,
+            "indices_sha256": index_hash(np.arange(train_rows)),
+        }:
+            raise ValueError("Transfer training partition mismatch")
+        if split == "val":
+            for name, rows in zip(
+                ("selection", "calibration", "operating"),
+                validation_partitions(dataset.y, record["seed"]),
+                strict=True,
+            ):
+                if partitions[name] != {"rows": len(rows), "indices_sha256": index_hash(rows)}:
+                    raise ValueError("Transfer validation partition mismatch")
     indices = pool[sample_indices(dataset.y[pool], samples, seed)]
     raw, y = np.asarray(dataset.X[indices]), dataset.y[indices]
     set_seed(seed)
@@ -167,6 +200,11 @@ def run_experiment(
         "available_cohort_rows": len(pool),
         "norm_l0_tolerance": 1e-6,
     }
+    if source is not None:
+        identity["transfer_source"] = source_identity
+        identity["clean_sha256"] = array_hash(clean)
+        identity["split_X_sha256"] = artifacts[f"{split}_X"]["sha256"]
+        identity["split_y_sha256"] = artifacts[f"{split}_y"]["sha256"]
     # Identity includes exact rows, policy and model, not just a human version tag.
     group = hashlib.sha256(json.dumps(identity, sort_keys=True).encode()).hexdigest()
     rows = []
@@ -179,9 +217,15 @@ def run_experiment(
             "library": "ART",
             "library_version": library_version("ART"),
         }
+        if source is not None:
+            # Transfer is fixed before the independent target white-box run.
+            row["transfer"] = evaluate_transfer(
+                source, baseline, raw, y, indices, policy, config, seed=seed
+            )
         attacked = generate(model, raw, y, baseline.mean, baseline.scale, policy, config, seed=seed)
         after = labels(model, attacked)
         row["metrics"] = attack_metrics(y, before, after, clean, attacked)
+        row["outcomes"] = directional_metrics(y, before, after)
         row["examples"] = measured_examples(
             model, clean, attacked, raw, y, indices, baseline.mean, baseline.scale, policy
         )
@@ -226,6 +270,7 @@ def run_experiment(
         if allow_candidate
         else "frozen_baseline",
         "candidate_reason": candidate_reason if allow_candidate else None,
+        "transfer_authorization": transfer_authorization if source is not None else None,
         "baseline_qualification": {
             "status": record.get("status", "frozen"),
             "validation_metrics": record.get("validation_metrics"),
@@ -250,7 +295,15 @@ def run_experiment(
         "code_revision": code_revision(),
         "source_sha256": {
             str(p.relative_to(ROOT)).replace("\\", "/"): sha256_file(p)
-            for p in (ROOT / "src/attacks").glob("*.py")
+            for p in [
+                *(ROOT / "src/attacks").glob("*.py"),
+                ROOT / "src/evaluation/attacks.py",
+                ROOT / "src/evaluation/attack_results.py",
+                ROOT / "src/evaluation/transfer_results.py",
+                ROOT / "src/models/frozen.py",
+                ROOT / "src/models/sampling.py",
+                ROOT / "scripts/run_attacks.py",
+            ]
         },
         "results": rows,
     }

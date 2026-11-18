@@ -11,7 +11,10 @@
     return `${row.attack} · ε ${p.epsilon}${row.attack === 'PGD' ? ` · step ${p.step_size} · ${p.iterations} iterations` : ''}`;
   }
   function cases(report) {
-    return report.results.flatMap((row, rowIndex) => (row.examples || []).map((example, exampleIndex) => ({row, rowIndex, example, exampleIndex})));
+    return journeyRows(report).flatMap((row, rowIndex) => (row.examples || []).map((example, exampleIndex) => ({row, rowIndex, example, exampleIndex})));
+  }
+  function journeyRows(report) {
+    return report.results.flatMap(row => [row, ...(row.transfer ? [{...row, evidence_mode:'transfer', metrics:row.transfer.target_metrics, examples:row.transfer.examples}] : [])]);
   }
   function explain(example) {
     if (example.outcome === 'preexisting_error') return 'الموديل كان غلطان من البداية. الحالة دي مش دليل إن الهجوم خدعه، ومش بتدخل في مقام نسبة نجاح الهجوم.';
@@ -28,7 +31,9 @@
     const changes = example.changes.map(c => `<tr><td>${c.index === 616 ? 'Recorded file-size value' : esc(c.operation)}<small class="technical-coordinate">Feature ${esc(c.index)}</small></td><td dir="ltr">${number(c.raw_before)}</td><td dir="ltr">${number(c.raw_after_approx)}</td></tr>`).join('');
     const sample = `<div class="truth">التصنيف المعروف في الداتا: <strong>${label(example.true_label)}</strong><small>ده المرجع اللي بنقيس عليه صحة القرار، مش تخمين من الموديل.</small></div>`;
     const comparison = `<div class="decision-grid">${decision('قبل الهجوم', example.clean_prediction, example.clean_malicious_score, example.true_label)}<div class="attack-bridge"><span>←</span><strong>${esc(row.attack)}</strong></div>${decision('بعد الهجوم', example.attacked_prediction, example.attacked_malicious_score, example.true_label)}</div>`;
-    return `<section class="readiness"><strong>${candidate ? 'موديل تجريبي — لسه مش معتمد' : 'موديل مجمّد للتقييم'}</strong><p>This is a research prototype, not an assurance that a file is safe.</p><details><summary>Model readiness details</summary><p>${candidate ? `دقته على التحقق الكامل ${pct(q?.validation_metrics?.accuracy)}، وشرط الاعتماد 93%. أرقام المجموعة الصغيرة تحت مش بديل للتقييم الكامل.` : 'اعتماد الموديل مش معناه إن كل تعديل في الخصائص صالح كملف فعلي.'}</p></details></section>
+    const transfer = row.evidence_mode === 'transfer';
+    const context = `<section class="panel"><h2>${transfer ? 'Black-box transfer' : 'White-box'} · Feature-space only</h2><p>Scalar constraints only. Coupled consistency, executable realizability and preserved behavior are not established.</p><p>Constraint review: ${esc(report.constraint.security_review || report.constraint.status)}</p>${transfer ? `<p>Source gradients only; no target feedback during crafting. Public true labels. All rows retained, with no target-based filtering.</p><details><summary>Source and target decisions</summary><p dir="ltr">Source ${esc(report.identity.transfer_source.model_sha256)} · ${example.source_clean_prediction} → ${example.source_attacked_prediction}</p><p dir="ltr">Target ${esc(report.identity.model_sha256)} · ${example.clean_prediction} → ${example.attacked_prediction}</p><p>Known label: ${example.true_label}. Scores are not file-safety guarantees.</p></details>` : '<p>White-box target gradients. Transfer has not been measured for this case.</p>'}<a href="transfer.html">Threat context and transfer</a></section>`;
+    return `${context}<section class="readiness"><strong>${candidate ? 'موديل تجريبي — لسه مش معتمد' : 'موديل مجمّد للتقييم'}</strong><p>This is a research prototype, not an assurance that a file is safe.</p><details><summary>Model readiness details</summary><p>${candidate ? `دقته على التحقق الكامل ${pct(q?.validation_metrics?.accuracy)}، وشرط الاعتماد 93%. أرقام المجموعة الصغيرة تحت مش بديل للتقييم الكامل.` : 'اعتماد الموديل مش معناه إن كل تعديل في الخصائص صالح كملف فعلي.'}</p></details></section>
     <section class="panel guided-story" aria-label="Recorded example walkthrough"><div class="story-heading"><div><span class="eyebrow">حالة فردية من تجربة فعلية</span><h2>A file description. One decision. One challenge.</h2></div><span class="sample-id" dir="ltr">EMBER · ${esc(report.identity.split)} row ${example.split_row_index}</span></div>
     <div class="walkthrough-tabs" role="group" aria-label="Walkthrough steps"><button type="button" data-step="0" aria-pressed="true">1 · Original sample</button><button type="button" data-step="1" aria-pressed="false">2 · The change</button><button type="button" data-step="2" aria-pressed="false">3 · The result</button></div>
     <section data-stage="0"><span class="step-counter">STEP 1 OF 3</span><h3>First, check the answer before any attack.</h3><p>The dataset tells us the known label. The AI makes its own prediction. Comparing the two tells us whether the AI started out correct.</p><p class="label-glossary">Benign means non-malicious. Malicious means labelled as malware. A model prediction is not a file-safety guarantee.</p>${sample}<div class="single-decision">${decision('قبل الهجوم',example.clean_prediction,example.clean_malicious_score,example.true_label)}</div><p class="step-caption">${example.clean_prediction === example.true_label ? 'The AI got this example right. Next, we will challenge that decision.' : 'The AI was already wrong here. Keep that in mind: this is not an attack-induced error.'}</p></section>
@@ -38,11 +43,14 @@
     <section class="panel"><details><summary>مصدر الحالة وحدود المقارنة</summary><p dir="ltr">${esc(report.generated_at)} · ART ${esc(row.library_version)} · CleverHans: ${esc(row.cross_check.status)}</p><p>Constraint review: ${esc(report.constraint.security_review || report.constraint.status)}. Problem-space validity: not established.</p><p>نفس الموديل والمجموعة والقيود المحددة في التجربة. الصف هو مرجع داخل split الداتا، مش اسم ملف مرفوع. لا ملفات تنفيذية ولا مصفوفات خصائص كاملة بتوصل للمتصفح.</p><dl class="provenance" dir="ltr"><dt>Model SHA-256</dt><dd>${esc(report.identity.model_sha256)}</dd><dt>Cohort SHA-256</dt><dd>${esc(report.identity.indices_sha256)}</dd><dt>Policy SHA-256</dt><dd>${esc(report.identity.constraint_sha256)}</dd></dl><p>لازم نختبر مجموعات أكبر وموديل معتمد قبل أي تعميم. الحالات القديمة اللي مفيهاش تفاصيل فردية بتفضل متاحة في مقارنة الهجمات.</p></details></section>`;
 
   }
-  if (typeof module !== 'undefined') module.exports = {cases, explain, renderCase};
+  if (typeof module !== 'undefined') module.exports = {cases, explain, renderCase, journeyRows};
   if (typeof document === 'undefined') return;
   const get = id => document.getElementById(id);
   let reports = [];
-  function selectedReport() { return reports[Number(get('journey-experiment').value)]; }
+  function selectedReport() {
+    const report = reports[Number(get('journey-experiment').value)];
+    return report ? {...report,results:journeyRows(report)} : undefined;
+  }
   let step = 0;
   function showStep(value, moveToStory=false) {
     step = Math.max(0,Math.min(2,value));
@@ -77,7 +85,7 @@
   }
   function updateAttacks() {
     const report = selectedReport();
-    get('journey-attack').innerHTML = report.results.map((r,i) => ({r,i})).filter(({r}) => r.examples?.length).map(({r,i}) => `<option value="${i}">${esc(configLabel(r))}</option>`).join('');
+    get('journey-attack').innerHTML = report.results.map((r,i) => ({r,i})).filter(({r}) => r.examples?.length).map(({r,i}) => `<option value="${i}">${r.evidence_mode === 'transfer' ? 'Black-box transfer' : 'White-box'} · ${esc(configLabel(r))}</option>`).join('');
     const success = report.results.findIndex(r => r.examples?.some(e => e.outcome === 'successful_attack'));
     if (success >= 0) get('journey-attack').value = String(success);
     get('journey-attack').disabled = false;

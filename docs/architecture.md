@@ -112,6 +112,11 @@ Reports record policy-review status, paired metrics, provenance and selected
 cases, not executable samples or full arrays. The API serves these reports through
 `/v1/attacks`; it never runs attacks over HTTP. See [Sprint 5](sprint5.md) for
 projection semantics, policy limits and reproduction commands.
+Sprint 6 adds `src/attacks/transfer.py`: source-only crafting and fixed-input
+target evaluation with matched target white-box runs. Identical preprocessing
+and verified shared partitions are required. `/v1/transfers` filters validated
+reports; `/v1/threat-context` serves proposed versioned mappings. All four
+realism layers and research blockers remain explicit; see [Sprint 6](sprint6.md).
 
 ### HTTP request lifecycle
 

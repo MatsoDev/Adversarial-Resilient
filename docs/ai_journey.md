@@ -1,4 +1,4 @@
-# AI journey — UI v0.5.2 · Sprint 05
+# AI journey — UI v0.6.0 · Sprint 06
 
 The dark navy/cyan dashboard first explains train → challenge → improve in
 plain language, then walks through one measured EMBER case in English or Egyptian
@@ -10,7 +10,7 @@ not a new antivirus product. Research pages remain available with the shared lan
 
 Run the usual FastAPI command from [team handoff](team_handoff.md), then open
 <http://localhost:8000/dashboard/>. Every page displays
-**v0.5.2 · Sprint 05 · AI Journey**, sourced from one `release.js` constant.
+**v0.6.0 · Sprint 06 · AI Journey**, sourced from one `release.js` constant.
 Use the header’s **English / مصري** buttons. English is the default; the choice
 is saved in browser local storage and applies across pages, with LTR/RTL layout.
 If storage is blocked, switching still works for the open page. `locale.js`
@@ -18,7 +18,7 @@ owns display translations; measured numbers and original artifact JSON are
 never translated.
 
 This identifies the UI, not the model or an approved frozen benchmark. The
-source branch is `sprint5/ai-journey-dashboard`; the team updates from main
+current source branch is `sprint6/transfer-realism`; the team updates from main
 using the handoff commands and verifies the visible release. No new dependencies.
 
 - Landing page: project introduction and a three-step interactive recorded
@@ -26,11 +26,13 @@ using the handoff commands and verifies the visible release. No new dependencies
   Scores, attack settings and cohort statistics are optional details. An FAQ
   explains EMBER, company use and limits without requiring ML knowledge.
 - `attacks.html`: Detailed attack comparison and provenance.
+- `transfer.html`: Threat context, matched white-box/transfer table, proposed
+  mappings and four separate realism statuses. Missing transfer evidence is pending.
 - `research.html`: existing model/data/methodology/tooling views and gated
   feature prediction. Existing prediction protection is unchanged.
 
 Hard-refresh after switching versions. A teammate should verify the visible
-release on all three pages and check the branch/commit as well. Pulling code
+release on all four pages and check the branch/commit as well. Pulling code
 does not install dependencies: use the documented environment bootstrap.
 
 ## Measured cases and interpretation
@@ -84,8 +86,11 @@ robustness, SS-approved feasibility, valid PE edits or completed M1.
 
 ## Future work, in the existing sprint order
 
-See [the full project plan](project_plan.md). Sprint 6 adds reviewed realism and
-transfer labels; Sprint 7 versions case references/history/export; Sprint 8
+See [the full project plan](project_plan.md). Sprint 6 implemented explicit
+realism and transfer labels, while measurements and SS review remain pending
+([report](sprint6_report.md)). Transfer cases, when recorded, display source and
+target decisions separately and use the target outcome for the story. Current
+recorded cases remain white-box, feature-space only. Sprint 7 versions case references/history/export; Sprint 8
 rehearses Phase 1. Sprints 9–12 add actual defense results and adaptive
 re-attacks; until then the defense stage is visibly planned, without scores.
 Sprints 13–16 finish integration, regression, reporting and handover. The

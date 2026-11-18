@@ -2,6 +2,50 @@
 // UI copy only. Never translate artifact JSON, hashes, model names or numeric evidence.
 (() => {
   const copy = [
+    ['ARSM · Threat context and transfer','ARSM · سياق التهديد ونقل الهجوم'],
+    ['Threat context and transfer','سياق التهديد ونقل الهجوم'],
+    ['White-box and black-box evidence','أدلة الهجوم بمعرفة الموديل ومن غيرها'],
+    ['Recorded results only. No training, live attacks or uploads.','نتائج مسجّلة بس. مفيش تدريب ولا هجمات مباشرة ولا رفع ملفات.'],
+    ['Four separate realism questions','أربع أسئلة منفصلة عن واقعية التعديل'],
+    ['Scalar feature feasibility','صلاحية قيم الخصائص الفردية'],
+    ['Policy projection checks numeric bounds, integer values and immutable coordinates only.','تطبيق القيود بيراجع الحدود الرقمية والأعداد الصحيحة والخصائص الثابتة بس.'],
+    ['Coupled structural consistency','اتساق الخصائص المترابطة والبنية'],
+    ['Not established. Derived features are not recomputed together.','مش مثبت. الخصائص المشتقة مش بيتعاد حسابها مع بعض.'],
+    ['Executable realizability','إمكانية تطبيق التعديل على ملف تنفيذي'],
+    ['Not established. No authorized isolated-lab PE demonstration.','مش مثبت. مفيش تجربة PE في معمل معزول بتصريح.'],
+    ['Preserved behavior','الحفاظ على السلوك'],
+    ['Not established. No executable was modified or run.','مش مثبت. مفيش ملف تنفيذي اتعدّل أو اتشغّل.'],
+    ['Owner authorization is not technical Security review. A feature edit proves none of the other three properties.','تصريح المالك مش مراجعة تقنية من فريق الأمن. تعديل خاصية مش بيثبت أي خاصية من التلاتة التانيين.'],
+    ['Proposed threat mappings','ربط مقترح بتصنيفات التهديد'],
+    ['Technical Security review pending. Mappings describe methods and intent, not successful real-world compromise.','مراجعة فريق الأمن التقنية لسه مطلوبة. الربط بيوصف الطريقة والهدف، مش اختراق حقيقي ناجح.'],
+    ['Scope and missing evidence','النطاق والأدلة الناقصة'],
+    ['HopSkipJump and ZOO: not implemented, not run. CICIDS: inactive; no trained IDS evidence. Problem-space lab: not authorized, not run. M1 and frozen-benchmark acceptance remain separate.','HopSkipJump وZOO: متنفّذوش ومشتغلوش. CICIDS مش نشط؛ مفيش دليل على IDS مدرّب. معمل الملفات الفعلية: من غير تصريح ومتعملش. اعتماد M1 والتقييم المجمّد لسه منفصلين.'],
+    ['Transfer ASR uses target-clean-correct rows, not source successes. Conditional transfer additionally requires both models initially correct and source attack success. Preexisting errors are never attack successes.','نسبة نجاح النقل بتتحسب من العينات اللي الهدف كان مصنّفها صح، مش نجاحات المصدر. النقل المشروط كمان بيشترط إن الموديلين كانوا صح والهجوم نجح على المصدر. الأخطاء القديمة مش نجاحات هجوم.'],
+    ['Malware evasion counts initially detected malicious rows made benign. False-positive induction counts initially correct benign rows made malicious. Empty denominators are unavailable, not zero.','التفويت بيحسب العينات الضارة المكتشفة صح اللي اتصنّفت سليمة بعد التعديل. الإنذارات الكاذبة بتحسب السليمة الصح اللي اتصنّفت ضارة. المقام الفاضي غير متاح، مش صفر.'],
+    ['Shared training data and preprocessing are attacker knowledge assumptions, not a strict unknown-data black-box scenario.','مشاركة داتا التدريب والتحويل الرقمي افتراض عن معرفة المهاجم، مش سيناريو بياناته مجهولة بالكامل.'],
+    ['Pending / unavailable','منتظر / غير متاح'],
+    ['White-box and black-box results','نتائج الهجوم بمعرفة الموديل ونقل الهجوم'],
+    ['Attacker knowledge and provenance','معرفة المهاجم ومصدر الأدلة'],
+    ['Source gradients only; no target feedback during crafting. Public true labels. All rows retained, with no target-based filtering.','تدرّجات المصدر بس؛ مفيش رد من الهدف أثناء التوليد. التصنيفات الحقيقية عامة. كل العينات موجودة من غير فلترة حسب الهدف.'],
+    ['White-box target gradients. Transfer has not been measured in this snapshot.','الهجوم استخدم تدرّجات الهدف. نقل الهجوم متقاسش في التجربة دي.'],
+    ['Correct / all rows; ASR numerator / clean-correct denominator. Class-specific rates use class-specific clean-correct denominators.','الصح / كل العينات؛ نسبة النجاح: الأخطاء الجديدة / القرارات الصحيحة أصلًا. كل فئة ليها مقام من قراراتها الصحيحة.'],
+    ['Knowledge','المعرفة'],['Model','الموديل'],['Attacked correct','الصح بعد الهجوم'],
+    ['Malware evasion','تفويت عينات ضارة'],['False-positive induction','توليد إنذارات كاذبة'],['Preexisting errors','أخطاء موجودة قبل الهجوم'],
+    ['Surrogate white-box','معرفة كاملة بالموديل البديل'],['Black-box transfer','نقل هجوم من غير معرفة الهدف'],['White-box','معرفة كاملة بالموديل'],['Source','المصدر'],['Target','الهدف'],
+    ['Conditional transfer','نقل مشروط'],['Transferred sample digest','بصمة العينات المنقولة'],
+    ['Deliberately selected case studies are available in the AI journey when recorded.','الحالات المختارة عمدًا للشرح متاحة في الرحلة لما تكون مسجّلة.'],
+    ['Transfer results pending. Recorded white-box results are not black-box evidence.','نتائج نقل الهجوم منتظرة. نتائج المعرفة الكاملة المسجّلة مش دليل على نقل الهجوم.'],
+    ['No measured results available. Missing evidence is not a zero success rate.','مفيش نتائج مقاسة متاحة. الدليل الناقص مش نسبة نجاح صفر.'],
+    ['Threat mappings unavailable.','ربط التهديدات مش متاح.'],
+    ['OWASP ML07 transfer learning is not adversarial-example transfer. ATLAS evasion intent does not establish executable evasion.','التعلم المنقول في OWASP ML07 مش نقل أمثلة تضليلية. هدف التفويت في ATLAS مش إثبات تفويت بملف تنفيذي.'],
+    ['Could not load results. Use refresh to retry.','تعذّر تحميل النتائج. استخدم التحديث علشان تحاول تاني.'],
+    ['Completed snapshots: ','تجارب مكتملة: '],
+    ['Feature-space only','خصائص رقمية بس'],
+    ['Scalar constraints only. Coupled consistency, executable realizability and preserved behavior are not established.','قيود على خصائص فردية بس. الاتساق المترابط وإمكانية تنفيذ التعديل والحفاظ على السلوك مش مثبتين.'],
+    ['Source and target decisions','قرارات المصدر والهدف'],
+    ['Known label: ','التصنيف المعروف: '],
+    ['. Scores are not file-safety guarantees.',' . الدرجات مش ضمان لأمان الملف.'],
+    ['White-box target gradients. Transfer has not been measured for this case.','الهجوم استخدم تدرّجات الهدف. نقل الهجوم متقاسش للحالة دي.'],
     ['This is a research prototype, not an assurance that a file is safe.','ده نموذج بحثي، مش ضمان إن الملف آمن.'],
     ['Model readiness details','تفاصيل جاهزية الموديل'],
     ['How should I read the scores?','أفهم درجات الموديل إزاي؟'],
@@ -247,6 +291,7 @@
     language = button.dataset.language;
     try { localStorage.setItem('arsm-language',language); } catch (_) { /* Keep session choice. */ }
     apply();
+    document.dispatchEvent(new Event('arsm-language'));
   });
   let scheduled=false;
   new MutationObserver(() => {

@@ -4,9 +4,21 @@ Living status of the project against [`project_plan.md`](project_plan.md).
 Update this file as work lands (at least at each sprint boundary); keep it
 short. Evidence of record stays in the sprint reports, PRs, and MLflow runs.
 
-**Last updated:** 2026-11-18 · **Current sprint:** Sprint 5 implementation and real exploratory validation complete; frozen-benchmark acceptance remains pending M1 and technical feature-policy review. See [Sprint 5 report](sprint5_report.md).
+**Last updated:** 2026-11-18 · **Current sprint:** Sprint 6 transfer/realism implementation delivered; real transfer measurements, M1/frozen-benchmark acceptance and technical Security review remain pending. No local training or downloads; colleague handoff in [Sprint 6 report](sprint6_report.md).
 
-## Sprint 5 UI release — v0.5.2
+## Sprint 6 implementation — v0.6.0
+
+- Offline source-only transfer crafting, matched target white-box evaluation,
+  provenance/partition gates, explicit metric denominators and read-only API.
+- Bilingual threat/realism page and source/target journey evidence support;
+  recorded Sprint 5 playback retained. Real transfer remains pending.
+- Local verification: 618 passed, 6 expected optional skips, 90% combined
+  coverage; lint, security and architecture/docs/hygiene checks passed.
+  Browser/mobile verification limits are in [the report](sprint6_report.md).
+- No local training or model/data downloads. M1, technical Security review,
+  actual transfer measurements and problem-space evidence remain blockers.
+
+## Sprint 5 UI release — v0.5.2 (historical)
 
 - Dark bilingual three-step measured AI journey is the landing page; detailed research
   pages remain available with the shared language switch. Plain-language introduction/FAQ and optional technical details added. Shared
@@ -46,7 +58,7 @@ short. Evidence of record stays in the sprint reports, PRs, and MLflow runs.
 | S3     | 5–6    | Classical baselines + first neural model + Dashboard MVP | Done (development subset) | [`sprint3_report.md`](sprint3_report.md), [`team_handoff.md`](team_handoff.md) |
 | S4     | 7–8    | Tune and freeze the baseline (M1)       | Full CPU/GPU measurements complete; 93% freeze gate not met | [`sprint4_report.md`](sprint4_report.md), [`sprint4.md`](sprint4.md) |
 | S5     | 9–10   | Attack implementation (FGSM/PGD/CW)     | Merged in PR #19: implementation + 21 real exploratory configurations; frozen benchmark/SS acceptance pending | [`sprint5_report.md`](sprint5_report.md), [`sprint5.md`](sprint5.md) |
-| S6     | 11–12  | Realistic attacks + black-box           | Not started | — |
+| S6     | 11–12  | Realistic attacks + black-box           | Transfer/API/bilingual UI implemented; real measurements and SS/M1 acceptance blocked | [Protocol](sprint6.md), [report](sprint6_report.md), [mappings](sprint6_mappings.md) |
 | S7     | 13–14  | Adversarial dataset + analysis          | Not started | — |
 | S8     | 15–16  | Phase 1 wrap-up and defense planning (M2) | Not started | — |
 | S9     | S2 1–2 | Adversarial training                    | Not started | — |

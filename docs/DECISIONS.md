@@ -1,5 +1,22 @@
 # Decisions log
 
+## Sprint 6 — 2026-11-18
+
+- **No laptop training/downloads.** Owner assigned training and all downloads
+  to a colleague due to hardware/bandwidth limits. Deliver synthetic-tested
+  transfer infrastructure and honest pending evidence; do not extend Sprint 5
+  candidate authorization implicitly.
+- **Craft on source, evaluate fixed inputs on target.** Reuse existing adapters
+  and scalar projection. Require distinct weights, identical preprocessing and
+  verified shared partitions; reject unsupported comparisons instead of silently
+  transferring incompatible standardized coordinates. Keep a separate matched
+  target white-box run and preserve old report playback.
+- **Realism has four independent layers.** Numeric feasibility proves neither
+  coupled consistency, executable realizability nor preserved behavior. Mappings
+  are proposed/version-pinned, not Security approval. No lab, IDS activation,
+  optional query attack, upload/persistence or defense expansion.
+- Protocol, denominator contracts and acceptance blockers: [Sprint 6](sprint6.md).
+
 ## Autonomous Git workflow — 2026-11-18
 
 - **Owner-authorized fast integration.** Agents may commit, push and merge

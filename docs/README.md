@@ -16,7 +16,10 @@ and how to get it running; this page is the map to everything else.
 - **Current status:** [progress](progress.md); **scope:** [project plan](project_plan.md).
 - **Why:** [decisions](DECISIONS.md); **dated evidence:** sprint and audit reports, not new setup instructions.
 
-- [AI journey and UI v0.5.2](ai_journey.md): guided measured cases, team version check and future sprint work.
+- [AI journey and UI v0.6.0](ai_journey.md): guided measured cases, team version check and future sprint work.
+- [Sprint 6 protocol](sprint6.md), [implementation report](sprint6_report.md),
+  [proposed mappings](sprint6_mappings.md) and
+  [generated white-box / black-box table](results/sprint6_comparison.md).
 
 ## Getting oriented
 

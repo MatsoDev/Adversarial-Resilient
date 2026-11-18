@@ -126,6 +126,10 @@ def validate_attack_report(report):
         require(unique not in seen)
         seen.add(unique)
         metrics(row["metrics"])
+        if "outcomes" in row:
+            from src.evaluation.transfer_results import validate_outcomes
+
+            validate_outcomes(row["outcomes"], row["metrics"])
         require(row["metrics"]["clean_correct"] == rows[0]["metrics"]["clean_correct"])
         examples = row.get("examples", [])
         require(isinstance(examples, list) and len(examples) <= 3)
@@ -190,4 +194,8 @@ def validate_attack_report(report):
             require(check["mean_candidate_l2_difference"] >= 0)
         else:
             require(isinstance(check["reason"], str) and bool(check["reason"]))
+    if "transfer_source" in identity or any("transfer" in row for row in rows):
+        from src.evaluation.transfer_results import validate_transfer
+
+        validate_transfer(report, metrics)
     return report

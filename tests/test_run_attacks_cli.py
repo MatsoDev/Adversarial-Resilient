@@ -52,6 +52,26 @@ def test_defaults_preserve_frozen_test_mode_and_configuration_order(tmp_path, cl
     assert not policy.exists()
 
 
+def test_transfer_flags_forward_explicit_source_and_decision_reference(tmp_path, cli_dependencies):
+    runner, _ = cli_dependencies
+    source = tmp_path / "source"
+    assert (
+        run_attacks.main(
+            [
+                "--policy",
+                str(tmp_path / "policy.json"),
+                "--surrogate-dir",
+                str(source),
+                "--transfer-authorization",
+                "Synthetic wiring fixture only",
+            ]
+        )
+        == 0
+    )
+    assert runner.call_args.kwargs["surrogate_dir"] == source
+    assert runner.call_args.kwargs["transfer_authorization"] == "Synthetic wiring fixture only"
+
+
 def test_explicit_options_forward_candidate_mode_and_full_grid(tmp_path, cli_dependencies, caplog):
     runner, threads = cli_dependencies
     data, bundle, policy, output, backend = (
