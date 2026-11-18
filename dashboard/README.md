@@ -16,7 +16,7 @@ attack explorer. `theme.css` supplies the shared dark navy/cyan palette and
 same origin. From the repository root with the environment active:
 
 ```bash
-python -m uvicorn api.main:app --host 127.0.0.1 --port 8000
+python -m uvicorn api.main:app --host 127.0.0.1 --port 8000 --no-proxy-headers
 ```
 
 Open <http://localhost:8000/dashboard/>. Success means the release label is
@@ -91,7 +91,7 @@ malware results. See the [contract](../docs/sprint3_contract.md) for details.
 Start the API in one terminal first:
 
 ```bash
-python -m uvicorn api.main:app --reload --port 8000
+python -m uvicorn api.main:app --reload --port 8000 --no-proxy-headers
 ```
 
 Then run the dashboard in a second terminal:

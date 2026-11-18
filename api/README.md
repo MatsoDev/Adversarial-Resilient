@@ -8,7 +8,7 @@ inference. No training, uploads, executable scanning, attack-execution or defens
 From the repository root with the [environment](../docs/development.md) active:
 
 ```bash
-python -m uvicorn api.main:app --host 127.0.0.1 --port 8000 --reload
+python -m uvicorn api.main:app --host 127.0.0.1 --port 8000 --reload --no-proxy-headers
 ```
 
 Open <http://localhost:8000/dashboard/>. Native uvicorn does not load `.env`

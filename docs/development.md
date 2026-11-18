@@ -46,7 +46,7 @@ CleverHans), and checks the installed versions.
 Use `--check-only` to verify without installing. This script does not activate
 the venv or install Git hooks; `make setup` also attempts hook installation.
 After activation (or using `.venv/bin/python` / `.venv\Scripts\python.exe`), the current HTML dashboard
-runs with `python -m uvicorn api.main:app --port 8000`, at
+runs with `python -m uvicorn api.main:app --port 8000 --no-proxy-headers`, at
 <http://localhost:8000/dashboard/>. See [team_handoff.md](team_handoff.md).
 
 ### Linux (Makefile shortcut)
@@ -83,7 +83,7 @@ use the venv interpreter directly for each command, for example:
 
 ```powershell
 .\.venv\Scripts\python.exe -m pytest
-.\.venv\Scripts\python.exe -m uvicorn api.main:app --port 8000
+.\.venv\Scripts\python.exe -m uvicorn api.main:app --port 8000 --no-proxy-headers
 ```
 
 Linux:
@@ -112,7 +112,7 @@ With the venv active, this was verified on Linux and printed:
 ```text
 All direct requirements match the project pins.
 No broken requirements found.
-Ready: .venv Python -m uvicorn api.main:app --port 8000; open /dashboard/
+Ready: .venv Python -m uvicorn api.main:app --port 8000 --no-proxy-headers; open /dashboard/
 ```
 
 In PowerShell, `.\.venv\Scripts\python.exe scripts/setup_environment.py --check-only`
@@ -249,7 +249,7 @@ The HTML dashboard and API run in one service. The command blocks until stopped.
 With the virtual environment active:
 
 ```bash
-python -m uvicorn api.main:app --reload --port 8000
+python -m uvicorn api.main:app --reload --port 8000 --no-proxy-headers
 ```
 
 Open http://127.0.0.1:8000/health — expect `{"status": "ok"}`.

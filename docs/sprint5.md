@@ -215,7 +215,7 @@ counts and limitations; it is not a frozen `baseline_v1` benchmark.
 ## API and HTML dashboard
 
 ```bash
-python -m uvicorn api.main:app --host 127.0.0.1 --port 8000
+python -m uvicorn api.main:app --host 127.0.0.1 --port 8000 --no-proxy-headers
 ```
 
 Open <http://localhost:8000/dashboard/attacks.html>, or choose **Attack results**
