@@ -18,7 +18,7 @@ owns display translations; measured numbers and original artifact JSON are
 never translated.
 
 This identifies the UI, not the model or an approved frozen benchmark. The
-current source branch is `sprint6/transfer-realism`; the team updates from main
+current source branch is `sprint6/transfer-threat-context`; the team updates from main
 using the handoff commands and verifies the visible release. No new dependencies.
 
 - Landing page: project introduction and a three-step interactive recorded

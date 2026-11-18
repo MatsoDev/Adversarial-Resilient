@@ -7,7 +7,7 @@ Use the main-branch update commands below, start the same API, and open
 on all four pages; hard-refresh stale browser assets. The release retains the
 bilingual recorded walkthrough and adds threat/transfer/realism views. No new dependencies.
 Detailed setup, measured-case reproduction and limitations: [AI journey](ai_journey.md).
-The source branch is `sprint6/transfer-realism`; main is the team's shared
+The source branch is `sprint6/transfer-threat-context`; main is the team's shared
 integration branch. Dataset/model downloads are not needed for recorded playback.
 Real transfer results are pending; existing white-box results are not black-box
 evidence. Training/downloads belong on the colleague's suitable machine, not this

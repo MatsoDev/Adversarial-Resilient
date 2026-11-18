@@ -1,6 +1,7 @@
 # Sprint 6 — implementation and evidence report
 
-Date: 2026-11-18. Target: `main`; task branch `sprint6/transfer-realism`.
+Date: 2026-11-18. Target: `main`; task branch `sprint6/transfer-threat-context`
+(formerly `sprint6/transfer-realism`, the merged PR #27 head).
 Scope: [all Sprint 6 research, FastAPI/dashboard and journey work packages](sprint6.md).
 
 ## Outcome and acceptance
