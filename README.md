@@ -86,7 +86,7 @@ make test      # pytest, synthetic fixtures only
 make coverage  # pytest with line/branch coverage
 make security  # dependency + static security checks
 source .venv/bin/activate  # Linux; Make uses .venv automatically, Python does not
-python -m uvicorn api.main:app --host 127.0.0.1 --port 8000
+python -m uvicorn api.main:app --host 127.0.0.1 --port 8000 --no-proxy-headers
 ```
 
 Open <http://localhost:8000/dashboard/>. Viewing the recorded results needs no

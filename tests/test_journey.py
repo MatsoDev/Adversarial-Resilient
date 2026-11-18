@@ -1,5 +1,6 @@
 """Case evidence must distinguish induced errors from failures and old mistakes."""
 
+import hashlib
 import json
 import shutil
 import subprocess
@@ -37,6 +38,22 @@ def example_fixture():
             }
         ],
     }
+
+
+@pytest.mark.parametrize("index", ["<b>unexpected markup</b>", "0", True, -1, 2381, 0.5])
+def test_attack_report_rejects_noncanonical_feature_indices(index):
+    report = deepcopy(report_fixture())
+    report["results"][0]["examples"] = [example_fixture()]
+    report["constraint"]["policy"]["features"][0]["index"] = index
+    report["results"][0]["examples"][0]["changes"][0]["index"] = index
+    report["identity"]["constraint_sha256"] = hashlib.sha256(
+        json.dumps(report["constraint"]["policy"], sort_keys=True).encode()
+    ).hexdigest()
+    report["compatibility_id"] = hashlib.sha256(
+        json.dumps(report["identity"], sort_keys=True).encode()
+    ).hexdigest()
+    with pytest.raises(ValueError):
+        validate_attack_report(report)
 
 
 def test_measured_selection_and_scores_match_real_model():
@@ -239,6 +256,11 @@ assert.equal(ui.cases({results:[{examples:[]}]}).length,0);
 const injected={...report,generated_at:'<script>bad</script>'};
 assert.ok(!ui.renderCase(injected,success.row,success.example).includes('<script>bad'));
 assert.ok(ui.renderCase(injected,success.row,success.example).includes('&lt;script&gt;'));
+const changed=structuredClone(success.example);
+changed.changes[0].index='<b>unexpected markup</b>';
+const escaped=ui.renderCase(report,success.row,changed);
+assert.ok(!escaped.includes('<b>unexpected markup</b>'));
+assert.ok(escaped.includes('&lt;b&gt;unexpected markup&lt;/b&gt;'));
 """
     result = subprocess.run(
         [

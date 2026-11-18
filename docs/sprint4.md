@@ -146,7 +146,7 @@ With the venv active, Linux shell setup:
 
 ```bash
 export PREDICTION_API_TOKEN="$(python -c 'import secrets; print(secrets.token_urlsafe(32))')"
-python -m uvicorn api.main:app --host 127.0.0.1 --port 8000
+python -m uvicorn api.main:app --host 127.0.0.1 --port 8000 --no-proxy-headers
 ```
 
 PowerShell uses `$env:PREDICTION_API_TOKEN = python -c "import secrets; print(secrets.token_urlsafe(32))"`.

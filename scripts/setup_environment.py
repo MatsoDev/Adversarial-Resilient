@@ -48,7 +48,9 @@ def main(argv=None) -> int:
 
     subprocess.run([str(python), "-c", code, json.dumps(pins)], check=True)
     subprocess.run([str(python), "-m", "pip", "check"], check=True)
-    print("Ready: .venv Python -m uvicorn api.main:app --port 8000; open /dashboard/")
+    print(
+        "Ready: .venv Python -m uvicorn api.main:app --port 8000 --no-proxy-headers; open /dashboard/"
+    )
     return 0
 
 
