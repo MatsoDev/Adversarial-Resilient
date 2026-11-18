@@ -182,6 +182,11 @@ Trivy scan (`make docker-scan`). The local equivalents are `make check`,
 `make coverage`, `make security`, `make docker-build`, and `make docker-scan`.
 Coverage is reported as a diagnostic; there is no arbitrary global threshold.
 
+CI runs on every pull request and on pushes to `main`. Feature branches need an
+open PR for hosted checks; their pushes do not launch a second, duplicate run.
+New updates cancel older runs for the same PR/ref. Integration pushes to `main`
+remain independently checked.
+
 A healthy default run passes with optional-dependency/data skips as described above. Warnings
 from third-party packages (for example matplotlib/pyparsing deprecations) are
 not test failures. `make security` must report no known vulnerabilities and no

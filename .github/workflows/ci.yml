@@ -1,8 +1,11 @@
 name: ci
-on: [push, pull_request]
+on:
+  push:
+    branches: [main]
+  pull_request:
 
-# One run per branch: a new push cancels the still-queued/running one.
-# (Halves runner usage since push + pull_request otherwise run everything twice.)
+# PR updates run once, not once for the branch push and again for the PR.
+# Main pushes still verify integration; newer runs cancel older runs for the same ref.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true

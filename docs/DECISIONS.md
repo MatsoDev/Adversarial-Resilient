@@ -1,5 +1,13 @@
 # Decisions log
 
+## CI efficiency — 2026-11-18
+
+- **Check PRs and integration pushes, not feature pushes twice.** The audited
+  push and PR runs for `d0f7d49` both completed because their refs differ;
+  ref-based concurrency cannot deduplicate them. Restrict push events to `main`
+  and retain all PR checks and per-ref cancellation. Feature branches now need
+  an open PR for hosted checks; local Make targets remain unchanged.
+
 ## Sprint 5 — 2026-11-14
 
 - **Publish a team-facing plan copy.** The owner explicitly requested the new

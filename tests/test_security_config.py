@@ -98,3 +98,16 @@ def test_ci_runs_the_coverage_target_and_pytest_cov_is_pinned():
 
     dev = (ROOT / "requirements-dev.txt").read_text(encoding="utf-8")
     assert re.search(r"^pytest-cov==\S+$", dev, re.MULTILINE)
+
+
+def test_ci_checks_pull_requests_and_main_pushes_without_duplicate_branch_runs():
+    # BaseLoader preserves GitHub's YAML 1.2 "on" key (SafeLoader treats it as True).
+    workflow = yaml.load(
+        (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8"),
+        Loader=yaml.BaseLoader,
+    )
+    assert workflow["on"] == {"push": {"branches": ["main"]}, "pull_request": ""}
+    assert workflow["concurrency"] == {
+        "group": "${{ github.workflow }}-${{ github.ref }}",
+        "cancel-in-progress": "true",
+    }
