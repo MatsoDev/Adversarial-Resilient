@@ -1,5 +1,17 @@
 # Decisions log
 
+## Autonomous Git workflow — 2026-11-18
+
+- **Owner-authorized fast integration.** Agents may commit, push and merge
+  verified task work without repeated permission requests, including normal
+  direct target-branch pushes when GitHub rules permit. Remove the blanket
+  one-reviewer/PR requirement, not platform protections or required approvals.
+  Task-specific restrictions, pre-publication verification, unrelated-work
+  isolation and separate production-deployment authorization remain binding.
+  Documentation changes reuse the existing environment without Docker rebuilds
+  or dependency downloads. The maintained policy is in
+  [CONTRIBUTING.md](../CONTRIBUTING.md#git-workflow-and-agent-authorization).
+
 ## CI efficiency — 2026-11-18
 
 - **Check PRs and integration pushes, not feature pushes twice.** The audited

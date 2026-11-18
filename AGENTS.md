@@ -115,7 +115,11 @@ formatting, so run it before every commit.
 - **Style:** ruff (`line-length = 100`), `ruff format`, logging instead of
   print in library code; Windows/Linux/macOS compatible paths.
 - **Git:** Conventional Commits; branch naming and PR rules in
-  [`CONTRIBUTING.md`](CONTRIBUTING.md). Never push to `main` directly.
+  [`CONTRIBUTING.md`](CONTRIBUTING.md). Agents may commit, push and merge
+  without repeated permission requests; normal direct pushes to the intended
+  target (including `main`) are allowed when GitHub rules permit.
+  Task-specific restrictions, required checks/reviews and deployment safeguards
+  still apply; never bypass protections.
   Inspect staged/unstaged/untracked work first; never commit or push unrelated
   user changes. Verify the remote base before selecting a task branch.
 - **Data:** raw datasets are read in place (CLI `--source` > `EMBER_DATA_DIR` /

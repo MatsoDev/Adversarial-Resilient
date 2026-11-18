@@ -7,17 +7,36 @@ index at [`docs/README.md`](docs/README.md), and
 tests, and docs belong; [`docs/testing.md`](docs/testing.md) covers test
 conventions and the optional real-data checks.
 
-## Branching
-- Treat `main` as protected: no direct pushes. Work on `sprint<N>/<topic>` or
-  `feat/<topic>`, `fix/<topic>`, `docs/<topic>`, `chore/<topic>`.
-- Open a PR into `main` with the template. One reviewer minimum.
+## Git workflow and agent authorization
+- For implementation tasks, agents have standing permission to create focused
+  commits, push, and merge into the intended target branch without repeatedly
+  asking. A task-specific restriction overrides this permission.
+- Determine the target from the current request and repository context; ask if
+  it remains ambiguous. Direct, normal pushes to `main` or a sprint branch are
+  permitted when GitHub rules allow them. Do not change or bypass protections.
+- Use the simplest permitted integration path: a normal push for a small,
+  verified change, or a task branch and normal merge for isolated work.
+  Task branches use `sprint<N>/<topic>`, `feat/<topic>`, `fix/<topic>`,
+  `docs/<topic>`, or `chore/<topic>`.
+- When GitHub rules require a PR, use the template and wait for all required
+  checks and approvals. There is no additional blanket one-reviewer requirement.
+  Never use admin overrides or merge with known failing checks. If blocked,
+  leave the PR open and report why; use auto-merge only when supported.
 - Inspect staged, unstaged and untracked changes before starting; never include
   another contributor's staged work or unrelated local commits in your push.
+  Review the final diff and run the applicable checks below before publishing.
+- Inspect workflows before pushing or merging. This authorization does not
+  authorize production deployments, paid operations, dependency changes,
+  force-pushes, history rewrites, branch deletion or destructive cleanup.
+  Ask separately when those actions are needed; never publish secrets or data.
+- Reuse the existing environment and caches. Documentation-only work does not
+  require dependency installation, Docker rebuilds or image downloads.
+- Finish with the checks run, commit, pushed branch, and merge/PR status.
 
 ## Commit style (Conventional Commits)
 `feat:`, `fix:`, `refactor:`, `docs:`, `chore:`, `test:`, `ci:` — e.g. `feat: add EMBER loader`.
 
-## PR checklist
+## Verification checklist (direct pushes and PRs)
 - `make check` passes (`make lint` + `make test`); paste output if touching
   demo/models.
 - `make security` passes when dependencies, HTTP behavior, containers, or CI

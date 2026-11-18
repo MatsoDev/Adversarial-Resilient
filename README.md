@@ -193,7 +193,9 @@ Full reference: [`docs/project-structure.md`](docs/project-structure.md).
   `sprint<N>/<topic>`).
 - Commits use Conventional Commits: `feat:`, `fix:`, `refactor:`, `docs:`, `chore:`,
   `test:`, `ci:`.
-- Open a pull request into `main`; never push directly to `main`.
+- Verified direct pushes and autonomous agent integration are allowed when GitHub
+  rules permit; required PRs, checks and approvals still apply. See
+  [the Git workflow](CONTRIBUTING.md#git-workflow-and-agent-authorization).
 - Never commit datasets, model weights, `.env`, or `mlruns/`. Check `git status`
   before every commit.
 
