@@ -1,6 +1,4 @@
-/* Keep long identities and wide evidence tables inside their own regions. */
 #transfer-content, #transfer-mappings { min-width: 0; }
 #transfer-content pre { max-width: 100%; overflow: auto; }
 #transfer-content code, #transfer-mappings code { overflow-wrap: anywhere; }
-#transfer-experiment { display: block; width: 100%; max-width: 100%; margin-block: 12px; }
-.table-wrap:focus-visible { outline: 3px solid #71edc1; outline-offset: 3px; }
+#transfer-experiment { display: block; width: 100%; max-width: 100%; margin-block: .75rem; }

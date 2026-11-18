@@ -2,6 +2,97 @@
 // Translate interface prose, never raw research reports, identifiers or JSON.
 (() => {
   const copy = [
+    ['ARSM · Research overview','ARSM · نظرة عامة على البحث'],
+    ['ARSM · Attack comparison','ARSM · مقارنة الهجمات'],
+    ['Research overview and a recorded adversarial feature-space experiment.','نظرة عامة على البحث وتجربة مسجّلة لهجوم في فضاء الخصائص.'],
+    ['Recorded exploratory attack results, comparison conditions and research limitations.','نتائج هجمات استكشافية مسجّلة، وشروط المقارنة، وحدود البحث.'],
+    ['Historical model validation, dataset provenance, methods and gated feature prediction.','نتائج التحقق التاريخية للنماذج، ومصدر البيانات، والمنهجية، والتنبؤ المشروط بالخصائص.'],
+    ['Threat assumptions, transfer evidence and feature-space realism limitations.','افتراضات التهديد، وأدلة نقل الهجوم، وحدود واقعية فضاء الخصائص.'],
+    ['RESEARCH PROJECT','مشروع بحثي'],
+    ['Research overview','نظرة عامة على البحث'],
+    ['Recorded research evidence','أدلة بحثية مسجّلة'],
+    ['ARSM / Research overview','ARSM / نظرة عامة على البحث'],
+    ['Research status','حالة البحث'],
+    ['Exploratory, feature-space only · Real transfer pending · Frozen benchmark not yet accepted · Defenses planned','استكشافي، وفي فضاء الخصائص فقط · نقل الهجوم الفعلي قيد الانتظار · التقييم المرجعي المجمّد لم يُعتمد بعد · الدفاعات مخطّطة'],
+    ['Adversarial resilience in malware detection','متانة كشف البرمجيات الضارة أمام الهجمات التضليلية'],
+    ["This project studies machine-learning malware detectors using numeric features extracted from files. Adversarial examples are deliberately modified inputs used to test whether a model's decision changes. The recorded experiments evaluate these changes in feature space, not on executable files.",'يدرس المشروع كواشف البرمجيات الضارة القائمة على التعلّم الآلي باستخدام خصائص رقمية مستخرجة من الملفات. والأمثلة التضليلية مدخلات تُعدّل عمدًا لاختبار تغيّر قرار النموذج. تُقيّم التجارب المسجّلة هذه التعديلات في فضاء الخصائص، لا على ملفات تنفيذية.'],
+    ['Research method','منهجية البحث'],
+    ['01 / MODEL','01 / النموذج'],['02 / EVALUATE','02 / التقييم'],['03 / FUTURE WORK','03 / العمل المستقبلي'],
+    ['Train a detector','تدريب كاشف'],
+    ['Learn from feature records with known benign or malicious labels.','يتعلّم الكاشف من سجلات خصائص ذات تصنيفات مرجعية معروفة، ضارة أو غير ضارة.'],
+    ['Test model decisions','اختبار قرارات النموذج'],
+    ['Measure whether allowed feature changes turn correct decisions into errors.','نقيس ما إذا كانت التعديلات المسموح بها للخصائص تحوّل القرارات الصحيحة إلى أخطاء.'],
+    ['Evaluate defenses','تقييم الدفاعات'],
+    ['Defense methods and comparative evaluations are planned; results are not yet available.','تُخطّط وسائل الدفاع والتقييمات المقارنة لمرحلة لاحقة؛ ولا تتوافر نتائجها بعد.'],
+    ['Recorded case study','دراسة حالة مسجّلة'],
+    ['A three-step replay shows the original classification, a feature change, and the resulting decision. No experiment is executed in the browser.','يعرض شرح من ثلاث خطوات التصنيف الأصلي، وتعديل الخصائص، والقرار الناتج. ولا تُشغّل تجربة في المتصفح.'],
+    ['View the recorded case','استعراض الحالة المسجّلة'],
+    ['Dataset and interpretation','البيانات وتفسير النتائج'],
+    ['EMBER feature records','سجلات خصائص EMBER'],
+    ['EMBER contains numeric descriptions extracted from Windows programs, with known labels where available. Each sample is one feature record; the original program is not executed.','تضم EMBER أوصافًا رقمية مستخرجة من برامج Windows، مع التصنيفات المرجعية حيث تتوافر. تمثّل كل عينة سجل خصائص واحدًا؛ ولا يُشغّل البرنامج الأصلي.'],
+    ['Research use and scope','استخدام البحث ونطاقه'],
+    ['These tests help researchers assess detector decisions under specified conditions. The prototype is not a complete antivirus product.','تساعد الاختبارات الباحثين في تقييم قرارات الكاشف ضمن شروط محدّدة. والنموذج البحثي ليس منتجًا متكاملًا لمكافحة الفيروسات.'],
+    ['Limits of an individual case','حدود الحالة الفردية'],
+    ['A selected case illustrates one outcome. Aggregate results describe the evaluated cohort under the specified model, sample selection and constraints; neither establishes a valid executable modification.','توضّح الحالة المختارة نتيجة واحدة. وتصف النتائج المجمّعة مجموعة التقييم وفق النموذج والعينات والقيود المحدّدة؛ ولا تثبت أيٌّ منهما صلاحية تعديل ملف تنفيذي.'],
+    ['Evaluation objective','هدف التقييم'],
+    ['Clean accuracy alone does not establish robustness. This study measures attack-induced errors; future work will evaluate defenses and their effect on ordinary performance.','لا تثبت الدقة قبل الهجوم وحدها متانة النموذج. تقيس الدراسة الأخطاء التي أحدثتها الهجمات؛ وسيقيّم العمل المستقبلي الدفاعات وأثرها على الأداء في الظروف العادية.'],
+    ['View attack results and methodology','استعراض نتائج الهجمات والمنهجية'],
+    ['Recorded model decisions before and after feature-space attacks, with the conditions required for comparison.','قرارات النموذج المسجّلة قبل هجمات فضاء الخصائص وبعدها، وشروط المقارنة بينها.'],
+    ['Experiment and attack filters','خيارات التجربة والهجوم'],
+    ['Filter results','تصفية النتائج'],['Reset filters','إعادة ضبط عوامل التصفية'],
+    ['Exploratory · feature space','استكشافي · فضاء الخصائص'],
+    ['Historical validation','تحقق تاريخي'],
+    ['Feature prediction','التنبؤ بالخصائص'],
+    ['Gated · authentication and a verified frozen model required','مقيّد · يتطلّب المصادقة ونموذجًا مجمّدًا متحققًا منه'],
+    ['Prediction requirements and controls','متطلبات التنبؤ وأدواته'],
+    ['Recorded white-box results and available transfer evidence, with the limits of feature-space evaluation.','نتائج المعرفة الكاملة المسجّلة وأدلة نقل الهجوم المتاحة، مع حدود التقييم في فضاء الخصائص.'],
+    ['Recorded classification case','حالة تصنيف مسجّلة'],
+    ['Original classification','التصنيف الأصلي'],
+    ['The model prediction is compared with the reference label to establish whether the initial decision was correct.','يُقارن تنبؤ النموذج بالتصنيف المرجعي لتحديد صحة القرار الأولي.'],
+    ['The initial decision matched the reference label.','طابق القرار الأولي التصنيف المرجعي.'],
+    ['The initial decision was incorrect; this is not an attack-induced error.','كان القرار الأولي خاطئًا؛ وهذا ليس خطأً أحدثه الهجوم.'],
+    ['Feature-space modification','التعديل في فضاء الخصائص'],
+    ['The attack searches for an allowed feature change that produces an incorrect decision. The values below were recorded previously; no experiment runs in the browser.','يبحث الهجوم عن تعديل مسموح للخصائص ينتج عنه قرار خاطئ. القيم أدناه مسجّلة مسبقًا؛ ولا تُشغّل تجربة في المتصفح.'],
+    ['Recorded feature changes','تغيّرات الخصائص المسجّلة'],
+    ['Interpretation of the recorded change','تفسير التعديل المسجّل'],
+    ['Interpretation of model scores','تفسير درجات النموذج'],
+    ['Case interpretation','تفسير الحالة'],
+    ['Interpretation limits','حدود التفسير'],
+    ['A selected case illustrates one outcome. The evaluated cohort measures its frequency under the specified model, sampling and constraints.','توضّح الحالة المختارة نتيجة واحدة. وتقيس مجموعة التقييم تكرارها وفق النموذج والعينات والقيود المحدّدة.'],
+    ['Results for the evaluated cohort','نتائج مجموعة التقييم'],
+    ['Planned · not yet evaluated','مخطّط · لم يُقيّم بعد'],
+    ['Defense evaluation','تقييم الدفاعات'],
+    ['The model initially detected this malicious sample, then classified it as benign after the feature change. The attack changed the decision for this feature record.','اكتشف النموذج العينة الضارة أولًا، ثم صنّفها غير ضارة بعد تعديل الخصائص. غيّر الهجوم القرار لهذا السجل من الخصائص.'],
+    ['Model validation','التحقق من النماذج'],
+    ['Historical validation results, dataset records and research methods.','نتائج التحقق التاريخية وسجلات البيانات ومنهجية البحث.'],
+    ['Compare recorded performance on the same validation data.','مقارنة الأداء المسجّل على بيانات التحقق نفسها.'],
+    ['Dataset records','سجلات البيانات'],
+    ['Dataset composition, preparation and provenance.','تركيب البيانات وإعدادها ومصدرها.'],
+    ['Research methodology','منهجية البحث'],
+    ['Threat assumptions, feature constraints and research limitations.','افتراضات التهديد، وقيود الخصائص، وحدود البحث.'],
+    ['MNIST tooling demonstration','عرض أدوات الاختبار على MNIST'],
+    ['Historical model validation metrics','مقاييس التحقق التاريخية للنماذج'],
+    ['Historical validation accuracy, F1 and ROC-AUC are shown for each model. Exact values appear in the model table.','يعرض الرسم دقة التحقق التاريخية وF1 وROC-AUC لكل نموذج. ترد القيم الدقيقة في جدول النماذج.'],
+    ['Scroll the chart horizontally to view all models.','مرّر الرسم أفقيًا لاستعراض جميع النماذج.'],
+    ['Scrollable model comparison chart','رسم مقارنة النماذج القابل للتمرير'],
+    ['Scroll the table horizontally to view all columns.','مرّر الجدول أفقيًا لاستعراض جميع الأعمدة.'],
+    ['Data table','جدول البيانات'],
+    ['No recorded individual cases are available. Aggregate results may be available in Attack comparison.','لا تتوافر حالات فردية مسجّلة. قد تتوافر نتائج مجمّعة في مقارنة الهجمات.'],
+    ['Selected case studies are available in the research overview when recorded.','تتاح دراسات الحالات المختارة في نظرة عامة على البحث عند تسجيلها.'],
+    ['Measured results table and provenance','جدول النتائج المقاسة ومصدرها'],
+    ['Accuracy is measured on the same selected rows before and after attack; ε is in standardized model coordinates.','تُقاس الدقة على الصفوف المختارة نفسها قبل الهجوم وبعده؛ وتُعبّر ε عن إحداثيات النموذج المعيارية.'],
+    ['Dashed black line: accuracy before attack. Series use distinct line patterns; exact values and counts are in the results table.','يمثّل الخط الأسود المتقطّع الدقة قبل الهجوم. تستخدم السلاسل أنماط خطوط مختلفة؛ وترد القيم والأعداد الدقيقة في جدول النتائج.'],
+    [' A feature change does not establish a valid executable modification.',' لا يثبت تغيير خاصية صلاحية تعديل ملف تنفيذي.'],
+    ['Transfer results pending','نتائج نقل الهجوم قيد الانتظار'],
+    ['Feature changes do not establish a valid executable modification or preserved behavior.','لا تثبت تعديلات الخصائص صلاحية تعديل ملف تنفيذي أو الحفاظ على سلوكه.'],
+    ['Recorded white-box results are not black-box evidence.','النتائج المسجّلة بمعرفة النموذج الكاملة ليست دليلًا على نقل الهجوم إلى هدف مجهول.'],
+    ['Historical Sprint 1 attack_success_rate fields are overall adversarial error rates, not the conditional ASR used in current experiments.','تمثّل حقول attack_success_rate التاريخية في المرحلة 1 معدّلات الخطأ الإجمالية بعد الهجوم، وليست معدّل نجاح الهجوم المشروط المستخدم في التجارب الحالية.'],
+    ['The figure plots recorded MNIST accuracy across the listed attack strengths; exact values follow.','يوضّح الرسم دقة MNIST المسجّلة عند مقادير الهجوم المدرجة؛ وترد القيم الدقيقة أدناه.'],
+    ['MNIST accuracy by attack strength','دقة MNIST حسب مقدار الهجوم'],
+    ['No recorded MNIST curve data is available.','لا تتوافر بيانات مسجّلة لمنحنى MNIST.'],
+    ['Epsilon','إبسيلون'],
+    ['FGSM accuracy','دقة FGSM'],
+    ['PGD accuracy','دقة PGD'],
     ['ARSM · AI deception journey','ARSM · رحلة التعلّم الآلي والهجمات التضليلية'],
     ['ARSM · Models and data','ARSM · النماذج والبيانات'],
     ['ARSM · Attack results','ARSM · نتائج الهجمات'],
@@ -47,7 +138,7 @@
     ['We test ','نختبر '],['features extracted from files','خصائص مستخرجة من ملفات'],
     [', without executing them. This is not an antivirus scan or proof of a valid file modification.',' دون تشغيلها. هذا ليس فحصًا لمكافحة الفيروسات، ولا إثباتًا لإمكان تعديل ملف تنفيذي صالح.'],
     ['Choose a different experiment, attack or case','اختيار تجربة أو هجوم أو حالة أخرى'],
-    ['The first recorded successful attempt is selected when available. No attacks or training run from this page.','تُعرض أول محاولة ناجحة مسجّلة عند توافرها. لا تُشغّل هذه الصفحة هجمات أو تدريبًا.'],
+    ['The first recorded successful case is selected when available. No attacks or training are executed from this page.','تُعرض أول حالة ناجحة مسجّلة عند توافرها. ولا تُشغّل هذه الصفحة هجمات أو تدريبًا.'],
     ['Experiment','التجربة'],['Attack and parameters','الهجوم ومعاملاته'],['Selected case','الحالة المختارة'],
     ['Loading measured results…','جارٍ تحميل النتائج المقاسة…'],
     ['The questions behind the project','أسئلة لفهم البحث'],
@@ -83,8 +174,8 @@
     ['Why does this matter?','ما أهمية ذلك؟'],
     ['This test helps engineers find where an AI detector can fail. They can then compare a stronger version under the same conditions. One case explains a failure; the whole cohort measures its frequency.','يساعد الاختبار في تحديد مواضع إخفاق الكاشف، تمهيدًا لمقارنة نموذج محسّن تحت الشروط نفسها. تشرح الحالة إخفاقًا واحدًا، وتقيس مجموعة التقييم مدى تكراره.'],
     ['How often did this happen in the experiment?','ما مدى تكرار النتيجة في التجربة؟'],
-    ['Previous step','الخطوة السابقة'],['Next: see the change →','التالي: استعرض التعديل ←'],['Next: see the result →','التالي: استعرض النتيجة ←'],['Restart walkthrough ↻','أعد شرح الحالة ↻'],
-    ['See the model score','استعرض درجة النموذج'],['How should I read the scores?','كيف تُفسّر درجات النموذج؟'],
+    ['Previous step','الخطوة السابقة'],['Next: feature change →','التالي: تعديل الخصائص ←'],['Next: classification result →','التالي: نتيجة التصنيف ←'],['Restart case replay ↻','أعد عرض الحالة ↻'],
+    ['Model score','درجة النموذج'],['How should I read the scores?','كيف تُفسّر درجات النموذج؟'],
     ['Successful attack','هجوم ناجح'],['Remained correct','بقي القرار صحيحًا'],['Preexisting error','خطأ سابق للهجوم'],
     ['The model was already wrong. This case is not evidence of a successful attack and is excluded from the ASR denominator.','كان قرار النموذج خاطئًا قبل الهجوم. لا تثبت هذه الحالة نجاح الهجوم، وتُستبعد من مقام معدّل نجاح الهجوم (ASR).'],
     ['The model stayed correct after this attempt. That is one resisted case, not a guarantee against every attack.','بقي التصنيف صحيحًا بعد المحاولة. هذا ثبات في حالة واحدة، وليس ضمانًا لمقاومة جميع الهجمات.'],
@@ -124,7 +215,7 @@
     ['Larger evaluations and an accepted baseline are needed before generalizing. Aggregate-only historical reports remain available in Attack comparison.','يتطلّب التعميم تقييمات أوسع وخط أساس مقبولًا. وتبقى التقارير التاريخية ذات النتائج المجمّعة متاحة في مقارنة الهجمات.'],
     ['No individual case is recorded for this configuration. Open Attack comparison for aggregate results.','لا توجد حالة فردية مسجّلة لهذا الإعداد. راجع مقارنة الهجمات للاطلاع على النتائج المجمّعة.'],
     ['No measured individual cases are available yet. Open Attack comparison for aggregate results; we will not invent a story from aggregate numbers.','لا تتوافر حالات فردية مقاسة بعد. راجع مقارنة الهجمات للنتائج المجمّعة؛ ولا نستنتج حالة فردية من إحصاءات عامة.'],
-    ['experiment(s) with measured individual cases.','تجربة تتضمّن حالات فردية مقاسة.'],
+    ['Experiments with measured individual cases: ','تجارب تتضمّن حالات فردية مقاسة: '],
     ['Invalid reports excluded: ','التقارير غير الصالحة المستبعدة: '],
     [' invalid reports.',' تقرير غير صالح.'],
     [' The list is bounded; not all reports are shown.',' القائمة محدودة؛ ولا تعرض جميع التقارير.'],
@@ -144,7 +235,7 @@
     ['Identical rows for every displayed result','الصفوف نفسها لجميع النتائج المعروضة'],['Originally correct · both classes','القرارات الصحيحة أصلًا · الفئتان'],
     ['Accuracy versus epsilon','الدقة مقابل مقدار التعديل ε'],
     ['Clean versus attacked · measured results','قبل الهجوم وبعده · نتائج مقاسة'],
-    ['Read the numbers','دليل قراءة المقاييس'],['Back to dashboard','العودة إلى الصفحة الرئيسية'],
+    ['Back to dashboard','العودة إلى الصفحة الرئيسية'],
     ['Resilience starts with visibility.','المتانة تبدأ بفهم الأدلة.'],
     ['A clear view of your data, baseline models and measured results.','عرض للبيانات والنماذج الأساسية والنتائج المقاسة، مع حدود تفسيرها.'],
     ['Every model. Every metric.','مقارنة النماذج والمقاييس.'],
@@ -161,7 +252,7 @@
     ['Known limitations','القيود المعروفة'],['Research notes','وثائق البحث'],
     ['CLASS','الفئة'],['RECORDS','السجلات'],['MODEL','النموذج'],['ACCURACY','الدقة'],['PRECISION','إحكام التنبؤ بالفئة الضارة'],['RECALL','استدعاء الفئة الضارة'],['F1 SCORE','درجة F1'],
     ['Source class composition','توزيع فئات المصدر'],['Recorded data splits','تقسيمات البيانات المسجّلة'],['Provenance and limitations','المصدر والقيود'],
-    ['Interpret this result','تفسير النتيجة'],['Where the model gets it right — and wrong','القرارات الصحيحة والخاطئة للنموذج'],
+    ['Interpretation','التفسير'],['Confusion matrix','مصفوفة الالتباس'],
     ['Reproducibility & training history','قابلية إعادة التجربة وسجلّ التدريب'],['Full stored experiment and reproducibility data','السجلّ الكامل للتجربة وبيانات إعادة تنفيذها'],
     ['ATTACK / PARAMETERS','الهجوم / المعاملات'],['CLEAN','قبل الهجوم'],['ATTACKED','بعد الهجوم'],['ASR / COUNTS','معدّل النجاح / الأعداد'],
     ['MEAN L0 / L2 / L∞','متوسط L0 / L2 / L∞'],['PROVENANCE / CROSS-CHECK','المصدر / التحقق المستقل'],
@@ -169,10 +260,11 @@
     ['No epsilon curve applies.','لا ينطبق منحنى ε هنا.'],['CleverHans: Not run','CleverHans: لم يُنفّذ'],
     ['MODELS & DATA / SPRINT 05','النماذج والبيانات / نتائج التطوير'],
     ['ADVERSARIAL EVALUATION / SPRINT 05','التقييم التضليلي / نتائج استكشافية'],
+    ['TRANSFER EVALUATION / SPRINT 06','تقييم نقل الهجوم / نتائج استكشافية'],
     ['SOURCE SAMPLES','عينات المصدر'],['BASELINE MODELS','النماذج الأساسية'],['BEST VALIDATION ACCURACY','أعلى دقة تحقق'],['VALIDATION SAMPLES','عينات التحقق'],
     ['Measured development runs','تجارب تطوير مقاسة'],['Held-out test remains untouched','لم تُستخدم بيانات الاختبار المحجوزة'],
     ['Baseline performance','أداء النماذج الأساسية'],['VALIDATION ONLY','نتائج تحقق فقط'],
-    ['The data foundation','أساس البيانات'],['Model comparison','مقارنة النماذج'],['LIVE ARTIFACTS','سجلّات بحثية متاحة'],
+    ['Dataset splits','تقسيمات البيانات'],['Model comparison','مقارنة النماذج'],['LIVE ARTIFACTS','سجلّات بحثية متاحة'],
     ['Training split','تقسيم التدريب'],['Validation split','تقسيم التحقق'],['Official test split','تقسيم الاختبار الرسمي'],
     ['Available labeled records','السجلات المصنّفة المتاحة'],['Time-based split','تقسيم زمني'],['Reserved for gated evaluation','محجوز للتقييم المشروط بالاعتماد'],
     [' training rows used in this comparison.',' صف تدريب مستخدم في هذه المقارنة.'],[' Results are developmental.',' النتائج مخصّصة للتطوير.'],
@@ -180,7 +272,7 @@
     ['Historical Sprint 3 development comparison; these uncalibrated scores do not describe the Sprint 4 candidate. Open Attack comparison for Sprint 5 results. Executable scanning and production deployment remain outside the current implementation.','هذه مقارنة تطوير تاريخية من المرحلة 3؛ درجاتها غير المعايرة لا تصف النموذج المرشّح في المرحلة 4. راجع مقارنة الهجمات لنتائج المرحلة 5. فحص الملفات التنفيذية والنشر الإنتاجي خارج نطاق التنفيذ الحالي.'],
     ['BEST ACCURACY','أعلى دقة'],['FALSE POSITIVES','معدّل الإنذارات الكاذبة'],['Accuracy','الدقة'],['F1 score','درجة F1'],
     ['Experiment batch','دفعة التجارب'],['Same dataset · same rows · same split','البيانات نفسها · الصفوف نفسها · التقسيم نفسه'],
-    ['Validation leaderboard','مقارنة نتائج التحقق'],['Performance comparison','مقارنة الأداء'],['INDIVIDUAL METRICS','المقاييس التفصيلية'],['Run details','تفاصيل التجربة'],
+    ['Validation metrics by model','مقاييس التحقق حسب النموذج'],['Performance comparison','مقارنة الأداء'],['INDIVIDUAL METRICS','المقاييس التفصيلية'],['Run details','تفاصيل التجربة'],
     ['Training rows','صفوف التدريب'],['Validation rows','صفوف التحقق'],['Seed','بذرة العشوائية'],['Training subset','مجموعة تدريب جزئية'],['Full training split','تقسيم التدريب الكامل'],
     ['validation only','تحقق فقط'],['test not evaluated','لم يُقيّم الاختبار'],['test evaluated','قُيّم الاختبار'],
     ['Actual class → predicted class · exact counts','الفئة الحقيقية ← الفئة المتوقّعة · أعداد فعلية'],
@@ -212,10 +304,10 @@
     [' originally correct decisions made incorrect ÷ originally correct decisions. Both benign and malicious rows are included; this is untargeted error induction, not a malware-only evasion rate. An empty denominator is unavailable.',' القرارات الصحيحة التي أصبحت خاطئة ÷ القرارات الصحيحة أصلًا. يشمل الحساب الفئتين؛ وهو قياس لاستحداث أخطاء غير موجّهة، لا لتجاوز كشف البرمجيات الضارة وحدها. النتيجة غير متاحة عند خلوّ المقام.'],
     [' mean L0 (changed coordinates above 10⁻⁶), L2 and L∞ across all evaluated rows, in signed-log1p standardized model coordinates. Epsilon is not a percentage or a raw byte budget.',' متوسط L0 (الخصائص المتغيّرة بأكثر من 10⁻⁶) وL2 وL∞ لجميع الصفوف، في إحداثيات النموذج المعيارية بعد signed-log1p. لا تمثّل ε نسبة مئوية ولا حدًا لعدد البايتات الخام.'],
     [' bounds, immutable masks and integer counts are feature-space approximations. They do not establish a valid executable. CW-L2 is projected after generation and is not a constrained optimum.',' الحدود والخصائص الثابتة والأعداد الصحيحة تقريبات في فضاء الخصائص، ولا تثبت صلاحية ملف تنفيذي. تُطبّق القيود على CW-L2 بعد التوليد؛ وليست النتيجة حلًا أمثل مقيّدًا.'],
-    [' CleverHans is an independent implementation; matching metrics alone do not prove equivalent attacks. Missing checks remain “Not run”. No experiments run from this page.',' CleverHans تنفيذ مستقل؛ ولا يثبت تطابق المقاييس تكافؤ الهجمات. تبقى الاختبارات الغائبة موسومة «لم يُنفّذ». لا تُشغّل هذه الصفحة تجارب.'],
+    [' CleverHans is an independent implementation; matching metrics alone do not prove equivalent attacks. Missing checks remain “Not run”. No experiments are executed from this page.',' CleverHans تنفيذ مستقل؛ ولا يثبت تطابق المقاييس تكافؤ الهجمات. تبقى الاختبارات الغائبة موسومة «لم يُنفّذ». ولا تُشغّل هذه الصفحة تجارب.'],
     ['White-box and black-box evidence','أدلة المعرفة الكاملة ونقل الهجوم'],
     ['Recorded results only. No training, live attacks or uploads.','نتائج مسجّلة فقط، دون تدريب أو هجمات مباشرة أو رفع ملفات.'],
-    ['Four separate realism questions','أربعة أسئلة مستقلة حول واقعية التعديل'],
+    ['Four realism requirements','أربعة متطلبات للواقعية'],
     ['Scalar feature feasibility','صلاحية قيم الخصائص الفردية'],
     ['Policy projection checks numeric bounds, integer values and immutable coordinates only.','يتحقق تطبيق سياسة القيود من الحدود الرقمية والقيم الصحيحة والخصائص الثابتة فقط.'],
     ['Coupled structural consistency','الاتساق البنيوي بين الخصائص المترابطة'],
@@ -283,14 +375,17 @@
     ['Connecting to research API…','جارٍ الاتصال بواجهة البحث…'],
     ['Recorded MNIST accuracy under attack','دقة MNIST المسجّلة تحت الهجوم'],
     ['Results unavailable. Check the API and refresh. No cached scores are being shown.','النتائج غير متاحة. تحقّق من واجهة البحث ثم حدّث العرض. لا تُعرض درجات مخزّنة مؤقتًا.'],
-    ['Results pending. ','النتائج قيد الانتظار. '],
+    ['Results pending: ','النتائج قيد الانتظار: '],
     ['Requires frozen M1 baseline and explicit feature-space policy; technical review status is reported separately','يلزم خط أساس M1 مجمّد وسياسة صريحة لفضاء الخصائص؛ وتُعرض حالة المراجعة التقنية بصورة مستقلة'],
     ['Optional isolated CleverHans check not requested','لم يُطلب التحقق الاختياري المعزول باستخدام CleverHans'],
     ['No measured EMBER attack scores are available.','لا تتوافر درجات مقاسة لهجمات EMBER.'],
-    ['completed experiment snapshots.','سجلّ تجربة مكتمل.'],['invalid reports excluded.','تقرير غير صالح مستبعد.'],
+    ['Completed experiment snapshots: ','سجلّات التجارب المكتملة: '],
+    ['Configurations shown: ','الإعدادات المعروضة: '],
     [' Result listing limited; some reports are omitted.',' قائمة النتائج محدودة؛ بعض التقارير غير معروضة.'],
-    ['invalid batches excluded.','دفعة غير صالحة مستبعدة.'],['Only latest 100 batches shown.','تُعرض أحدث 100 دفعة فقط.'],
-    ['ARSM / Attack results explorer','ARSM / استكشاف نتائج الهجمات'],
+    ['Invalid batches excluded: ','الدفعات غير الصالحة المستبعدة: '],['Only the latest 100 batches are shown.','تُعرض أحدث 100 دفعة فقط.'],
+    ['ARSM / Attack comparison','ARSM / مقارنة الهجمات'],
+    ['ARSM / Threat context and transfer','ARSM / سياق التهديد ونقل الهجوم'],
+    ['ARSM / Models and data','ARSM / النماذج والبيانات'],
     ['ARSM / Adversarial-Resilient Security Models','ARSM / نماذج أمنية مقاومة للهجمات التضليلية'],
     ['L∞ · epsilon sweep','L∞ · تدرّج قيم ε'],['L2 · CW optimization','L2 · استمثال CW'],
     ['Linear SVM','آلة المتجهات الداعمة الخطية (Linear SVM)'],
@@ -336,7 +431,7 @@
     return text.replace(pattern, match => map.get(match));
   }
   // Keep an entire formatted number in one directional run (including commas).
-  const isolate = text => text.replace(/[A-Za-z0-9][A-Za-z0-9_.,:/+%∞⁻⁶–-]*/g, value => `\u2066${value}\u2069`);
+  const isolate = text => text.replace(/[A-Za-z0-9](?:[A-Za-z0-9_.,:/+%∞⁻⁶–-]*[A-Za-z0-9%∞⁻⁶])?/g, value => `\u2066${value}\u2069`);
   if (typeof module !== 'undefined') module.exports = {translate, isolate, copy};
   if (typeof document === 'undefined') return;
   let language = 'en';
@@ -377,9 +472,10 @@
       originals.set(node,record);
       if (node.textContent !== record.rendered) node.textContent = record.rendered;
     }
-    document.querySelectorAll('[aria-label],[title],[placeholder],[alt]').forEach(element => {
+    document.querySelectorAll('[aria-label],[title],[placeholder],[alt],meta[name="description"]').forEach(element => {
       const records = attributeOriginals.get(element) || {};
-      for (const name of ['aria-label','title','placeholder','alt']) {
+      for (const name of ['aria-label','title','placeholder','alt','content']) {
+        if (name === 'content' && !element.matches('meta[name="description"]')) continue;
         if (!element.hasAttribute(name)) continue;
         let record = records[name];
         const value = element.getAttribute(name);
@@ -394,6 +490,24 @@
       element.tabIndex = 0;
       element.setAttribute('role','region');
       if (!element.hasAttribute('aria-label')) element.setAttribute('aria-label',translate('Scrollable evidence table',language));
+      element.querySelectorAll('thead th:not([scope])').forEach(th => th.setAttribute('scope','col'));
+      const table = element.querySelector('table');
+      if (table && !table.querySelector('caption')) {
+        const caption = document.createElement('caption');
+        caption.textContent = 'Data table';
+        table.prepend(caption);
+      }
+      if (!element.previousElementSibling?.classList.contains('scroll-hint')) {
+        const hint = document.createElement('p');
+        hint.className = 'scroll-hint';
+        hint.textContent = 'Scroll the table horizontally to view all columns.';
+        element.before(hint);
+      }
+    });
+    // Screen readers should retain the source language for unlocalized evidence.
+    document.querySelectorAll('code,pre,[data-release],[data-evidence]').forEach(element => {
+      if (element.matches('pre[data-ui-copy]')) element.removeAttribute('lang');
+      else element.lang = 'en';
     });
     document.querySelectorAll('nav button[data-page]').forEach(button => {
       button.setAttribute('aria-current',button.classList.contains('active') ? 'page' : 'false');
