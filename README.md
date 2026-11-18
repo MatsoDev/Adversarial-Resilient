@@ -86,7 +86,7 @@ make test      # pytest, synthetic fixtures only
 make coverage  # pytest with line/branch coverage
 make security  # dependency + static security checks
 source .venv/bin/activate  # Linux; Make uses .venv automatically, Python does not
-python -m uvicorn api.main:app --host 127.0.0.1 --port 8000
+python -m uvicorn api.main:app --host 127.0.0.1 --port 8000 --no-proxy-headers
 ```
 
 Open <http://localhost:8000/dashboard/>. Viewing the recorded results needs no
@@ -193,7 +193,9 @@ Full reference: [`docs/project-structure.md`](docs/project-structure.md).
   `sprint<N>/<topic>`).
 - Commits use Conventional Commits: `feat:`, `fix:`, `refactor:`, `docs:`, `chore:`,
   `test:`, `ci:`.
-- Open a pull request into `main`; never push directly to `main`.
+- Verified direct pushes and autonomous agent integration are allowed when GitHub
+  rules permit; required PRs, checks and approvals still apply. See
+  [the Git workflow](CONTRIBUTING.md#git-workflow-and-agent-authorization).
 - Never commit datasets, model weights, `.env`, or `mlruns/`. Check `git status`
   before every commit.
 

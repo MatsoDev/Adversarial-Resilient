@@ -170,7 +170,8 @@ or Python `run_demo(output_dir=...)` for checks that must not replace evidence.
   wheel limitations and optional authorized CUDA training are documented in
   [setup](development.md#prerequisites) and [Sprint 4](sprint4.md#optional-existing-gpu-runtime).
 - [Contribution rules](../CONTRIBUTING.md) own branching/commits/PR review.
-  `main` receives changes through PRs, not direct pushes.
+  Verified direct pushes are allowed when GitHub rules permit; required PRs,
+  checks and approvals still apply.
 
 ## Deliberate exceptions and retained history
 

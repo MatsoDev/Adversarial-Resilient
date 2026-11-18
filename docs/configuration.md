@@ -112,6 +112,16 @@ Compose ports on loopback, do not expose MLflow without authentication/TLS,
 keep `API_DOCS_ENABLED=false` on public deployments, and run `make security`
 after dependency or HTTP changes.
 
+Run Uvicorn with `--no-proxy-headers` (as the Docker, Compose and `make dashboard`
+entry points do). Otherwise its default loopback proxy trust rewrites the client
+address from `X-Forwarded-For` before the application's per-peer prediction budget
+sees it; a token holder connecting over loopback can rotate that header to bypass
+the budget. With proxy headers disabled, clients behind one reverse proxy share
+its socket-peer budget, and forwarded HTTPS does not enable application HSTS.
+Terminate TLS and set HSTS at that proxy. Re-enabling forwarded headers requires
+a reviewed proxy trust boundary, sanitized headers and proxy-enforced quotas;
+the application's in-memory budget is per process, not a distributed quota.
+
 ## Data paths and seeds
 
 Use imports from [`../src/config.py`](../src/config.py) instead of constructing
@@ -152,7 +162,7 @@ regenerates committed full-run manifests when using default output directories.
 Run the primary dashboard on a non-default port (no `API_URL` needed):
 
 ```bash
-API_DOCS_ENABLED=false python -m uvicorn api.main:app --host 127.0.0.1 --port 8001
+API_DOCS_ENABLED=false python -m uvicorn api.main:app --host 127.0.0.1 --port 8001 --no-proxy-headers
 # Open http://localhost:8001/dashboard/
 ```
 

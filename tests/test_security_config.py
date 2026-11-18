@@ -2,10 +2,15 @@
 
 from __future__ import annotations
 
+import json
 import re
+import shlex
 from pathlib import Path
 
+import uvicorn
 import yaml
+from api.main import create_app
+from fastapi.testclient import TestClient
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -64,10 +69,43 @@ def test_compose_dashboard_serves_html_with_page_healthcheck():
 def test_makefile_has_dashboard_entrypoint():
     makefile = (ROOT / "Makefile").read_text(encoding="utf-8")
     assert re.search(
-        r"^dashboard:\n\t\$\(PYTHON\) -m uvicorn api.main:app --host 127\.0\.0\.1 --port 8501$",
+        r"^dashboard:\n\t\$\(PYTHON\) -m uvicorn api.main:app --host 127\.0\.0\.1 --port 8501 --no-proxy-headers$",
         makefile,
         re.MULTILINE,
     )
+
+
+def test_server_entrypoints_preserve_socket_peer_for_prediction_limits(tmp_path, monkeypatch):
+    monkeypatch.setenv("PREDICTION_API_TOKEN", "x" * 32)
+    dockerfile = (ROOT / "Dockerfile").read_text(encoding="utf-8")
+    command = json.loads(re.search(r"^CMD (.+)$", dockerfile, re.MULTILINE)[1])
+    compose = yaml.safe_load((ROOT / "docker-compose.yml").read_text(encoding="utf-8"))
+    commands = [command] + [
+        shlex.split(compose["services"][name]["command"]) for name in ("api", "dashboard")
+    ]
+    makefile = (ROOT / "Makefile").read_text(encoding="utf-8")
+    commands.append(shlex.split(re.search(r"^dashboard:\n\t(.+)$", makefile, re.MULTILINE)[1]))
+    for args in commands:
+        # Exercise Uvicorn's actual wrapper, not only FastAPI's TestClient:
+        # Uvicorn otherwise trusts forwarded headers from loopback by default.
+        config = uvicorn.Config(
+            create_app(baseline_dir=tmp_path / "missing"),
+            proxy_headers="--no-proxy-headers" not in args,
+            forwarded_allow_ips="127.0.0.1",
+        )
+        config.load()
+        with TestClient(config.loaded_app, client=("127.0.0.1", 45000)) as client:
+            client.headers["Authorization"] = "Bearer " + "x" * 32
+            for number in range(30):
+                response = client.get(
+                    "/v1/baseline",
+                    headers={"X-Forwarded-For": f"192.0.2.{number}"},
+                )
+                assert response.status_code == 503  # Missing bundle still consumes a query.
+            assert (
+                client.get("/v1/baseline", headers={"X-Forwarded-For": "198.51.100.1"}).status_code
+                == 429
+            )
 
 
 def test_trivy_image_is_sha_pinned():

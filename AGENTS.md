@@ -61,7 +61,7 @@ make data               # full EMBER + CICIDS preprocessing (needs local raw dat
 make data-smoke         # deterministic 2000-row subset into /tmp
 make eda                # regenerate docs/results/data_eda.json + figures/report
 python scripts/preprocess.py --dataset all --verify-only
-python -m uvicorn api.main:app --port 8000     # API + HTML at /dashboard/ (blocking)
+python -m uvicorn api.main:app --port 8000 --no-proxy-headers  # API + HTML (blocking)
 make dashboard                                # same app on 8501; alternative, not required
 docker compose up --build                      # api + dashboard + mlflow (.env first)
 ```
@@ -115,7 +115,11 @@ formatting, so run it before every commit.
 - **Style:** ruff (`line-length = 100`), `ruff format`, logging instead of
   print in library code; Windows/Linux/macOS compatible paths.
 - **Git:** Conventional Commits; branch naming and PR rules in
-  [`CONTRIBUTING.md`](CONTRIBUTING.md). Never push to `main` directly.
+  [`CONTRIBUTING.md`](CONTRIBUTING.md). Agents may commit, push and merge
+  without repeated permission requests; normal direct pushes to the intended
+  target (including `main`) are allowed when GitHub rules permit.
+  Task-specific restrictions, required checks/reviews and deployment safeguards
+  still apply; never bypass protections.
   Inspect staged/unstaged/untracked work first; never commit or push unrelated
   user changes. Verify the remote base before selecting a task branch.
 - **Data:** raw datasets are read in place (CLI `--source` > `EMBER_DATA_DIR` /
