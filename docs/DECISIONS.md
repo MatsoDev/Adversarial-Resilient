@@ -7,6 +7,13 @@
   ref-based concurrency cannot deduplicate them. Restrict push events to `main`
   and retain all PR checks and per-ref cancellation. Feature branches now need
   an open PR for hosted checks; local Make targets remain unchanged.
+- **Reuse Docker layers without publishing images.** The sampled hosted builds
+  spent 99–117 seconds building the image with no persistent layer cache.
+  Owner-approved, SHA-pinned official Docker setup/build actions now use the
+  GitHub Actions BuildKit cache. Explicit path context preserves `.dockerignore`;
+  `load: true` preserves the local image used by Trivy and `push: false`
+  retains build-only CI. No registry credentials or additional repository
+  permissions are needed. Hosted cache performance must be measured in CI.
 
 ## Sprint 5 — 2026-11-14
 

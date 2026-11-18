@@ -111,3 +111,23 @@ def test_ci_checks_pull_requests_and_main_pushes_without_duplicate_branch_runs()
         "group": "${{ github.workflow }}-${{ github.ref }}",
         "cancel-in-progress": "true",
     }
+
+
+def test_ci_caches_docker_layers_and_scans_the_loaded_image_without_publishing():
+    workflow = yaml.safe_load((ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8"))
+    steps = workflow["jobs"]["docker"]["steps"]
+    setup = next(i for i, step in enumerate(steps) if step.get("name") == "Set up Docker Buildx")
+    build = next(i for i, step in enumerate(steps) if step.get("name") == "Build image (no push)")
+    scan = next(i for i, step in enumerate(steps) if step.get("run") == "make docker-scan")
+    assert setup < build < scan
+    assert steps[setup]["uses"].startswith("docker/setup-buildx-action@")
+    assert steps[build]["uses"].startswith("docker/build-push-action@")
+    assert steps[build]["with"] == {
+        "context": ".",
+        "load": True,
+        "push": False,
+        "tags": "adversarial-resilient:dev",
+        "cache-from": "type=gha,scope=adversarial-resilient",
+        "cache-to": "type=gha,scope=adversarial-resilient,mode=max",
+    }
+    assert workflow["permissions"] == {"contents": "read"}

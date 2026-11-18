@@ -187,6 +187,13 @@ open PR for hosted checks; their pushes do not launch a second, duplicate run.
 New updates cancel older runs for the same PR/ref. Integration pushes to `main`
 remain independently checked.
 
+The Docker job uses SHA-pinned official Docker Buildx/build actions and the
+GitHub Actions layer cache (`adversarial-resilient` scope). It loads the image
+as `adversarial-resilient:dev` for the existing Trivy scan; it does not push an
+image or deploy. Cache reuse follows GitHub's branch/PR isolation rules and is
+not guaranteed on a first run, after eviction, or after dependency changes.
+The local `make docker-build` command is unchanged.
+
 A healthy default run passes with optional-dependency/data skips as described above. Warnings
 from third-party packages (for example matplotlib/pyparsing deprecations) are
 not test failures. `make security` must report no known vulnerabilities and no
