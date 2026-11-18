@@ -73,6 +73,14 @@ def validate_attack_report(report):
         json.dumps(constraint["policy"], sort_keys=True, allow_nan=False).encode()
     ).hexdigest()
     require(policy_hash == identity["constraint_sha256"])
+    # Imported reports bypass the attack runner's FeaturePolicy constructor.
+    # Validate indices here too: they are used as identities and displayed by the UI.
+    features = {}
+    require(isinstance(constraint["policy"]["features"], list))
+    for feature in constraint["policy"]["features"]:
+        index = feature["index"]
+        require(type(index) is int and 0 <= index < 2381 and index not in features)
+        features[index] = feature
 
     def metrics(m):
         n = identity["samples"]
@@ -123,7 +131,6 @@ def validate_attack_report(report):
         require(isinstance(examples, list) and len(examples) <= 3)
         positions = set()
         outcomes = set()
-        features = {f["index"]: f for f in constraint["policy"]["features"]}
         for example in examples:
             position = example["cohort_position"]
             require(type(position) is int and 0 <= position < identity["samples"])
@@ -160,7 +167,7 @@ def validate_attack_report(report):
             deltas = []
             for change in changes:
                 i = change["index"]
-                require(i in features and i not in changed)
+                require(type(i) is int and i in features and i not in changed)
                 changed.add(i)
                 require(change["operation"] == features[i]["operation"])
                 for key in ("raw_before", "raw_after_approx", "model_before", "model_after"):
