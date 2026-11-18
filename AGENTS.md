@@ -13,6 +13,10 @@ freezing/prediction does not establish a passing full-data baseline. Sprint 5
 adds offline ART/CleverHans adapters, a reviewed scalar-policy projector and a
 read-only HTML attack explorer with 21 measured exploratory EMBER configurations.
 Frozen-benchmark acceptance remains pending M1 and SS review; see docs/sprint5.md.
+Sprint 6 adds offline surrogate transfer evaluation and read-only bilingual
+threat/realism views. Real transfer measurements await colleague-provided inputs
+and authorization; no laptop training/downloads. See docs/sprint6.md and
+docs/sprint6_report.md. Proposed mappings are not technical Security approval.
 Candidate exploration is explicit, operating-validation only, and cannot enable
 prediction. Defenses remain later-sprint work.
 

@@ -147,3 +147,10 @@ python -m pytest tests/test_binary_metrics.py tests/test_attacks.py tests/test_a
 
 Success means no failures; three CleverHans cases skip without the optional
 backend. See [testing](../../docs/testing.md) for the complete suite and audit results.
+## Sprint 6 transfer extension
+
+`transfer_results.py` validates optional source/target identity, metrics,
+directional denominators, conditional transfer and case decisions using the
+existing report/case validator. `threat_context.py` owns proposed version-pinned
+ATLAS/OWASP mappings, not technical approval. The old report schema remains
+readable. See [Sprint 6 contracts](../../docs/sprint6.md).

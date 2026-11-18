@@ -11,7 +11,7 @@ The primary dashboard is `dashboard/web/index.html` with `journey.js` and
 `journey.css`: a bilingual measured-case journey (English default, optional Egyptian Arabic). `research.html` retains the
 model/data views (`app.js`) and gated prediction; `attacks.html` retains the
 attack explorer. `theme.css` supplies the shared dark navy/cyan palette and
-`release.js` supplies the visible v0.5.2 / Sprint 05 UI identity. See the
+`release.js` supplies the visible v0.6.0 / Sprint 06 UI identity. See the
 [journey guide](../docs/ai_journey.md). It is served by FastAPI at **/dashboard/** and reads `/v1/*` on the
 same origin. From the repository root with the environment active:
 
@@ -20,7 +20,7 @@ python -m uvicorn api.main:app --host 127.0.0.1 --port 8000 --no-proxy-headers
 ```
 
 Open <http://localhost:8000/dashboard/>. Success means the release label is
-**v0.5.2 · Sprint 05 · AI Journey** and recorded cases load. All three HTML
+**v0.6.0 · Sprint 06 · AI Journey** and recorded cases load. The original three HTML
 routes and the stored experiment were checked over HTTP; browser interaction
 was not rerun in the documentation pass. `make dashboard` or the Compose
 dashboard service uses <http://localhost:8501/dashboard/>.
@@ -70,6 +70,14 @@ These files were checked in the documentation pass. Node.js is optional test
 tooling, not required to serve the UI. Four component cases skip without Node
 and use pure helpers/minimal DOMs, not a full browser. There is no
 frontend package manager, build pipeline or browser end-to-end runner.
+
+Sprint 6 adds `/dashboard/transfer.html` and `transfer.js`: one-snapshot
+white-box/transfer table, attacker/source/target provenance, four distinct
+realism layers and proposed versioned mappings. Unmeasured transfer is pending,
+never relabelled white-box evidence. The same language switch applies; recorded
+transfer cases join the journey only when they contain actual individual evidence.
+Run `tests/test_transfer_ui.py` and `node --check dashboard/web/transfer.js`.
+See [Sprint 6 evidence and browser limits](../docs/sprint6_report.md).
 
 The Streamlit implementation below is legacy reference only; it is no longer
 the default dashboard entry point.

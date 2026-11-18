@@ -61,6 +61,8 @@ opt-ins unset; coverage rounded to **88%**. Current verification is recorded in
 | `tests/test_attacks.py` | Synthetic configuration, policy projection, paired metrics, report validation, frozen/candidate harness and artifact listing; three optional CleverHans cases |
 | `tests/test_run_attacks_cli.py` | CLI defaults, ordered attack grids, candidate/backend flag forwarding, parser and failure exits; experiment execution is stubbed, not a real attack run |
 | `tests/test_attacks_ui.py` | Node-backed snapshot/norm filters, curve coordinates and escaping; no browser |
+| `tests/test_transfer.py` | Source-only crafting, inference-only target scoring, compatible bundles/cohorts, candidate/test gates, directional counts, malformed transfer reports, HTTP and generated summary |
+| `tests/test_transfer_ui.py` | Node-backed bilingual transfer rendering, source/target journey cases, missing/malformed/offline states, escaping and static HTTP/CSP |
 | `tests/test_journey.py` | Measured case selection/validation, recorded reference delivery, bilingual rendering, release identity and Node-backed journey controls |
 | `tests/test_sprint3.py` | Synthetic baseline training, CLI, artifact/provenance contracts, MLflow and legacy model views |
 | `tests/test_artifact_security.py` | Aggregate response, nonfinite JSON and special-file handling |
@@ -228,6 +230,7 @@ node --check dashboard/web/attacks.js
 node --check dashboard/web/journey.js
 node --check dashboard/web/locale.js
 node --check dashboard/web/release.js
+node --check dashboard/web/transfer.js
 ```
 
 All six commands exited 0 without output in the documentation audit.

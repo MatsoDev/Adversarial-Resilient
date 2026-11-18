@@ -1,14 +1,18 @@
 # Team handoff — recorded research results and current environment
 
-## Sprint 5 dashboard release — v0.5.2
+## Sprint 6 dashboard release — v0.6.0
 
 Use the main-branch update commands below, start the same API, and open
-<http://localhost:8000/dashboard/>. Verify **v0.5.2 · Sprint 05 · AI Journey**
-on all three pages; hard-refresh stale browser assets. The release adds the
-bilingual dark guided walkthrough and recorded case evidence. No new dependencies.
+<http://localhost:8000/dashboard/>. Verify **v0.6.0 · Sprint 06 · AI Journey**
+on all four pages; hard-refresh stale browser assets. The release retains the
+bilingual recorded walkthrough and adds threat/transfer/realism views. No new dependencies.
 Detailed setup, measured-case reproduction and limitations: [AI journey](ai_journey.md).
-The source branch is `sprint5/ai-journey-dashboard`; main is the team's shared
-integration branch. Dataset/model downloads are not needed for recorded playback. The team-facing
+The source branch is `sprint6/transfer-realism`; main is the team's shared
+integration branch. Dataset/model downloads are not needed for recorded playback.
+Real transfer results are pending; existing white-box results are not black-box
+evidence. Training/downloads belong on the colleague's suitable machine, not this
+laptop. Follow the [Sprint 6 prerequisite and reproduction handoff](sprint6.md)
+before any new experiment. The historical team-facing
 [complete HTML plan](plans/project_plan_v0.5.2.html) is included under
 [docs/plans](plans/README.md) and opens directly in a browser.
 

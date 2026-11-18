@@ -31,6 +31,8 @@ Artifact IDs are literal identifiers, not filesystem paths.
 | `GET` | `/v1/datasets/{name}` | Recorded manifest/EDA, hashes/timestamps, `local_verification: "not_checked"` |
 | `GET` | `/v1/runs` | Validated Sprint 3 comparison runs and availability/truncation counts |
 | `GET` | `/v1/attacks` | Validated completed attack experiments; pending state without reports; never executes attacks |
+| `GET` | `/v1/transfers` | Same bounded envelope, filtered to validated transfer-bearing reports; pending without measurements |
+| `GET` | `/v1/threat-context` | Version-pinned proposed mappings, four realism statuses and optional/domain/lab status; not SS approval |
 | `GET` | `/v1/demo` | MNIST report, `dataset: "MNIST"`, `purpose: "tooling_demo"` |
 | `GET` | `/v1/reports/{id}` | `schema_version`, `id`, UTF-8 Markdown `content` (not rendered HTML) |
 | `GET` | `/v1/figures/{id}` | `schema_version`, `id`, `png_base64` (JSON, not an image response) |
@@ -54,7 +56,7 @@ Allowlisted IDs are defined in
 
 - Datasets: `ember2018`, `cicids2017`.
 - Reports: `ember2018`, `cicids2017`, `eda`, `threat-model`, `feasibility`,
-  `sprint1`, `sprint2`, `sprint4`, `ember-literature`, `cicids-literature`.
+  `sprint1`, `sprint2`, `sprint4`, `sprint6`, `sprint6-mappings`, `ember-literature`, `cicids-literature`.
 - Figures: `art_accuracy_vs_eps`, `art_samples`, `data_ember_appeared_by_label`,
   `data_ember_feature_groups`, `data_ember_label_counts`, `data_cicids_class_counts`,
   `data_cicids_feature_histograms`, `data_cicids_inf_nan`, `data_cicids_per_file`.
@@ -116,6 +118,18 @@ Metric counts/types and report validation are documented in
 [the evaluation reference](../src/evaluation/README.md); projection and case
 limitations are in [Sprint 5](../docs/sprint5.md). No model or arrays are loaded
 by this route, and neither filters nor HTTP attack execution are supported.
+
+Sprint 6 preserves schema v1. Optional `identity.transfer_source` binds distinct
+source/target weights, preprocessing, temperatures, thresholds, training seeds/
+partitions and zero target feedback during crafting. Each row's `transfer`
+contains source/target paired metrics, directional outcomes, conditional-transfer
+counts, transferred-matrix digest and measured cases with both models'
+decisions. New white-box rows also include directional `outcomes`; old reports
+without these counts remain valid, not retrospectively inferred from cases.
+See [the full extension contract](../docs/sprint6.md#transfer-contract).
+`/v1/transfers` filters **after** the shared bounded listing, so truncation may
+hide local transfer reports; it is not a complete historical index.
+`/v1/threat-context` is curated `sprint6-proposed-v1`, not runtime model readiness.
 
 Read-only client example, with the API running:
 

@@ -23,7 +23,7 @@ Works today:
 - Test suite (`pytest`) and lint/format checks (`ruff`).
 - FastAPI service with liveness, read-only research artifacts, and gated,
   bearer-token-protected feature prediction. See the [API reference](api/README.md).
-- HTML dashboard v0.5.2 (Sprint 05): guided measured AI journey with an
+- HTML dashboard v0.6.0 (Sprint 06): guided measured AI journey with an
   English / Egyptian Arabic language switch, attack comparisons and detailed
   model/data/methodology/tooling pages; baseline comparisons use recorded
   validation artifacts. See [the journey guide](docs/ai_journey.md).
@@ -46,6 +46,10 @@ Sprint 4 adds CPU MLP/CNN tuning, calibration, gated freezing and authenticated
 feature prediction. See [`docs/sprint4.md`](docs/sprint4.md) and the
 [Sprint 4 report](docs/sprint4_report.md) for measured results and M1 status.
 Sprint 5 adds an offline attack pipeline and [HTML results explorer](docs/sprint5.md).
+Sprint 6 adds offline surrogate transfer evaluation and a bilingual
+[threat/realism explorer](docs/sprint6.md). Real transfer measurements remain
+pending colleague-provided bundles/data and authorization; no training or
+downloads were run on this laptop. See [Sprint 6 evidence](docs/sprint6_report.md).
 The planned frozen benchmark requires M1 and technical feature-policy review.
 Explicit offline candidate exploration
 uses operating validation only and is labelled **development—not frozen**;

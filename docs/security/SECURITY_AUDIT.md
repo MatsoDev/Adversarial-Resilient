@@ -1,5 +1,19 @@
 # Security audit — Adversarial-Resilient
 
+## Sprint 6 implementation delta — 2026-11-18
+
+The new transfer CLI is offline/operator-invoked. `/v1/transfers` only filters
+the existing bounded, validated report reader; `/v1/threat-context` returns
+curated proposed mappings. No uploads, training, attack execution, model-path
+selection or model loading were added over HTTP. Existing prediction, CSP,
+Host, body and artifact budgets remain unchanged. Source bundles retain the
+trusted-local-writer boundary and weights-only integrity checks.
+
+Synthetic regression and dependency/static checks are implementation evidence,
+**not** the outstanding technical SS policy/mapping review or a full application
+security assessment. Real transfer, isolated-lab and executable-validity evidence
+remain pending. See [Sprint 6 report](../sprint6_report.md).
+
 **Repository configuration clarification (2026-11-11):** Dependabot version-update
 configuration was intentionally removed in `557b34b`. Historical mentions below
 describe its earlier presence, not currently configured automation. Maintainers

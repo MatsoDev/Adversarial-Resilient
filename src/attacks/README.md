@@ -1,4 +1,4 @@
-# src/attacks — Sprint 5 feature-space research
+# src/attacks — offline feature-space research
 
 - `runner.py`: configuration, calibrated two-logit wrapper, CPU ART
   FGSM/PGD/CW-L2 and optional independent CleverHans torch adapters.
@@ -15,7 +15,14 @@ Default frozen benchmarks require a qualifying frozen baseline and policy;
 explicit owner-delegated candidate exploration is limited to the verified
 operating-validation partition and labelled not frozen. Synthetic tests never
 become dashboard results. CW is post-projected only.
-Sprint 6 transfer/black-box and problem-space validation remain future work.
+Sprint 6 adds `transfer.py`: craft on a distinct surrogate, then evaluate identical
+samples on target without target feedback. `run_experiment` accepts optional
+`surrogate_dir` and `transfer_authorization`; the CLI exposes matching flags.
+Default transfer requires two qualifying frozen bundles; explicit candidate mode
+requires a separate real Sprint 6 authorization and shared operating-validation
+partitions. Identical scaler/manifest/schema/partition contracts are mandatory.
+Protocol, metrics, colleague training/download handoff and research blockers:
+[Sprint 6 guide](../../docs/sprint6.md). Problem-space validation remains pending.
 
 ## Attack configuration (`runner.py`)
 
