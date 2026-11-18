@@ -1,6 +1,6 @@
 # AI journey — UI v0.6.0 · Sprint 06
 
-The academic ink/slate/teal dashboard first explains train → challenge → improve in
+The light-mode academic dashboard first explains train → evaluate → planned defense work in
 plain language, then walks through one measured EMBER case in English or formal
 Modern Standard Arabic (English default, saved language switch): known label → clean decision → attack → attacked decision → cohort
 context. This is a presentation and evidence extension of Adversarial Attacks,
@@ -10,16 +10,17 @@ not a new antivirus product. Research pages remain available with the shared lan
 
 Run the usual FastAPI command from [team handoff](team_handoff.md), then open
 <http://localhost:8000/dashboard/>. Every page displays
-**v0.6.0 · Sprint 06 · AI Journey**, sourced from one `release.js` constant.
+**v0.6.0 · Sprint 06**, sourced from one `release.js` constant.
 Use the header’s **English / العربية** buttons. English is the default; the choice
 is saved in browser local storage and applies across pages, with LTR/RTL layout.
 If storage is blocked, switching still works for the open page. `locale.js`
 owns display translations; measured numbers and original artifact JSON are
 never translated.
 
-The [academic presentation review](dashboard_presentation.md) records the newer
-design, formal Arabic copy and desktop/mobile-width verification. Earlier
-browser results below are historical, not a description of the current register.
+The [light-mode review](light_dashboard_review.md) records the current design,
+formal Arabic glossary and desktop/mobile-width verification. The earlier
+[presentation review](dashboard_presentation.md) and browser results below are
+historical.
 
 This identifies the UI, not the model or an approved frozen benchmark. The
 current source branch is `sprint6/transfer-threat-context`; the team updates from main

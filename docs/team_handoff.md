@@ -3,7 +3,7 @@
 ## Sprint 6 dashboard release — v0.6.0
 
 Use the main-branch update commands below, start the same API, and open
-<http://localhost:8000/dashboard/>. Verify **v0.6.0 · Sprint 06 · AI Journey**
+<http://localhost:8000/dashboard/>. Verify **v0.6.0 · Sprint 06**
 on all four pages; hard-refresh stale browser assets. The release retains the
 bilingual recorded walkthrough and adds threat/transfer/realism views. No new dependencies.
 Detailed setup, measured-case reproduction and limitations: [AI journey](ai_journey.md).

@@ -19,6 +19,8 @@ and how to get it running; this page is the map to everything else.
 - [AI journey and UI v0.6.0](ai_journey.md): guided measured cases, team version check and future sprint work.
 - [Academic bilingual presentation review](dashboard_presentation.md): design,
   localization, demonstration route and actual browser/verification limits.
+- [Light-mode dashboard review](light_dashboard_review.md): current presentation
+  palette, academic copy, Arabic glossary and verification limits.
 - [Sprint 6 protocol](sprint6.md), [implementation report](sprint6_report.md),
   [proposed mappings](sprint6_mappings.md) and
   [generated white-box / black-box table](results/sprint6_comparison.md).

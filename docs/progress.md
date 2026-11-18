@@ -8,6 +8,11 @@ short. Evidence of record stays in the sprint reports, PRs, and MLflow runs.
 
 ## Sprint 6 implementation — v0.6.0
 
+- The primary HTML interface now uses a light academic presentation with revised
+  English/Arabic wording, patterned chart series and explicit evidence status.
+  This changes no research acceptance. See
+  [light-mode verification and outstanding reviews](light_dashboard_review.md).
+
 - Academic presentation follow-up: consistent four-route navigation, restrained
   shared styling, formal Arabic/RTL and localized prediction/chart/status copy.
   Local lint/coverage: 625 passed, 6 optional skips, 90% coverage; bilingual

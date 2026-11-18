@@ -5,7 +5,7 @@
   if (typeof module !== 'undefined') module.exports = release;
   if (typeof document === 'undefined') return;
   document.querySelectorAll('[data-release]').forEach(el => {
-    el.textContent = `v${release.version} · Sprint ${release.sprint} · ${release.name}`;
+    el.textContent = `v${release.version} · Sprint ${release.sprint}`;
     el.dir = 'ltr';
   });
 })();

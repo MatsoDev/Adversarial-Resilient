@@ -21,7 +21,7 @@
     let body = '';
     for (let i = 0; i <= 4; i++) body += `<line class="gridline" x1="65" x2="745" y1="${y(i/4)}" y2="${y(i/4)}"/><text x="12" y="${y(i/4)+4}">${i*25}%</text>`;
     body += `<line class="cleanline" x1="65" x2="745" y1="${y(eligible[0].metrics.clean_accuracy)}" y2="${y(eligible[0].metrics.clean_accuracy)}"/>`;
-    let legend = '<p>Dashed line: clean accuracy. Exact values and counts appear below.</p>';
+    let legend = '<p>Dashed black line: accuracy before attack. Series use distinct line patterns; exact values and counts are in the results table.</p>';
     [...groups].forEach(([key, values], i) => {
       values.sort((a,b) => a.parameters.epsilon - b.parameters.epsilon);
       const color = `c${i%5}`;
@@ -29,12 +29,12 @@
       values.forEach(r => body += `<circle class="${color}" cx="${x(r.parameters.epsilon)}" cy="${y(r.metrics.attacked_accuracy)}" r="4"><title>${esc(r.attack)} · ε ${r.parameters.epsilon} · Accuracy: ${pct(r.metrics.attacked_accuracy)}</title></circle>`);
       const first = values[0];
       const label = first.attack === 'PGD' ? `PGD · step ${first.parameters.step_size} · ${first.parameters.iterations} iterations` : first.attack;
-      legend += `<p class="attack-series-label ${color}">${esc(label)}</p>`;
+      legend += `<p class="attack-series-label"><svg class="series-swatch" viewBox="0 0 40 8" aria-hidden="true"><line class="series ${color}" x1="0" x2="40" y1="4" y2="4"/></svg>${esc(label)}</p>`;
     });
     const epsilons = [...new Set(eligible.map(r => r.parameters.epsilon))].sort((a,b) => a-b);
     epsilons.forEach(e => body += `<text x="${x(e)}" y="283" text-anchor="middle">${e}</text>`);
     body += '<text x="400" y="312" text-anchor="middle">ε · standardized model coordinates</text>';
-    return `<div class="attack-chart-scroll" tabindex="0" aria-label="Scrollable accuracy chart"><svg class="attack-chart" viewBox="0 0 800 330" role="img" aria-label="Accuracy versus epsilon; exact values in the results table">${body}</svg></div><p class="chart-scroll-hint">Scroll the chart horizontally for all epsilon values. Exact values are in the table below.</p>${legend}`;
+    return `<p>Accuracy is measured on the same selected rows before and after attack; ε is in standardized model coordinates.</p><div class="attack-chart-scroll" tabindex="0" role="region" aria-label="Scrollable accuracy chart"><svg class="attack-chart" viewBox="0 0 800 330" role="img" aria-label="Accuracy versus epsilon; exact values in the results table">${body}</svg></div><p class="chart-scroll-hint">Scroll the chart horizontally for all epsilon values. Exact values are in the table below.</p>${legend}`;
   }
   function renderReport(experiment, norm, attack) {
     const rows = selectRows(experiment, norm, attack), id = experiment.identity;
@@ -47,23 +47,23 @@
       <p>Exact row indices SHA-256<br><code>${esc(id.indices_sha256)}</code></p>
       <p>Constraint policy SHA-256<br><code>${esc(id.constraint_sha256)}</code></p></div>
       <p>Constraint status: ${esc(experiment.constraint.status)} · reviewer: ${esc(experiment.constraint.reviewer)} · problem-space validation: unavailable.</p></details></section>`;
-    let html = candidate ? `<section class="panel"><h2>Development model — not frozen</h2>
+    let html = candidate ? `<section class="panel"><p class="evidence-status exploratory">Exploratory · feature space</p><h2>Development model — not frozen</h2>
       <p>Full operating-validation accuracy: <strong>${pct(qualification?.validation_metrics?.accuracy)}</strong> on ${number(qualification?.validation_metrics?.n_samples || 0)} rows. Charts use ${id.samples} selected validation rows and cannot satisfy the 93% freeze gate.</p>
       <details><summary>Experiment scope and readiness</summary><p>This exploratory experiment does not complete M1 or enable prediction. ${esc(experiment.candidate_reason)}</p><p>Official test evaluated for this model: ${qualification?.test_evaluated ? 'yes' : 'no'}. Attack cohort: ${esc(id.cohort)}.</p></details></section>` : '';
-    html += `<p class="kicker">Feature-space experiment · Technical Security review: ${esc(experiment.constraint.security_review || 'Asserted by the named local reviewer')} · Problem-space validation: unavailable.</p>`;
+    html += `<p class="scope-note">Feature-space experiment · Technical Security review: ${esc(experiment.constraint.security_review || 'Asserted by the named local reviewer')} · Problem-space validation: unavailable. A feature change does not establish a valid executable modification.</p>`;
     if (!rows.length) return html + '<section class="panel attack-empty">No completed results match these filters. Choose another attack or norm.</section>' + provenance;
     const clean = rows[0].metrics;
     const rates = rows.map(r => r.metrics.attack_success_rate).filter(r => r != null);
     const maximumAsr = rates.length ? Math.max(...rates) : null;
-    html += `<div class="stats"><article class="stat"><div class="stat-label">CLEAN ACCURACY</div><strong>${pct(clean.clean_accuracy)}</strong><small>${clean.clean_correct} / ${clean.samples} correct</small></article><article class="stat"><div class="stat-label">EVALUATED ROWS</div><strong>${clean.samples}</strong><small>Identical rows for every displayed result</small></article><article class="stat"><div class="stat-label">ASR DENOMINATOR</div><strong>${clean.asr_denominator}</strong><small>Originally correct · both classes</small></article><article class="stat"><div class="stat-label">MAXIMUM MEASURED ASR</div><strong>${pct(maximumAsr)}</strong><small>${rows.length} ${esc(norm)} configurations</small></article></div>`;
+    html += `<div class="stats"><article class="stat"><div class="stat-label">CLEAN ACCURACY</div><strong>${pct(clean.clean_accuracy)}</strong><small>${clean.clean_correct} / ${clean.samples} correct</small></article><article class="stat"><div class="stat-label">EVALUATED ROWS</div><strong>${clean.samples}</strong><small>Identical rows for every displayed result</small></article><article class="stat"><div class="stat-label">ASR DENOMINATOR</div><strong>${clean.asr_denominator}</strong><small>Originally correct · both classes</small></article><article class="stat"><div class="stat-label">MAXIMUM MEASURED ASR</div><strong>${pct(maximumAsr)}</strong><small>Configurations shown: ${rows.length} · ${esc(norm)}</small></article></div>`;
     html += `<section class="panel"><h2>${norm === 'L2' ? 'CW-L2 optimization' : 'Accuracy versus epsilon'}</h2>${curve(rows)}</section>`;
-    html += '<section class="panel"><h2>Clean versus attacked · measured results</h2><div class="table-wrap"><table><thead><tr><th>ATTACK / PARAMETERS</th><th>CLEAN</th><th>ATTACKED</th><th>ASR / COUNTS</th><th>MEAN L0 / L2 / L∞</th><th>PROVENANCE / CROSS-CHECK</th></tr></thead><tbody>';
+    html += '<section class="panel"><details><summary>Measured results table and provenance</summary><p class="scroll-hint">Scroll the table horizontally to view all columns.</p><div class="table-wrap"><table><caption>Clean versus attacked · measured results</caption><thead><tr><th scope="col">ATTACK / PARAMETERS</th><th scope="col">CLEAN</th><th scope="col">ATTACKED</th><th scope="col">ASR / COUNTS</th><th scope="col">MEAN L0 / L2 / L∞</th><th scope="col">PROVENANCE / CROSS-CHECK</th></tr></thead><tbody>';
     rows.forEach(r => {
       const m = r.metrics, c = r.cross_check;
       const cross = c.status === 'completed' ? `CleverHans ${esc(c.version)} · accuracy ${pct(c.metrics.attacked_accuracy)} · ASR ${pct(c.metrics.attack_success_rate)} (${c.metrics.successful_attacks}/${c.metrics.asr_denominator}) · prediction agreement ${pct(c.prediction_agreement)} · mean candidate L2 difference ${number(c.mean_candidate_l2_difference)}` : `CleverHans: Not run · ${esc(c.reason)}`;
       html += `<tr><td><strong>${esc(r.attack)}</strong><br><code>${esc(JSON.stringify(r.parameters))}</code><br>${esc(r.projection)}</td><td>${pct(m.clean_accuracy)}<br>${m.clean_correct}/${m.samples}</td><td>${pct(m.attacked_accuracy)}<br>${m.attacked_correct}/${m.samples}</td><td>${pct(m.attack_success_rate)}<br>${m.successful_attacks}/${m.asr_denominator}</td><td>${['L0','L2','Linf'].map(k => number(m.mean_norms[k])).join(' / ')}</td><td>ART ${esc(r.library_version)}<br>${cross}</td></tr>`;
     });
-    return html + `</tbody></table></div><details><summary>Full stored experiment and reproducibility data</summary><pre class="attack-detail">${esc(JSON.stringify(experiment,null,2))}</pre></details></section>` + provenance;
+    return html + `</tbody></table></div><details><summary>Full stored experiment and reproducibility data</summary><pre class="attack-detail">${esc(JSON.stringify(experiment,null,2))}</pre></details></details></section>` + provenance;
   }
   // Pure rendering helpers are also exercised by the optional Node test.
   if (typeof module !== 'undefined') module.exports = {selectRows, seriesKey, curve, renderReport};
@@ -84,19 +84,31 @@
       const payload = await response.json();
       if (token !== request) return;
       reports = payload.experiments;
-      ['attack-experiment','attack-norm','attack-method'].forEach(id => get(id).disabled = !reports.length);
+      ['attack-experiment','attack-norm','attack-method','attack-reset'].forEach(id => get(id).disabled = !reports.length);
       get('attack-experiment').innerHTML = reports.map((r,i) => `<option value="${i}">${esc(r.generated_at)} · ${esc(r.identity.split)} · ${r.identity.samples} rows · ${esc(r.compatibility_id.slice(0,12))}</option>`).join('');
-      get('attack-state').textContent = reports.length ? `${reports.length} completed experiment snapshots. ${payload.unavailable_reports} invalid reports excluded.${payload.truncated ? ' Result listing limited; some reports are omitted.' : ''}` : `Results pending. ${payload.pending_reason}. No measured EMBER attack scores are available.${payload.unavailable_reports ? ` ${payload.unavailable_reports} invalid reports excluded.` : ''}`;
+      if (reports.length) {
+        get('attack-state').textContent = `Completed experiment snapshots: ${reports.length}. Invalid reports excluded: ${payload.unavailable_reports || 0}.${payload.truncated ? ' Result listing limited; some reports are omitted.' : ''}`;
+      } else {
+        const reason = String(payload.pending_reason || 'Required evidence is not available').replace(/[.\s]+$/, '');
+        get('attack-state').textContent = `Results pending: ${reason}. No measured EMBER attack scores are available.${payload.unavailable_reports ? ` Invalid reports excluded: ${payload.unavailable_reports}.` : ''}`;
+      }
       render();
     } catch (error) {
       if (token !== request) return;
       reports = [];
-      ['attack-experiment','attack-norm','attack-method'].forEach(id => get(id).disabled = true);
+      ['attack-experiment','attack-norm','attack-method','attack-reset'].forEach(id => get(id).disabled = true);
       get('attack-content').innerHTML = '';
       get('attack-state').textContent = 'Results unavailable. Check the API and refresh. No cached scores are being shown.';
     } finally {clearTimeout(timer);}
   }
   ['attack-experiment','attack-norm','attack-method'].forEach(id => get(id).onchange = render);
+  get('attack-reset').onclick = () => {
+    if (!reports.length) return;
+    get('attack-experiment').value = '0';
+    get('attack-norm').value = 'Linf';
+    get('attack-method').value = 'all';
+    render();
+  };
   get('attack-refresh').onclick = load;
   load();
 })();
