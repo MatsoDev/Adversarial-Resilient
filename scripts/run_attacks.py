@@ -41,6 +41,14 @@ def main(argv=None):
     )
     p.add_argument("--candidate-reason", default="")
     p.add_argument(
+        "--surrogate-dir", type=Path, help="Verified distinct source bundle for transfer"
+    )
+    p.add_argument(
+        "--transfer-authorization",
+        default="",
+        help="Actual owner authorization reference for Sprint 6 candidate experiments; not an approval generator",
+    )
+    p.add_argument(
         "--cleverhans-path",
         type=Path,
         help="Trusted isolated torch-only CleverHans installation (no dependency installs)",
@@ -71,6 +79,14 @@ def main(argv=None):
             cleverhans=a.cleverhans,
             allow_candidate=a.allow_candidate,
             candidate_reason=a.candidate_reason,
+            **(
+                {
+                    "surrogate_dir": a.surrogate_dir,
+                    "transfer_authorization": a.transfer_authorization,
+                }
+                if a.surrogate_dir is not None
+                else {}
+            ),
         )
     except (OSError, ValueError, KeyError) as error:
         logging.error("Sprint 5 experiment blocked/failed: %s", error)
