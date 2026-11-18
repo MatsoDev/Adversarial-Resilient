@@ -156,7 +156,7 @@ known issues, skipped items).
 - PR/main-only CI triggers and persistent Docker layers configured; image
   publishing remains disabled. Hosted cache reuse awaits an authorized push.
 - Added 16 attack-CLI characterization cases and two CI configuration guards:
-  567 passed, 6 optional skips; 90% combined coverage, 96% for the CLI.
+  568 passed, 6 optional skips; 90% combined coverage, 96% for the CLI.
   Lint, security checks, local image/cache builds and filtered Trivy scan passed.
 - Evidence and limits: [efficiency audit](efficiency_audit.md). No research
   milestone or prediction gate changed; commits remain local and unmerged.

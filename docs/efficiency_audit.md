@@ -26,6 +26,8 @@ timed sequentially with `time.perf_counter()` around subprocess execution.
 
 These are single-run local timings, not proof of faster tests: application and
 test execution were not optimized. Both suites emitted 252 third-party warnings.
+After adding this indexed report, the final full-suite recheck passed **568 tests,
+6 skipped** in 44.43 s of pytest-reported time; the extra case checks documentation.
 The skips remain three optional real-data checks and three CleverHans checks.
 The initial baseline execution was interrupted; coverage and build were then
 completed successfully.
