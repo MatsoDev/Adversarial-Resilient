@@ -59,6 +59,7 @@ opt-ins unset; coverage rounded to **88%**. Current verification is recorded in
 | `tests/test_html_dashboard.py` | Primary HTML/assets delivery and separate CSP |
 | `tests/test_sprint4_ui.py` | Prediction JavaScript component with a minimal DOM; skips if Node is absent |
 | `tests/test_attacks.py` | Synthetic configuration, policy projection, paired metrics, report validation, frozen/candidate harness and artifact listing; three optional CleverHans cases |
+| `tests/test_run_attacks_cli.py` | CLI defaults, ordered attack grids, candidate/backend flag forwarding, parser and failure exits; experiment execution is stubbed, not a real attack run |
 | `tests/test_attacks_ui.py` | Node-backed snapshot/norm filters, curve coordinates and escaping; no browser |
 | `tests/test_journey.py` | Measured case selection/validation, recorded reference delivery, bilingual rendering, release identity and Node-backed journey controls |
 | `tests/test_sprint3.py` | Synthetic baseline training, CLI, artifact/provenance contracts, MLflow and legacy model views |
@@ -181,6 +182,18 @@ is needed to view the committed cross-check results.
 Trivy scan (`make docker-scan`). The local equivalents are `make check`,
 `make coverage`, `make security`, `make docker-build`, and `make docker-scan`.
 Coverage is reported as a diagnostic; there is no arbitrary global threshold.
+
+CI runs on every pull request and on pushes to `main`. Feature branches need an
+open PR for hosted checks; their pushes do not launch a second, duplicate run.
+New updates cancel older runs for the same PR/ref. Integration pushes to `main`
+remain independently checked.
+
+The Docker job uses SHA-pinned official Docker Buildx/build actions and the
+GitHub Actions layer cache (`adversarial-resilient` scope). It loads the image
+as `adversarial-resilient:dev` for the existing Trivy scan; it does not push an
+image or deploy. Cache reuse follows GitHub's branch/PR isolation rules and is
+not guaranteed on a first run, after eviction, or after dependency changes.
+The local `make docker-build` command is unchanged.
 
 A healthy default run passes with optional-dependency/data skips as described above. Warnings
 from third-party packages (for example matplotlib/pyparsing deprecations) are
