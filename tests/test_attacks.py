@@ -129,6 +129,12 @@ def test_real_art_adapters_produce_finite_feasible_output(attack):
         assert labels(model(), attacked)[0] == 0
 
 
+@pytest.mark.parametrize("library", ["unknown", "art", ""])
+def test_unknown_attack_library_is_rejected_before_processing_inputs(library):
+    with pytest.raises(ValueError, match="^Unknown attack library$"):
+        generate(None, None, None, None, None, None, None, library=library)
+
+
 def test_art_binary_logits_match_native_binary_threshold():
     x = np.array([[0.5, 0], [0.1, 0], [1, 0]], dtype=np.float32)
     clf = art_classifier(model(), 2, (0.0, 5.0))

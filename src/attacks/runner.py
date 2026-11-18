@@ -179,8 +179,6 @@ def generate(model, raw, y, mean, scale, policy, config, *, library="ART", seed=
         for _ in range(1 if config.attack == "FGSM" else config.iterations):
             result = project(attack.generate(result, y=y, mask=policy.mask))
         return result
-    if library != "CleverHans":
-        raise ValueError("Unknown attack library")
     # Optional imports are never made by API/dashboard startup.
     from cleverhans.torch.attacks.carlini_wagner_l2 import carlini_wagner_l2
     from cleverhans.torch.attacks.fast_gradient_method import fast_gradient_method
