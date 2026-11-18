@@ -267,7 +267,7 @@ preprocessing CLI's `--verify-only` for local arrays, and the authenticated
 
 ## Run the Docker stack
 
-The image builds in CI on every push and pull request. The 2026-10 security
+The image builds in CI on pull requests and pushes to `main`. The 2026-10 security
 audit rebuilt the image and started the full three-service stack on loopback;
 API, dashboard, and MLflow health endpoints returned 200. Browser/MLflow
 artifact workflows and sustained load were not exercised; see

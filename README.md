@@ -58,9 +58,9 @@ Sprint-by-sprint status is tracked in
 Sprint 5 has 21 completed torch-only CleverHans cross-checks and 57 measured
 case summaries; this does not extend the historical MNIST demo evidence.
 Docker is covered differently: the image builds
-in CI on every push; the 2026-10 security audit rebuilt the image, started the
-full three-service stack on loopback, and health-checked the API, dashboard,
-and MLflow. Browser/MLflow artifact workflows and sustained load were not
+in CI on pull requests and pushes to `main`; the 2026-10 security audit rebuilt
+the image, started the full three-service stack on loopback, and health-checked
+the API, dashboard, and MLflow. Browser/MLflow artifact workflows and sustained load were not
 exercised, and the official MLflow container runs as root. See the
 [security audit](docs/security/SECURITY_AUDIT.md) and the
 [troubleshooting section](docs/development.md#troubleshooting) for details.
