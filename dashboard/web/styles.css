@@ -97,7 +97,8 @@ p { max-width: 72ch; margin: .6rem 0; overflow-wrap: anywhere; }
 .stat, .panel { min-width: 0; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: .3rem; }
 .stat { padding: 1rem; }
 .stat-label { color: var(--text-secondary); font-size: .8rem; font-weight: 700; overflow-wrap: anywhere; }
-.stat strong { display: block; margin-block: .3rem; font-size: 1.7rem; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+/* Keep long counts such as 1,000,000 on one line in narrow stat cards. */
+.stat strong { display: block; margin-block: .3rem; font-size: clamp(1.25rem, 3.2vw, 1.7rem); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 .stat small { color: var(--text-secondary); font-size: .8rem; }
 .grid { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 1.25rem; margin-block-end: 1.25rem; }
 .panel { padding: 1.5rem; margin-block-end: 1.25rem; }

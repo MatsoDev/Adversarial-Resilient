@@ -46,45 +46,35 @@ not a recalculation of measured evidence.
 ## Arabic terminology
 
 The UI uses Western numerals and keeps identifiers, JSON and hashes in their
-source form. Ambiguous machine-learning and security terms stay in Latin script
-in the Arabic UI. Each term carries a short Arabic gloss at its first explanatory
-use; later labels and table headings use the English term alone. General prose
-and unambiguous concepts remain translated, including “فضاء الخصائص”.
+source form. Scientific and security terms whose Arabic coinages are unfamiliar
+or ambiguous stay in English, without inline Arabic glosses: `white-box`,
+`black-box`, `transfer`, `surrogate`, `cohort`, `norm`, `perturbation`,
+`frozen benchmark`, `freeze gate`, `frozen baseline`, `frozen model`,
+`feature space`, `adversarial example`, `adversarial attack` and `ASR`. Arabic
+carries the sentence structure and plain-language explanation around those
+terms.
 
-| English (retained) | Arabic gloss |
-|---|---|
-| white-box | وصول كامل إلى النموذج |
-| black-box | دون معرفة داخلية بالهدف |
-| transfer | نقل الهجوم |
-| surrogate | نموذج بديل |
-| cohort | مجموعة التقييم |
-| norm | مقياس التعديل |
-| perturbation | تعديل الخصائص |
-| frozen benchmark | التقييم المرجعي المجمّد |
-| freeze gate | عتبة التجميد |
+The earlier `term (Arabic gloss)` pattern was removed. Repeating the English
+term and an Arabic gloss doubled every phrase, broke sentence flow, and made
+literal coinages such as “فضاء الخصائص” harder rather than easier to read. The
+interface now uses one form per term; a reader unfamiliar with a term relies on
+the surrounding Arabic explanation or a separate glossary.
 
-The rest of the working glossary remains translated:
+Transparent Arabic phrases remain translated:
 
 | English | Arabic |
 |---|---|
-| Adversarial example | مثال تضليلي |
-| Feature space | فضاء الخصائص |
 | Malware detector | كاشف البرمجيات الضارة |
-| Attack success rate | معدّل نجاح الهجوم |
-| Frozen baseline | خط الأساس المجمّد |
 | Exploratory / pending / planned | استكشافي / قيد الانتظار / مخطّط |
+| Model / accuracy / validation | النموذج / الدقة / التحقق |
 
-The first explanatory use is page-aware. The shared status strip introduces
-`transfer` and `frozen benchmark`; the transfer overview introduces `white-box`,
-its black-box paragraph introduces `black-box`, and its results table and mapping
-rationale introduce `surrogate`. The overview and case interpretation introduce
-`cohort`, the case details introduce `norm`, and the readiness notes introduce
-`freeze gate`. The
-attacks filter and metric definitions introduce `norm` and `perturbation`. The
-browser review confirms these terms remain visible and directionally isolated at
-narrow and wide widths.
+The mixed-language strings are kept in one directional run per term so bidi
+ordering cannot reverse the words within a multi-word phrase such as
+`feature space`. The browser review confirms the terms remain in the intended
+order at narrow and wide widths; narrow columns can still wrap at a space or
+hyphen.
 
-This glossary and the final Arabic prose **have not been approved by a native
+This wording and the final Arabic prose **have not been approved by a native
 Arabic reviewer or supervisor**. Human review remains necessary.
 
 ## Local verification
@@ -105,6 +95,11 @@ Arabic reviewer or supervisor**. Human review remains necessary.
   remain independently scrollable. The MNIST figure and data table were loaded
   from the recorded artifact. Screenshots are in
   `/tmp/opencode/arsm-light-review/`, outside the repository.
+- A final Arabic pass after the English-terminology rewrite checked all four
+  routes at **390×844** and **1366×768** with cached Chromium: no stale Arabic
+  coinages, no document-level horizontal overflow and no console errors.
+  Stat values use a viewport-scaled size, so long counts such as `1,000,000`
+  stay on one line in the narrow cards instead of breaking mid-number.
 - At 390 and 1366 px the root text size was doubled to test text enlargement
   on each route in both languages. This is not a substitute for actual browser
   zoom testing. Language persistence and selection of the L2 filter across a
