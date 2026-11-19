@@ -46,7 +46,24 @@ not a recalculation of measured evidence.
 ## Arabic terminology
 
 The UI uses Western numerals and keeps identifiers, JSON and hashes in their
-source form. The working glossary is consistent with existing project copy:
+source form. Ambiguous machine-learning and security terms stay in Latin script
+in the Arabic UI. Each term carries a short Arabic gloss at its first explanatory
+use; later labels and table headings use the English term alone. General prose
+and unambiguous concepts remain translated, including “فضاء الخصائص”.
+
+| English (retained) | Arabic gloss |
+|---|---|
+| white-box | وصول كامل إلى النموذج |
+| black-box | دون معرفة داخلية بالهدف |
+| transfer | نقل الهجوم |
+| surrogate | نموذج بديل |
+| cohort | مجموعة التقييم |
+| norm | مقياس التعديل |
+| perturbation | تعديل الخصائص |
+| frozen benchmark | التقييم المرجعي المجمّد |
+| freeze gate | عتبة التجميد |
+
+The rest of the working glossary remains translated:
 
 | English | Arabic |
 |---|---|
@@ -55,8 +72,16 @@ source form. The working glossary is consistent with existing project copy:
 | Malware detector | كاشف البرمجيات الضارة |
 | Attack success rate | معدّل نجاح الهجوم |
 | Frozen baseline | خط الأساس المجمّد |
-| Frozen benchmark | التقييم المرجعي المجمّد |
 | Exploratory / pending / planned | استكشافي / قيد الانتظار / مخطّط |
+
+The first explanatory use is page-aware. The shared status strip introduces
+`transfer` and `frozen benchmark`; the transfer overview introduces `white-box`,
+its black-box paragraph introduces `black-box`, and its results table and mapping
+rationale introduce `surrogate`. The overview introduces `cohort`, the case
+details introduce `norm`, and the readiness notes introduce `freeze gate`. The
+attacks filter and metric definitions introduce `norm` and `perturbation`. The
+browser review confirms these terms remain visible and directionally isolated at
+narrow and wide widths.
 
 This glossary and the final Arabic prose **have not been approved by a native
 Arabic reviewer or supervisor**. Human review remains necessary.

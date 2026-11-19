@@ -33,9 +33,11 @@ language persistence and the v0.6.0/Sprint 06 research identity:
   results, missing transfer evidence, M1/frozen-benchmark blockers, pending
   technical review and future defenses remain distinct.
 - **Bilingual copy:** concise English framing and formal Modern Standard Arabic,
-  labelled **العربية** rather than **مصري**. Navigation, chart labels/tooltips,
-  options, status messages, accessibility labels and prediction validation errors
-  share the catalog in `locale.js`.
+  labelled **العربية** rather than **مصري**. Ambiguous ML/security terms remain in
+  English with a short Arabic gloss on first explanatory use; later labels and
+  tables use the English term alone. Navigation, chart labels/tooltips, options,
+  status messages, accessibility labels and prediction validation errors share
+  the catalog in `locale.js`.
 - **Arabic layout:** logical sidebar/main offsets and borders, correct `lang/dir`,
   directional stage arrows, isolated Latin identifiers/numbers/ratios and
   separately scrollable wide tables/charts. Keyboard users get a skip link,
