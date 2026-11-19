@@ -2,18 +2,18 @@
 
 ## Arabic technical terminology — 2026-11-19
 
-- **Retain ambiguous terms in English.** Keep `white-box`, `black-box`,
-  `transfer`, `surrogate`, `cohort`, `norm`, `perturbation`, `frozen benchmark`
-  and `freeze gate` in Latin script in the Arabic interface. Add a short Arabic
-  gloss at the first explanatory use, then use the English term alone in labels
-  and tables.
-- **Translate general prose, not coinages.** Feature space, frozen baseline,
-  general metrics and explanatory text remain Arabic. Literal Arabic coinages
-  for the retained terms obscured their meaning for the bilingual research
-  audience; the glossary records the intended reading.
+- **Scientific terms stay English, without inline glosses.** Use the English
+  term alone for `white-box`, `black-box`, `transfer`, `surrogate`, `cohort`,
+  `norm`, `perturbation`, `frozen benchmark`, `freeze gate`, `frozen baseline`,
+  `frozen model`, `feature space`, `adversarial example`, `adversarial attack`
+  and `ASR`. Arabic carries grammar and plain-language explanation around them.
+- **Supersedes the first-use gloss.** The first decision kept the English term
+  and added a short Arabic gloss in parentheses. Review found that the doubled
+  form broke sentence flow, and that literal coinages such as “فضاء الخصائص”
+  were not understood. Remove the gloss instead of repeating it; the
+  terminology still awaits native Arabic review.
 - **Presentation-only change.** Routes, API contracts, authentication, frozen
-  gates, data, measurements and experiment scope are unchanged. The glossary
-  still awaits native Arabic review.
+  gates, data, measurements and experiment scope are unchanged.
 
 ## Light academic presentation — 2026-11-19
 

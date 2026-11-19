@@ -120,6 +120,9 @@ assert.equal(isolate('0.'),'\u20660\u2069.');
 assert.equal(isolate('frozen benchmark'),'\u2066frozen benchmark\u2069');
 assert.equal(isolate('freeze gate'),'\u2066freeze gate\u2069');
 assert.equal(isolate('transfer learning'),'\u2066transfer learning\u2069');
+assert.equal(isolate('feature space'),'\u2066feature space\u2069');
+assert.equal(isolate('adversarial examples'),'\u2066adversarial examples\u2069');
+assert.equal(isolate('frozen model'),'\u2066frozen model\u2069');
 for(const text of ['sprint4_candidate','step_size','random_start','MODELXYZ',
                   'a1fb1499fc5b','92.18% / 1/122 / 22,500']) {
   assert.equal(translate(text,'ar'),text);
@@ -148,32 +151,37 @@ for(const [en,ar] of copy) {
   assert.ok(!/مفيش|علشان|الموديل|إزاي|التيم/.test(ar),ar);
 }
 assert.match(translate('Black-box transfer','ar'),/black-box · transfer/);
-for(const [text,pattern] of [
-  ['Exploratory, feature-space only · Real transfer pending · Frozen benchmark not yet accepted · Defenses planned',
-   /transfer \(نقل الهجوم\)/],
-  ['Exploratory, feature-space only · Real transfer pending · Frozen benchmark not yet accepted · Defenses planned',
-   /frozen benchmark \(التقييم المرجعي المجمّد\)/],
-  ['Recorded white-box results and available transfer evidence, with the limits of feature-space evaluation.',
-   /white-box \(وصول كامل إلى النموذج\)/],
-  ['White-box target gradients. Transfer has not been measured for this case.',
-   /white-box \(وصول كامل إلى النموذج\)/],
-  ['Shared training data and preprocessing are attacker knowledge assumptions, not a strict unknown-data black-box scenario.',
-   /black-box \(دون معرفة داخلية بالهدف\)/],
-  ['Surrogate white-box',/surrogate \(نموذج بديل\)/],
-  ['A selected case illustrates one outcome. Aggregate results describe the evaluated cohort under the specified model, sample selection and constraints; neither establishes a valid executable modification.',
-   /cohort \(مجموعة التقييم\)/],
-  ['A selected case illustrates one outcome. The evaluated cohort measures its frequency under the specified model, sampling and constraints.',
-   /cohort \(مجموعة التقييم\)/],
-  ['One exact model, dataset, split, row subset and policy per snapshot. Norms stay separate.',
-   /norm \(مقياس التعديل\)/],
-  ['Perturbations:',/perturbation \(تعديل الخصائص\)/],
-  ['بنولّد التعديل على موديل بديل مختلف، وبنختبر نفس المدخلات على الهدف من غير أي رد منه أثناء التوليد.',
-   /surrogate \(نموذج بديل\)/],
-  [', below the 93% freeze gate. Small-cohort results below do not replace full validation.',
-   /freeze gate \(عتبة التجميد\)/],
-  [' selected validation rows and cannot satisfy the 93% freeze gate.',
-   /freeze gate \(عتبة التجميد\)/]
-]) assert.match(translate(text,'ar'),pattern);
+const statusArabic = translate('Exploratory, feature-space only · Real transfer pending · Frozen benchmark not yet accepted · Defenses planned','ar');
+for(const pattern of [
+  /استكشافي ضمن feature space فقط/,
+  /transfer: القياس الفعلي قيد الانتظار/,
+  /frozen benchmark: لم يُعتمد بعد/,
+  /الدفاعات مخطَّط لها/
+]) assert.match(statusArabic,pattern);
+for(const avoided of [
+  'فضاء الخصائص','نقل الهجوم','التقييم المرجعي المجمّد','عتبة التجميد',
+  'وصول كامل','دون معرفة','مجموعة التقييم','مقياس التعديل','نموذج بديل'
+]) assert.ok(!statusArabic.includes(avoided),avoided);
+for(const [text,term,gloss] of [
+  ['Recorded white-box results and available transfer evidence, with the limits of feature-space evaluation.','white-box','وصول كامل'],
+  ['White-box target gradients. Transfer has not been measured for this case.','white-box','وصول كامل'],
+  ['Shared training data and preprocessing are attacker knowledge assumptions, not a strict unknown-data black-box scenario.','black-box','دون معرفة'],
+  ['Surrogate white-box','surrogate','نموذج بديل'],
+  ['A selected case illustrates one outcome. Aggregate results describe the evaluated cohort under the specified model, sample selection and constraints; neither establishes a valid executable modification.','cohort','مجموعة التقييم'],
+  ['One exact model, dataset, split, row subset and policy per snapshot. Norms stay separate.','norm','مقياس التعديل'],
+  ['Perturbations:','perturbation','تعديل الخصائص'],
+  ['Frozen evaluation model','frozen model','نموذج مجمّد'],
+  ['Frozen baseline · feature prediction (Sprint 4)','frozen baseline','خط الأساس'],
+  ['Feature-space only','feature space','فضاء الخصائص'],
+  ['Adversarial resilience in malware detection','adversarial attacks','التضليلية'],
+  ['An adversarial attack deliberately looks for an allowed change that makes the model answer incorrect. We replay the measured change below; no experiment runs in your browser.','adversarial attack','التضليلي']
+]) {
+  const arabic = translate(text,'ar');
+  assert.ok(arabic.includes(term),text+' missing '+term);
+  assert.ok(!arabic.includes(gloss),text+' still uses '+gloss);
+}
+assert.equal(translate('ASR','ar'),'ASR');
+assert.equal(translate('Epsilon','ar'),'ε');
 for(const [text,pattern] of [
   ['White-box and black-box results',/white-box/],
   ['Transfer results pending',/transfer/],
