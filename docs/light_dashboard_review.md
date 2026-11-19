@@ -77,8 +77,9 @@ The rest of the working glossary remains translated:
 The first explanatory use is page-aware. The shared status strip introduces
 `transfer` and `frozen benchmark`; the transfer overview introduces `white-box`,
 its black-box paragraph introduces `black-box`, and its results table and mapping
-rationale introduce `surrogate`. The overview introduces `cohort`, the case
-details introduce `norm`, and the readiness notes introduce `freeze gate`. The
+rationale introduce `surrogate`. The overview and case interpretation introduce
+`cohort`, the case details introduce `norm`, and the readiness notes introduce
+`freeze gate`. The
 attacks filter and metric definitions introduce `norm` and `perturbation`. The
 browser review confirms these terms remain visible and directionally isolated at
 narrow and wide widths.

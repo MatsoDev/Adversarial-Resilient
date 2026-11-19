@@ -162,6 +162,8 @@ for(const [text,pattern] of [
   ['Surrogate white-box',/surrogate \(نموذج بديل\)/],
   ['A selected case illustrates one outcome. Aggregate results describe the evaluated cohort under the specified model, sample selection and constraints; neither establishes a valid executable modification.',
    /cohort \(مجموعة التقييم\)/],
+  ['A selected case illustrates one outcome. The evaluated cohort measures its frequency under the specified model, sampling and constraints.',
+   /cohort \(مجموعة التقييم\)/],
   ['One exact model, dataset, split, row subset and policy per snapshot. Norms stay separate.',
    /norm \(مقياس التعديل\)/],
   ['Perturbations:',/perturbation \(تعديل الخصائص\)/],

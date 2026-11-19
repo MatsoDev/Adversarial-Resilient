@@ -58,7 +58,7 @@
     ['Interpretation of model scores','تفسير درجات النموذج'],
     ['Case interpretation','تفسير الحالة'],
     ['Interpretation limits','حدود التفسير'],
-    ['A selected case illustrates one outcome. The evaluated cohort measures its frequency under the specified model, sampling and constraints.','توضّح الحالة المختارة نتيجة واحدة. وتقيس cohort تكرارها وفق النموذج والعينات والقيود المحدّدة.'],
+    ['A selected case illustrates one outcome. The evaluated cohort measures its frequency under the specified model, sampling and constraints.','توضّح الحالة المختارة نتيجة واحدة. وتقيس cohort (مجموعة التقييم) تكرارها وفق النموذج والعينات والقيود المحدّدة.'],
     ['Results for the evaluated cohort','نتائج cohort المُقيّمة'],
     ['Planned · not yet evaluated','مخطّط · لم يُقيّم بعد'],
     ['Defense evaluation','تقييم الدفاعات'],
