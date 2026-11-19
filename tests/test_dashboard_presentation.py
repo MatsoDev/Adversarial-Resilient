@@ -117,6 +117,9 @@ for(const number of ['1,000,000','22,500','92.18%','1/122','10⁻⁶']) {
 }
 assert.equal(isolate('EMBER.'),'\u2066EMBER\u2069.');
 assert.equal(isolate('0.'),'\u20660\u2069.');
+assert.equal(isolate('frozen benchmark'),'\u2066frozen benchmark\u2069');
+assert.equal(isolate('freeze gate'),'\u2066freeze gate\u2069');
+assert.equal(isolate('transfer learning'),'\u2066transfer learning\u2069');
 for(const text of ['sprint4_candidate','step_size','random_start','MODELXYZ',
                   'a1fb1499fc5b','92.18% / 1/122 / 22,500']) {
   assert.equal(translate(text,'ar'),text);
@@ -144,7 +147,37 @@ for(const [en,ar] of copy) {
   assert.ok(en && ar);
   assert.ok(!/مفيش|علشان|الموديل|إزاي|التيم/.test(ar),ar);
 }
-assert.match(translate('Black-box transfer','ar'),/نقل الهجوم/);
+assert.match(translate('Black-box transfer','ar'),/black-box · transfer/);
+for(const [text,pattern] of [
+  ['Exploratory, feature-space only · Real transfer pending · Frozen benchmark not yet accepted · Defenses planned',
+   /transfer \(نقل الهجوم\)/],
+  ['Exploratory, feature-space only · Real transfer pending · Frozen benchmark not yet accepted · Defenses planned',
+   /frozen benchmark \(التقييم المرجعي المجمّد\)/],
+  ['Recorded white-box results and available transfer evidence, with the limits of feature-space evaluation.',
+   /white-box \(وصول كامل إلى النموذج\)/],
+  ['White-box target gradients. Transfer has not been measured for this case.',
+   /white-box \(وصول كامل إلى النموذج\)/],
+  ['Shared training data and preprocessing are attacker knowledge assumptions, not a strict unknown-data black-box scenario.',
+   /black-box \(دون معرفة داخلية بالهدف\)/],
+  ['Surrogate white-box',/surrogate \(نموذج بديل\)/],
+  ['A selected case illustrates one outcome. Aggregate results describe the evaluated cohort under the specified model, sample selection and constraints; neither establishes a valid executable modification.',
+   /cohort \(مجموعة التقييم\)/],
+  ['One exact model, dataset, split, row subset and policy per snapshot. Norms stay separate.',
+   /norm \(مقياس التعديل\)/],
+  ['Perturbations:',/perturbation \(تعديل الخصائص\)/],
+  ['بنولّد التعديل على موديل بديل مختلف، وبنختبر نفس المدخلات على الهدف من غير أي رد منه أثناء التوليد.',
+   /surrogate \(نموذج بديل\)/],
+  [', below the 93% freeze gate. Small-cohort results below do not replace full validation.',
+   /freeze gate \(عتبة التجميد\)/],
+  [' selected validation rows and cannot satisfy the 93% freeze gate.',
+   /freeze gate \(عتبة التجميد\)/]
+]) assert.match(translate(text,'ar'),pattern);
+for(const [text,pattern] of [
+  ['White-box and black-box results',/white-box/],
+  ['Transfer results pending',/transfer/],
+  ['Results for the evaluated cohort',/cohort/],
+  ['Norm',/Norm/]
+]) assert.match(translate(text,'ar'),pattern);
 """
     result = subprocess.run(
         [shutil.which("node"), "-e", script, str(WEB / "locale.js")],

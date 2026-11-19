@@ -1,5 +1,20 @@
 # Decisions log
 
+## Arabic technical terminology — 2026-11-19
+
+- **Retain ambiguous terms in English.** Keep `white-box`, `black-box`,
+  `transfer`, `surrogate`, `cohort`, `norm`, `perturbation`, `frozen benchmark`
+  and `freeze gate` in Latin script in the Arabic interface. Add a short Arabic
+  gloss at the first explanatory use, then use the English term alone in labels
+  and tables.
+- **Translate general prose, not coinages.** Feature space, frozen baseline,
+  general metrics and explanatory text remain Arabic. Literal Arabic coinages
+  for the retained terms obscured their meaning for the bilingual research
+  audience; the glossary records the intended reading.
+- **Presentation-only change.** Routes, API contracts, authentication, frozen
+  gates, data, measurements and experiment scope are unchanged. The glossary
+  still awaits native Arabic review.
+
 ## Light academic presentation — 2026-11-19
 
 - **Projector-oriented default:** replace the dark-only palette with a light,
