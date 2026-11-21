@@ -1,10 +1,21 @@
 # Team handoff — recorded research results and current environment
 
-## Sprint 6 dashboard release — v0.6.0
+## Sprint 7 dashboard handoff
 
-Use the main-branch update commands below, start the same API, and open
-<http://localhost:8000/dashboard/>. Verify **v0.6.0 · Sprint 06**
-on all four pages; hard-refresh stale browser assets. The release retains the
+Pull `main` and start the API using the commands below. Open
+<http://localhost:8000/dashboard/> and confirm **v0.7.0-preview · Sprint 07**.
+On Research overview, expand **Recorded case catalogue**, filter by method,
+outcome or row number, and open a case link to replay that exact result.
+
+The catalogue uses recorded reports and needs no dataset or model downloads.
+Dataset packaging, Phase 1 plots, feature uploads, persistent history and CSV
+export are pending. The latest baseline reached **92.5778%** validation accuracy,
+below the 93% threshold for opening the official test. Live prediction remains
+gated. See the [progress tracker](progress.md) for current status.
+
+## Sprint 6 dashboard release — v0.6.0 (historical)
+
+Sprint 6 displayed **v0.6.0 · Sprint 06** on all four pages. That release retained the
 bilingual recorded walkthrough and adds threat/transfer/realism views. No new dependencies.
 Detailed setup, measured-case reproduction and limitations: [AI journey](ai_journey.md).
 The source branch is `sprint6/transfer-threat-context`; main is the team's shared
