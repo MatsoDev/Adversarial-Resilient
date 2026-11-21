@@ -17,6 +17,7 @@ RAW_DIR: Path = DATA_DIR / "raw"
 PROCESSED_DIR: Path = DATA_DIR / "processed"
 ADVERSARIAL_DIR: Path = DATA_DIR / "adversarial"
 EXTERNAL_DIR: Path = DATA_DIR / "external"
+PREDICTION_HISTORY_PATH: Path = EXTERNAL_DIR / "prediction_history.sqlite3"
 
 MODELS_DIR: Path = ROOT / "models"
 NOTEBOOKS_DIR: Path = ROOT / "notebooks"

@@ -23,6 +23,13 @@
       row.evidence_mode ?? 'white-box', parameters, example.split_row_index
     ]);
   }
+  function catalogueEntries(report, query) {
+    return cases(report).map(({row, example}) => {
+      const mode = row.evidence_mode === 'transfer' ? 'Black-box transfer' : 'White-box';
+      const title = `${mode} · ${configLabel(row)} · ${row.norm} · seed ${report.identity.seed} · ${outcomes[example.outcome]} · row ${example.split_row_index}`;
+      return {row, example, mode, title};
+    }).filter(({title}) => title.toLowerCase().includes(query));
+  }
   function explain(example) {
     if (example.outcome === 'preexisting_error') return 'The model was already wrong. This case is not evidence of a successful attack and is excluded from the ASR denominator.';
     if (example.outcome === 'remained_correct') return 'The model stayed correct after this attempt. That is one resisted case, not a guarantee against every attack.';
@@ -55,14 +62,15 @@
   const get = id => document.getElementById(id);
   let reports = [];
   const requestedCase = new URLSearchParams(location.search).get('case');
-  function renderCatalogue() {
+  function catalogueSelection() {
     const report = reports[Number(get('journey-experiment').value)];
     const query = get('catalogue-filter').value.trim().toLowerCase();
+    return {report, entries: catalogueEntries(report, query)};
+  }
+  function renderCatalogue() {
+    const {report, entries} = catalogueSelection();
     const items = document.createDocumentFragment();
-    for (const {row, example} of cases(report)) {
-      const mode = row.evidence_mode === 'transfer' ? 'Black-box transfer' : 'White-box';
-      const title = `${mode} · ${configLabel(row)} · ${outcomes[example.outcome]} · row ${example.split_row_index}`;
-      if (!title.toLowerCase().includes(query)) continue;
+    for (const {row, example, title} of entries) {
       const item = document.createElement('li');
       const link = document.createElement('a');
       const params = new URLSearchParams({case: caseReference(report, row, example)});
@@ -72,7 +80,35 @@
       items.append(item);
     }
     get('catalogue-count').textContent = `${items.childElementCount} matching recorded cases`;
+    const {dataset, split, seed, samples} = report.identity;
+    get('catalogue-provenance').textContent = `${dataset} · ${split} · seed ${seed} · ${samples} evaluated rows`;
     get('catalogue-cases').replaceChildren(items);
+    get('catalogue-export').disabled = entries.length === 0;
+  }
+  function exportCatalogue() {
+    const {report, entries} = catalogueSelection();
+    const {dataset, split, seed, manifest_sha256, model_sha256, constraint_sha256} = report.identity;
+    const rows = [['case_reference', 'dataset', 'split', 'seed', 'manifest_sha256', 'model_sha256',
+      'policy_sha256', 'row', 'method', 'norm', 'mode', 'outcome',
+      'reference_label', 'original_prediction', 'changed_prediction']];
+    for (const {row, example, mode} of entries) {
+      rows.push([caseReference(report, row, example), dataset, split, seed, manifest_sha256,
+        model_sha256, constraint_sha256, example.split_row_index,
+        row.attack, row.norm, mode, outcomes[example.outcome], example.true_label,
+        example.clean_prediction, example.attacked_prediction]);
+    }
+    const quote = value => {
+      const text = String(value);
+      const safe = /^[\s\uFEFF]*[=+@-]|^[\r\n\t]/.test(text) ? "'" + text : text;
+      return '"' + safe.replaceAll('"', '""') + '"';
+    };
+    const csv = rows.map(row => row.map(quote).join(',')).join('\r\n') + '\r\n';
+    const url = URL.createObjectURL(new Blob([csv], {type:'text/csv;charset=utf-8'}));
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'recorded-cases.csv';
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
   function selectedReport() {
     const report = reports[Number(get('journey-experiment').value)];
@@ -153,5 +189,6 @@
   get('journey-attack').onchange = () => updateCases();
   get('journey-case').onchange = render;
   get('catalogue-filter').oninput = renderCatalogue;
+  get('catalogue-export').onclick = exportCatalogue;
   load();
 })();

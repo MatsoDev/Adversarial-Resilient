@@ -17,6 +17,7 @@ and how to get it running; this page is the map to everything else.
 - **Why:** [decisions](DECISIONS.md); **dated evidence:** sprint and audit reports, not new setup instructions.
 
 - [AI journey and UI v0.6.0](ai_journey.md): guided measured cases, team version check and future sprint work.
+- [Sprint 7 recorded EMBER case card](data_cards/sprint7_recorded_cases.md): case provenance, CSV fields and limits.
 - [Academic bilingual presentation review](dashboard_presentation.md): design,
   localization, demonstration route and actual browser/verification limits.
 - [Light-mode dashboard review](light_dashboard_review.md): current presentation

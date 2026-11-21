@@ -1,7 +1,8 @@
 # api/ — FastAPI service
 
 Serves recorded research artifacts, the HTML dashboard and gated frozen-feature
-inference. No training, uploads, executable scanning, attack-execution or defense routes.
+inference and numeric feature batch uploads. Training, executable scanning and
+attack evaluation run offline.
 
 ## Run locally
 
@@ -169,6 +170,23 @@ documentation smoke checked all three routes; health returned `{"status":"ok"}`
 and the reference-only run listing contained four Sprint 3 runs.
 
 ## Feature prediction
+
+Sprint 7 adds three routes under the existing prediction bearer token and
+request budget:
+
+- `POST /upload` accepts the same JSON envelope and limits as `/predict`.
+  Successful predictions return a batch record and store it in local SQLite.
+- `GET /history` returns up to 100 saved batches, newest first, with predictions
+  in input order. The batch ID and one-based row position identify each result.
+- `GET /report` downloads the same records as CSV, one row per prediction.
+
+History persists across native app restarts in
+`data/external/prediction_history.sqlite3`. Compose shares a named volume
+between its two API processes for the same history. The database stores timestamps,
+model/schema/preprocessing identities and prediction results. The token and
+feature arrays are excluded. History is shared by holders of the local bearer
+token. Detector status is unavailable. New classifications require a verified
+frozen bundle.
 
 First follow [Sprint 4 provisioning and freeze gates](../docs/sprint4.md#feature-inference).
 Both routes require the exact header `Authorization: Bearer <token>` matching

@@ -19,8 +19,10 @@
 <section id="case-catalogue" class="panel" hidden><details>
   <summary>Recorded case catalogue</summary>
   <p>Browse cases in the selected experiment. The link identifies the recorded run, configuration and sample.</p>
-  <label for="catalogue-filter">Filter by method, outcome, or row</label>
+  <p id="catalogue-provenance" dir="ltr" class="meta"></p>
+  <label for="catalogue-filter">Filter by method, norm, seed, outcome, or row</label>
   <input id="catalogue-filter" type="search">
+  <button id="catalogue-export" type="button">Export matching cases as CSV</button>
   <p id="catalogue-count" role="status"></p>
   <ul id="catalogue-cases"></ul>
 </details></section>

@@ -1,5 +1,5 @@
 'use strict';
-// Tokens and feature rows remain in this page only: no storage, uploads or history.
+// Submit ordered feature rows as JSON. History stores only batch results.
 (() => {
   const element = id => document.getElementById(id);
   let identity = null;
@@ -10,7 +10,8 @@
   }
   const failure = error => error instanceof TypeError || error.name === 'AbortError'
     ? 'Connection failed or timed out. Please retry.' : error.message;
-  async function request(path, payload) {
+  const maxBytes = 2 * 1024 * 1024;
+  async function request(path, payload, read = response => response.json()) {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 15000);
     try {
@@ -25,7 +26,7 @@
           503:'Prediction unavailable: token not configured or M1 baseline not frozen.'};
         throw new Error(messages[response.status] || 'Prediction request failed.');
       }
-      return await response.json();
+      return await read(response);
     } finally { clearTimeout(timer); }
   }
   element('baseline-load').onclick = async () => {
@@ -46,8 +47,10 @@
     element('baseline-load').disabled = true;
     status('prediction-result','Classifying feature rows…');
     try {
-      const text = element('prediction-rows').value;
-      if (text.length > 2 * 1024 * 1024) throw new Error('Request too large.');
+      const file = element('prediction-file')?.files?.[0];
+      if (file && file.size > maxBytes) throw new Error('Request too large.');
+      const text = file ? await file.text() : element('prediction-rows').value;
+      if (text.length > maxBytes) throw new Error('Request too large.');
       let rows;
       try { rows = JSON.parse(text); }
       catch (_) { throw new Error('Invalid JSON. Enter an array of numeric rows.'); }
@@ -56,7 +59,7 @@
             row.some(value => typeof value !== 'number' || !Number.isFinite(value)))) {
         throw new Error('Expected 1–32 finite numeric rows, each with exactly 2381 features.');
       }
-      const result = await request('/predict', {model_version: identity.model_version,
+      const result = await request(file ? '/upload' : '/predict', {model_version: identity.model_version,
         representation: element('prediction-representation').value,
         preprocessing_id: identity.preprocessing_sha256,
         feature_schema_sha256: identity.feature_schema_sha256, rows});
@@ -66,5 +69,22 @@
       element('prediction-submit').disabled = !identity;
       element('baseline-load').disabled = false;
     }
+  };
+  element('history-load').onclick = async () => {
+    try {
+      const result = await request('/history');
+      status('history-result', JSON.stringify(result, null, 2), true);
+    } catch (error) { status('history-result', failure(error)); }
+  };
+  element('history-export').onclick = async () => {
+    try {
+      const blob = await request('/report', null, response => response.blob());
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'prediction-history.csv';
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch (error) { status('history-result', failure(error)); }
   };
 })();

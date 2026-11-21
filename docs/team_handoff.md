@@ -8,8 +8,9 @@ On Research overview, expand **Recorded case catalogue**, filter by method,
 outcome or row number, and open a case link to replay that exact result.
 
 The catalogue uses recorded reports and needs no dataset or model downloads.
-Dataset packaging, Phase 1 plots, feature uploads, persistent history and CSV
-export are pending. The latest baseline reached **92.5778%** validation accuracy,
+Export matching recorded cases as CSV from the catalogue. Models and data
+accepts ordered JSON feature rows from a file and offers authenticated batch
+history and CSV export. The latest baseline reached **92.5778%** validation accuracy,
 below the 93% threshold for opening the official test. Live prediction remains
 gated. See the [progress tracker](progress.md) for current status.
 

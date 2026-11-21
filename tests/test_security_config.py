@@ -49,7 +49,10 @@ def test_compose_defaults_are_loopback_and_least_privilege():
         "./dashboard:/app/dashboard:ro",
         "./docs:/app/docs:ro",
         "./models/sprint4:/app/models/sprint4:ro",
+        "prediction-history:/app/data/external",
     ]
+    assert "prediction-history:/app/data/external" in services["api"]["volumes"]
+    assert "prediction-history" in compose["volumes"]
     assert "./models/sprint4:/app/models/sprint4:ro" in services["api"]["volumes"]
 
 
