@@ -1,0 +1,521 @@
+{
+  "before": [
+    [
+      46,
+      0
+    ],
+    [
+      6,
+      76
+    ]
+  ],
+  "class_order": [
+    "benign",
+    "malicious"
+  ],
+  "compatibility_id": "a1fb1499fc5b3f2f8a75763436c6320ddec725b811924ef1390c340ca36627a1",
+  "identity": {
+    "available_cohort_rows": 22500,
+    "cohort": "operating_validation",
+    "constraint_sha256": "b2ff017d3cef536d59fd1cd349bda8015b50f0e29643d1c6426c5156c1d98e0f",
+    "dataset": "ember2018",
+    "feature_schema_sha256": "2776432ba73c53078886c62beacd9453607a8b004fff5c80318e548919e591a1",
+    "indices_sha256": "c252bc576c9bad2be032ec5ade689b6ec3cb834169467762d359bfa7a15cf081",
+    "manifest_sha256": "c414f8cbb7727767b3927bb702b63ee7263497bd0d9feb4f4367b5b2510d11cd",
+    "model_sha256": "8b87b1d617ddbc94b9ebd3baca76b153a1ae62bb0eb7369c2cb735d38da0db53",
+    "model_status": "blocked_validation_accuracy",
+    "model_version": "sprint4_candidate",
+    "norm_l0_tolerance": 1e-06,
+    "preprocessing_sha256": "479b1fb12a383fa3765315fc6684c6b42b472795a542098e95b59c54e794f247",
+    "representation": "signed-log1p-standardized",
+    "samples": 128,
+    "seed": 42,
+    "split": "val",
+    "targeted": false,
+    "threshold": 0.5
+  },
+  "l0_bins": [
+    0,
+    1
+  ],
+  "results": [
+    {
+      "after": [
+        [
+          46,
+          0
+        ],
+        [
+          6,
+          76
+        ]
+      ],
+      "l0_counts": [
+        128,
+        0
+      ],
+      "method": "FGSM",
+      "parameters": {
+        "epsilon": 0,
+        "random_start": false
+      }
+    },
+    {
+      "after": [
+        [
+          46,
+          0
+        ],
+        [
+          7,
+          75
+        ]
+      ],
+      "l0_counts": [
+        43,
+        85
+      ],
+      "method": "FGSM",
+      "parameters": {
+        "epsilon": 0.05,
+        "random_start": false
+      }
+    },
+    {
+      "after": [
+        [
+          46,
+          0
+        ],
+        [
+          7,
+          75
+        ]
+      ],
+      "l0_counts": [
+        42,
+        86
+      ],
+      "method": "FGSM",
+      "parameters": {
+        "epsilon": 0.1,
+        "random_start": false
+      }
+    },
+    {
+      "after": [
+        [
+          46,
+          0
+        ],
+        [
+          7,
+          75
+        ]
+      ],
+      "l0_counts": [
+        45,
+        83
+      ],
+      "method": "FGSM",
+      "parameters": {
+        "epsilon": 0.2,
+        "random_start": false
+      }
+    },
+    {
+      "after": [
+        [
+          46,
+          0
+        ],
+        [
+          6,
+          76
+        ]
+      ],
+      "l0_counts": [
+        128,
+        0
+      ],
+      "method": "PGD",
+      "parameters": {
+        "epsilon": 0,
+        "iterations": 10,
+        "random_start": false,
+        "step_size": 0.01
+      }
+    },
+    {
+      "after": [
+        [
+          46,
+          0
+        ],
+        [
+          6,
+          76
+        ]
+      ],
+      "l0_counts": [
+        128,
+        0
+      ],
+      "method": "PGD",
+      "parameters": {
+        "epsilon": 0,
+        "iterations": 20,
+        "random_start": false,
+        "step_size": 0.01
+      }
+    },
+    {
+      "after": [
+        [
+          46,
+          0
+        ],
+        [
+          6,
+          76
+        ]
+      ],
+      "l0_counts": [
+        128,
+        0
+      ],
+      "method": "PGD",
+      "parameters": {
+        "epsilon": 0,
+        "iterations": 10,
+        "random_start": false,
+        "step_size": 0.025
+      }
+    },
+    {
+      "after": [
+        [
+          46,
+          0
+        ],
+        [
+          6,
+          76
+        ]
+      ],
+      "l0_counts": [
+        128,
+        0
+      ],
+      "method": "PGD",
+      "parameters": {
+        "epsilon": 0,
+        "iterations": 20,
+        "random_start": false,
+        "step_size": 0.025
+      }
+    },
+    {
+      "after": [
+        [
+          46,
+          0
+        ],
+        [
+          7,
+          75
+        ]
+      ],
+      "l0_counts": [
+        43,
+        85
+      ],
+      "method": "PGD",
+      "parameters": {
+        "epsilon": 0.05,
+        "iterations": 10,
+        "random_start": false,
+        "step_size": 0.01
+      }
+    },
+    {
+      "after": [
+        [
+          46,
+          0
+        ],
+        [
+          7,
+          75
+        ]
+      ],
+      "l0_counts": [
+        43,
+        85
+      ],
+      "method": "PGD",
+      "parameters": {
+        "epsilon": 0.05,
+        "iterations": 20,
+        "random_start": false,
+        "step_size": 0.01
+      }
+    },
+    {
+      "after": [
+        [
+          46,
+          0
+        ],
+        [
+          7,
+          75
+        ]
+      ],
+      "l0_counts": [
+        42,
+        86
+      ],
+      "method": "PGD",
+      "parameters": {
+        "epsilon": 0.05,
+        "iterations": 10,
+        "random_start": false,
+        "step_size": 0.025
+      }
+    },
+    {
+      "after": [
+        [
+          46,
+          0
+        ],
+        [
+          7,
+          75
+        ]
+      ],
+      "l0_counts": [
+        42,
+        86
+      ],
+      "method": "PGD",
+      "parameters": {
+        "epsilon": 0.05,
+        "iterations": 20,
+        "random_start": false,
+        "step_size": 0.025
+      }
+    },
+    {
+      "after": [
+        [
+          46,
+          0
+        ],
+        [
+          7,
+          75
+        ]
+      ],
+      "l0_counts": [
+        40,
+        88
+      ],
+      "method": "PGD",
+      "parameters": {
+        "epsilon": 0.1,
+        "iterations": 10,
+        "random_start": false,
+        "step_size": 0.01
+      }
+    },
+    {
+      "after": [
+        [
+          46,
+          0
+        ],
+        [
+          7,
+          75
+        ]
+      ],
+      "l0_counts": [
+        40,
+        88
+      ],
+      "method": "PGD",
+      "parameters": {
+        "epsilon": 0.1,
+        "iterations": 20,
+        "random_start": false,
+        "step_size": 0.01
+      }
+    },
+    {
+      "after": [
+        [
+          46,
+          0
+        ],
+        [
+          7,
+          75
+        ]
+      ],
+      "l0_counts": [
+        39,
+        89
+      ],
+      "method": "PGD",
+      "parameters": {
+        "epsilon": 0.1,
+        "iterations": 10,
+        "random_start": false,
+        "step_size": 0.025
+      }
+    },
+    {
+      "after": [
+        [
+          46,
+          0
+        ],
+        [
+          7,
+          75
+        ]
+      ],
+      "l0_counts": [
+        42,
+        86
+      ],
+      "method": "PGD",
+      "parameters": {
+        "epsilon": 0.1,
+        "iterations": 20,
+        "random_start": false,
+        "step_size": 0.025
+      }
+    },
+    {
+      "after": [
+        [
+          46,
+          0
+        ],
+        [
+          7,
+          75
+        ]
+      ],
+      "l0_counts": [
+        38,
+        90
+      ],
+      "method": "PGD",
+      "parameters": {
+        "epsilon": 0.2,
+        "iterations": 10,
+        "random_start": false,
+        "step_size": 0.01
+      }
+    },
+    {
+      "after": [
+        [
+          46,
+          0
+        ],
+        [
+          7,
+          75
+        ]
+      ],
+      "l0_counts": [
+        42,
+        86
+      ],
+      "method": "PGD",
+      "parameters": {
+        "epsilon": 0.2,
+        "iterations": 20,
+        "random_start": false,
+        "step_size": 0.01
+      }
+    },
+    {
+      "after": [
+        [
+          46,
+          0
+        ],
+        [
+          7,
+          75
+        ]
+      ],
+      "l0_counts": [
+        38,
+        90
+      ],
+      "method": "PGD",
+      "parameters": {
+        "epsilon": 0.2,
+        "iterations": 10,
+        "random_start": false,
+        "step_size": 0.025
+      }
+    },
+    {
+      "after": [
+        [
+          46,
+          0
+        ],
+        [
+          7,
+          75
+        ]
+      ],
+      "l0_counts": [
+        38,
+        90
+      ],
+      "method": "PGD",
+      "parameters": {
+        "epsilon": 0.2,
+        "iterations": 20,
+        "random_start": false,
+        "step_size": 0.025
+      }
+    },
+    {
+      "after": [
+        [
+          46,
+          0
+        ],
+        [
+          6,
+          76
+        ]
+      ],
+      "l0_counts": [
+        124,
+        4
+      ],
+      "method": "CW-L2",
+      "parameters": {
+        "binary_search_steps": 5,
+        "confidence": 0.0,
+        "initial_const": 0.01,
+        "iterations": 100,
+        "learning_rate": 0.01
+      }
+    }
+  ],
+  "schema_version": 1,
+  "source_report_sha256": "02b07c7c32ce0c7d136c746fbe172f7c3b1c2cc9f9368c8aaa74778de121f9c6"
+}

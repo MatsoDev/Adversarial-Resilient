@@ -71,7 +71,7 @@ short. Evidence of record stays in the sprint reports, PRs, and MLflow runs.
 | S4     | 7–8    | Tune and freeze the baseline (M1)       | Full CPU/GPU measurements complete; 93% freeze gate not met | [`sprint4_report.md`](sprint4_report.md), [`sprint4.md`](sprint4.md) |
 | S5     | 9–10   | Attack implementation (FGSM/PGD/CW)     | Merged in PR #19: implementation + 21 real exploratory configurations; frozen benchmark/SS acceptance pending | [`sprint5_report.md`](sprint5_report.md), [`sprint5.md`](sprint5.md) |
 | S6     | 11–12  | Realistic attacks + black-box           | Transfer/API/bilingual UI implemented; real measurements and SS/M1 acceptance blocked | [Protocol](sprint6.md), [report](sprint6_report.md), [mappings](sprint6_mappings.md) |
-| S7     | 13–14  | Adversarial dataset + analysis          | Recorded case catalogue and CSV; authenticated feature upload, history and report implemented. Full-cohort analysis and real frozen-model validation pending. | [Case card](data_cards/sprint7_recorded_cases.md), [handoff](team_handoff.md) |
+| S7     | 13–14  | Adversarial dataset + analysis          | Case catalogue and CSV, authenticated upload and history, and recorded-cohort confusion matrices and L0 distributions implemented. L2/L∞ distributions and real frozen-model validation pending. | [Case card](data_cards/sprint7_recorded_cases.md), [cohort analysis](results/sprint7_cohort_analysis.md), [handoff](team_handoff.md) |
 | S8     | 15–16  | Phase 1 wrap-up and defense planning (M2) | Not started | — |
 | S9     | S2 1–2 | Adversarial training                    | Not started | — |
 | S10    | S2 3–4 | Ensemble + distillation (M3)            | Not started | — |

@@ -20,6 +20,9 @@ The case index is a compact research artifact for replay and analysis.
 It contains no feature vectors or model weights.
 
 The recorded aggregate provides accuracy, attack success counts, and mean
-norms. Full-cohort confusion matrices and perturbation histograms require
-full-cohort class-pair counts and per-row distances. The selected cases cannot
-be used to reconstruct those distributions.
+norms. A follow-up recovered all 21 full-cohort confusion matrices using the
+original model's clean inference and the archived counts and cases. The
+one-coordinate constraint also makes the L0 distribution recoverable. See
+the [cohort analysis](../results/sprint7_cohort_analysis.md) for the derivation
+and outputs. Nonzero L2 and L∞ distributions still need per-row distances or
+saved histogram bins.
