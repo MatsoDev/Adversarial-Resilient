@@ -27,6 +27,7 @@ REPORTS = {
     "sprint4": "sprint4_report.md",
     "sprint6": "sprint6_report.md",
     "sprint6-mappings": "sprint6_mappings.md",
+    "phase1": "sprint8_phase1_report.md",
     "ember-literature": "literature/anderson_2018_ember.md",
     "cicids-literature": "literature/sharafaldin_2018_cicids2017.md",
 }

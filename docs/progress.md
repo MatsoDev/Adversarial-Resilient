@@ -4,7 +4,7 @@ Living status of the project against [`project_plan.md`](project_plan.md).
 Update this file as work lands (at least at each sprint boundary); keep it
 short. Evidence of record stays in the sprint reports, PRs, and MLflow runs.
 
-**Last updated:** 2026-11-21 · **Current sprint:** Sprint 7 started locally with a recorded case catalogue. Sprint 6 real transfer measurements, M1 and technical Security review remain pending. See the [Sprint 6 training follow-up](sprint6_report.md#baseline-training-follow-up--2026-11-21).
+**Last updated:** 2026-11-21 · **Current sprint:** Sprint 8 Phase 1 review preparation. See the [report](sprint8_phase1_report.md) and [demo](sprint8_demo.md). M1, real transfer measurements and technical Security review remain pending.
 
 ## Sprint 6 implementation — v0.6.0
 
@@ -54,7 +54,7 @@ short. Evidence of record stays in the sprint reports, PRs, and MLflow runs.
 |-----|--------|------------------------------------------------|--------|
 | M0  | S1 W2  | Repo, environment, threat model v0.1           | Done — PR #1, [`sprint1_report.md`](sprint1_report.md) |
 | M1  | S1 W8  | `baseline_v1` frozen                           | Blocked by measured validation accuracy: latest candidate 92.5778%, below 93%; official test unopened |
-| M2  | S1 W16 | Phase 1 report + adversarial dataset           | Not started |
+| M2  | S1 W16 | Phase 1 report + adversarial dataset           | In progress: report draft and demo available; acceptance gates and review pending |
 | M3  | S2 W4  | Adversarial training + ensemble + distillation | Not started |
 | M4  | S2 W8  | Full defense stack + Comparison Report v1      | Not started |
 | M5  | S2 W12 | Feature freeze, system deployed in Docker      | Not started |
@@ -72,7 +72,7 @@ short. Evidence of record stays in the sprint reports, PRs, and MLflow runs.
 | S5     | 9–10   | Attack implementation (FGSM/PGD/CW)     | Merged in PR #19: implementation + 21 real exploratory configurations; frozen benchmark/SS acceptance pending | [`sprint5_report.md`](sprint5_report.md), [`sprint5.md`](sprint5.md) |
 | S6     | 11–12  | Realistic attacks + black-box           | Transfer/API/bilingual UI implemented; real measurements and SS/M1 acceptance blocked | [Protocol](sprint6.md), [report](sprint6_report.md), [mappings](sprint6_mappings.md) |
 | S7     | 13–14  | Adversarial dataset + analysis          | Case catalogue and CSV, authenticated upload and history, and recorded-cohort confusion matrices and L0 distributions implemented. L2/L∞ distributions and real frozen-model validation pending. | [Case card](data_cards/sprint7_recorded_cases.md), [cohort analysis](results/sprint7_cohort_analysis.md), [handoff](team_handoff.md) |
-| S8     | 15–16  | Phase 1 wrap-up and defense planning (M2) | Not started | — |
+| S8     | 15–16  | Phase 1 wrap-up and defense planning (M2) | Report, fixed demo and Phase 2 workshop drafted; independent replay and review pending | [Report](sprint8_phase1_report.md), [demo](sprint8_demo.md), [workshop](sprint8_defense_workshop.md) |
 | S9     | S2 1–2 | Adversarial training                    | Not started | — |
 | S10    | S2 3–4 | Ensemble + distillation (M3)            | Not started | — |
 | S11    | S2 5–6 | Sanitization + adversarial detector     | Not started | — |

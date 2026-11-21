@@ -19,6 +19,8 @@ and how to get it running; this page is the map to everything else.
 - [AI journey and UI v0.6.0](ai_journey.md): guided measured cases, team version check and future sprint work.
 - [Sprint 7 recorded EMBER case card](data_cards/sprint7_recorded_cases.md): case provenance, CSV fields and limits.
 - [Sprint 7 cohort analysis](results/sprint7_cohort_analysis.md): recovered confusion matrices and L0 distributions.
+- Sprint 8: [Phase 1 performance report](sprint8_phase1_report.md),
+  [demo walkthrough](sprint8_demo.md) and [Phase 2 workshop draft](sprint8_defense_workshop.md).
 - [Academic bilingual presentation review](dashboard_presentation.md): design,
   localization, demonstration route and actual browser/verification limits.
 - [Light-mode dashboard review](light_dashboard_review.md): current presentation

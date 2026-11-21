@@ -12,6 +12,14 @@
 <div class="research-status"><strong>Research status</strong><span>Exploratory, feature-space only · Real transfer pending · Frozen benchmark not yet accepted · Defenses planned</span></div>
 <div class="content"><section class="journey-hero"><div><div class="eyebrow">GRADUATION RESEARCH / ADVERSARIAL MACHINE LEARNING</div><h1>Adversarial resilience in malware detection</h1><p>This project studies machine-learning malware detectors using numeric features extracted from files. Adversarial examples are deliberately modified inputs used to test whether a model's decision changes. The recorded experiments evaluate these changes in feature space, not on executable files.</p></div></section>
 <section class="project-primer" aria-label="Research method"><article><span>01 / MODEL</span><h2>Train a detector</h2><p>Learn from feature records with known benign or malicious labels.</p></article><article><span>02 / EVALUATE</span><h2>Test model decisions</h2><p>Measure whether allowed feature changes turn correct decisions into errors.</p></article><article><span>03 / FUTURE WORK</span><h2>Evaluate defenses</h2><p>Defense methods and comparative evaluations are planned; results are not yet available.</p></article></section>
+<section class="panel" id="phase1-demo">
+  <h2>Phase 1 demonstration</h2>
+  <p>Review the EMBER dataset and baseline, replay two recorded cases, then compare the cohort results. Feature uploads and history are on Models and data.</p>
+  <p><a href="research.html">Models and data</a> · <a href="attacks.html">Attack comparison</a> · <a href="research.html?report=phase1">Phase 1 performance report</a></p>
+  <p id="phase1-state" role="status">Loading the recorded Phase 1 snapshot…</p>
+  <ul id="phase1-cases"></ul>
+  <button id="phase1-export" type="button" disabled>Export Phase 1 cohort CSV</button>
+</section>
 <div class="walkthrough-intro"><div><h2>Recorded case study</h2><p>A three-step replay shows the original classification, a feature change, and the resulting decision. No experiment is executed in the browser.</p></div><a class="primary-action" href="#journey-content">View the recorded case</a></div>
 <div class="scope-note">We test <strong>features extracted from files</strong>, without executing them. This is not an antivirus scan or proof of a valid file modification.</div>
 <section class="panel journey-controls"><details><summary>Choose a different experiment, attack or case</summary><p>The first recorded successful case is selected when available. No attacks or training are executed from this page.</p><div class="journey-selects"><label>Experiment<select id="journey-experiment" disabled></select></label><label>Attack and parameters<select id="journey-attack" disabled></select></label><label>Selected case<select id="journey-case" disabled></select></label></div></details></section>

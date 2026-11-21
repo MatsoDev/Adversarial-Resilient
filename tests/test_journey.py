@@ -301,6 +301,15 @@ assert.equal(locale.translate('MODELS & DATA / SPRINT 05','ar'),'النماذج 
 assert.equal(locale.translate('MODELXYZ','ar'),'MODELXYZ');
 assert.equal(locale.translate('50.21% / 49.96% / 1/122 / 128','ar'),'50.21% / 49.96% / 1/122 / 128');
 const report=JSON.parse(fs.readFileSync(process.argv[3],'utf8'));
+assert.equal(ui.phaseOneSnapshot([{...report,generated_at:'other'}]), undefined);
+assert.equal(ui.phaseOneSnapshot([{...report,generated_at:'other'},report]), report);
+const [headers, ...exports] = ui.phaseOneRows(report);
+assert.equal(exports.length, 21);
+const exampleRow = exports.find(row => row[headers.indexOf('method')] === 'FGSM' &&
+  JSON.parse(row[headers.indexOf('parameters')]).epsilon === 0.05);
+assert.equal(exampleRow[headers.indexOf('clean_correct')], 122);
+assert.equal(exampleRow[headers.indexOf('attacked_correct')], 121);
+assert.equal(exampleRow[headers.indexOf('asr_denominator')], 122);
 for(const {row,example} of ui.cases(report)) {
   const text=ui.renderCase(report,row,example).replace(/<[^>]*>/g,' ');
   const english=locale.translate(text,'en');
@@ -310,7 +319,7 @@ for(const {row,example} of ui.cases(report)) {
   assert.ok(arabic.includes('قرار'));
 }
 const release=require(process.argv[4]);
-assert.equal(release.version,'0.7.0-preview'); assert.equal(release.sprint,'07');
+assert.equal(release.version,'0.8.0'); assert.equal(release.sprint,'08');
 """
     result = subprocess.run(
         [
