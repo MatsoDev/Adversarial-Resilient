@@ -16,6 +16,14 @@
 <div class="scope-note">We test <strong>features extracted from files</strong>, without executing them. This is not an antivirus scan or proof of a valid file modification.</div>
 <section class="panel journey-controls"><details><summary>Choose a different experiment, attack or case</summary><p>The first recorded successful case is selected when available. No attacks or training are executed from this page.</p><div class="journey-selects"><label>Experiment<select id="journey-experiment" disabled></select></label><label>Attack and parameters<select id="journey-attack" disabled></select></label><label>Selected case<select id="journey-case" disabled></select></label></div></details></section>
 <div id="journey-state" role="status">Loading measured results…</div>
+<section id="case-catalogue" class="panel" hidden><details>
+  <summary>Recorded case catalogue</summary>
+  <p>Browse cases in the selected experiment. The link identifies the recorded run, configuration and sample.</p>
+  <label for="catalogue-filter">Filter by method, outcome, or row</label>
+  <input id="catalogue-filter" type="search">
+  <p id="catalogue-count" role="status"></p>
+  <ul id="catalogue-cases"></ul>
+</details></section>
 <div id="journey-content" aria-live="polite"></div>
 <section class="panel plain-faq"><h2>Dataset and interpretation</h2><details><summary>EMBER feature records</summary><p>EMBER contains numeric descriptions extracted from Windows programs, with known labels where available. Each sample is one feature record; the original program is not executed.</p></details><details><summary>Research use and scope</summary><p>These tests help researchers assess detector decisions under specified conditions. The prototype is not a complete antivirus product.</p></details><details><summary>Limits of an individual case</summary><p>A selected case illustrates one outcome. Aggregate results describe the evaluated cohort under the specified model, sample selection and constraints; neither establishes a valid executable modification.</p></details></section>
 <section class="panel"><h2>Evaluation objective</h2><p>Clean accuracy alone does not establish robustness. This study measures attack-induced errors; future work will evaluate defenses and their effect on ordinary performance.</p><a class="text-link" href="attacks.html">View attack results and methodology</a></section>

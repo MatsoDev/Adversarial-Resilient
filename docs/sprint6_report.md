@@ -9,12 +9,34 @@ Scope: [all Sprint 6 research, FastAPI/dashboard and journey work packages](spri
 Offline surrogate transfer evaluation, strict comparison contracts, a read-only
 threat/transfer explorer and bilingual journey labels are implemented.
 **Real transfer measurements and frozen-benchmark acceptance remain blocked.**
-No training, model/data download, test-set evaluation or problem-space experiment
+During the implementation pass, no training, model/data download, test-set evaluation or problem-space experiment
 was performed. The owner explicitly assigned training/downloads to a colleague
 because of laptop and bandwidth constraints. The existing Sprint 5 candidate
 authorization was not presumed to authorize new Sprint 6 experiments.
 
-Rechecked evidence remains:
+## Baseline training follow-up — 2026-11-21
+
+The owner authorized a local full-data EMBER run using the existing CUDA
+environment. The run trained on 510,000 rows, selected MLP trial index 2 at
+epoch 4 (seed 42), and evaluated the selected model on CPU.
+
+| Result | Value |
+|---|---:|
+| Operating-validation rows | 22,500 |
+| Accuracy at threshold 0.5 | 92.5778% |
+| F1 | 0.94068 |
+| ROC-AUC | 0.97093 |
+| Previous candidate accuracy | 92.1778% |
+| Required validation accuracy | 93.0000% |
+
+The run completed as `blocked_validation_accuracy`. M1 remains blocked and
+the official test was left unopened. The local evidence is in
+`models/sprint4/owner-baseline-run-01/bundle.json` (code revision `8c4fef1`,
+PyTorch 2.5.1+cu121, GTX 1660 SUPER). This follow-up used existing processed data
+and runtime with zero downloads. Sprint 6 real transfer measurements and
+technical Security review remain pending.
+
+## Original implementation snapshot — 2026-11-18
 
 - Recorded full operating-validation accuracy **92.1778%**, below 93%; M1
   remains blocked. No passing frozen bundle is recorded/distributed.
@@ -126,9 +148,9 @@ coverage, security and Docker build/Trivy scan, with **no deployment trigger**.
 
 ## Remaining acceptance blockers
 
-1. Colleague provisions trusted matching bundles/full data without this laptop
-   training or downloading; a real authorization for candidate transfer/new
-   surrogate work and a predeclared no-test training protocol are needed.
+1. Obtain a trusted matching surrogate and explicit authorization for candidate
+   transfer or new surrogate work. Any new surrogate training requires a
+   predeclared no-test protocol.
 2. Measure actual surrogate→target configurations and regenerate the table through
    the tools; publish compact reviewed summaries only, never arrays or weights.
 3. A genuinely passing M1 freeze and technically reviewed policy are required for

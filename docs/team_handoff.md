@@ -10,8 +10,10 @@ Detailed setup, measured-case reproduction and limitations: [AI journey](ai_jour
 The source branch is `sprint6/transfer-threat-context`; main is the team's shared
 integration branch. Dataset/model downloads are not needed for recorded playback.
 Real transfer results are pending; existing white-box results are not black-box
-evidence. Training/downloads belong on the colleague's suitable machine, not this
-laptop. Follow the [Sprint 6 prerequisite and reproduction handoff](sprint6.md)
+evidence. The owner-authorized local baseline follow-up reached **92.5778%**
+validation accuracy and remains below the 93% gate. The official test remains
+unopened. See the [training follow-up](sprint6_report.md#baseline-training-follow-up--2026-11-21).
+The owner requests advance notice and size estimates for any downloads. Follow the [Sprint 6 prerequisite and reproduction handoff](sprint6.md)
 before any new experiment. The historical team-facing
 [complete HTML plan](plans/project_plan_v0.5.2.html) is included under
 [docs/plans](plans/README.md) and opens directly in a browser.

@@ -10,11 +10,13 @@ recorded Sprint 5 white-box measurements and marks black-box results **pending**
 - Public EMBER feature vectors only. No executables, live malware, live network
   attacks, executable uploads, problem-space mutation, persistence or defenses.
 - The owner clarified during Sprint 6: **no training or dataset/model downloads
-  on this laptop**; a colleague will handle them. No Sprint 6 candidate experiment
+  on this laptop during the implementation pass**; a colleague was assigned.
+  The owner later authorized the local baseline-only training follow-up in the
+  [report](sprint6_report.md#baseline-training-follow-up--2026-11-21). No Sprint 6 candidate experiment
   or new surrogate training was run. Prior Sprint 5 approval is not silently
   extended. A reason/authorization flag records a real decision, not grants one.
 - Fresh checkouts play back the existing recorded results without arrays or
-  weights. This machine has no local bundles or full EMBER processed arrays.
+  weights. The baseline follow-up used already-present full EMBER processed arrays.
   No installation, preprocessing, Docker rebuild or dataset download is required
   for implementation verification or playback.
 - Official test remains unopened by this work. The 93% validation/test freeze

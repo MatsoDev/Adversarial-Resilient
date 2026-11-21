@@ -4,7 +4,7 @@ Living status of the project against [`project_plan.md`](project_plan.md).
 Update this file as work lands (at least at each sprint boundary); keep it
 short. Evidence of record stays in the sprint reports, PRs, and MLflow runs.
 
-**Last updated:** 2026-11-18 · **Current sprint:** Sprint 6 transfer/realism implementation delivered; real transfer measurements, M1/frozen-benchmark acceptance and technical Security review remain pending. No local training or downloads; colleague handoff in [Sprint 6 report](sprint6_report.md).
+**Last updated:** 2026-11-21 · **Current sprint:** Sprint 7 started locally with a recorded case catalogue. Sprint 6 real transfer measurements, M1 and technical Security review remain pending. See the [Sprint 6 training follow-up](sprint6_report.md#baseline-training-follow-up--2026-11-21).
 
 ## Sprint 6 implementation — v0.6.0
 
@@ -27,7 +27,7 @@ short. Evidence of record stays in the sprint reports, PRs, and MLflow runs.
 - Local verification: 618 passed, 6 expected optional skips, 90% combined
   coverage; lint, security and architecture/docs/hygiene checks passed.
   Browser/mobile verification limits are in [the report](sprint6_report.md).
-- No local training or model/data downloads. M1, technical Security review,
+- The original implementation pass used no local training or model/data downloads. M1, technical Security review,
   actual transfer measurements and problem-space evidence remain blockers.
 
 ## Sprint 5 UI release — v0.5.2 (historical)
@@ -53,7 +53,7 @@ short. Evidence of record stays in the sprint reports, PRs, and MLflow runs.
 | #   | When   | Milestone                                      | Status |
 |-----|--------|------------------------------------------------|--------|
 | M0  | S1 W2  | Repo, environment, threat model v0.1           | Done — PR #1, [`sprint1_report.md`](sprint1_report.md) |
-| M1  | S1 W8  | `baseline_v1` frozen                           | Blocked by measured validation accuracy: initial candidate 92.1778%; regularized GPU selection 91.4311%; official test unopened |
+| M1  | S1 W8  | `baseline_v1` frozen                           | Blocked by measured validation accuracy: latest candidate 92.5778%, below 93%; official test unopened |
 | M2  | S1 W16 | Phase 1 report + adversarial dataset           | Not started |
 | M3  | S2 W4  | Adversarial training + ensemble + distillation | Not started |
 | M4  | S2 W8  | Full defense stack + Comparison Report v1      | Not started |
@@ -71,7 +71,7 @@ short. Evidence of record stays in the sprint reports, PRs, and MLflow runs.
 | S4     | 7–8    | Tune and freeze the baseline (M1)       | Full CPU/GPU measurements complete; 93% freeze gate not met | [`sprint4_report.md`](sprint4_report.md), [`sprint4.md`](sprint4.md) |
 | S5     | 9–10   | Attack implementation (FGSM/PGD/CW)     | Merged in PR #19: implementation + 21 real exploratory configurations; frozen benchmark/SS acceptance pending | [`sprint5_report.md`](sprint5_report.md), [`sprint5.md`](sprint5.md) |
 | S6     | 11–12  | Realistic attacks + black-box           | Transfer/API/bilingual UI implemented; real measurements and SS/M1 acceptance blocked | [Protocol](sprint6.md), [report](sprint6_report.md), [mappings](sprint6_mappings.md) |
-| S7     | 13–14  | Adversarial dataset + analysis          | Not started | — |
+| S7     | 13–14  | Adversarial dataset + analysis          | Started locally: recorded case catalogue and stable links | `sprint7/dataset-analysis` |
 | S8     | 15–16  | Phase 1 wrap-up and defense planning (M2) | Not started | — |
 | S9     | S2 1–2 | Adversarial training                    | Not started | — |
 | S10    | S2 3–4 | Ensemble + distillation (M3)            | Not started | — |

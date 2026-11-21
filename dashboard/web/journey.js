@@ -16,6 +16,13 @@
   function journeyRows(report) {
     return report.results.flatMap(row => [row, ...(row.transfer ? [{...row, evidence_mode:'transfer', metrics:row.transfer.target_metrics, examples:row.transfer.examples}] : [])]);
   }
+  function caseReference(report, row, example) {
+    const parameters = Object.entries(row.parameters).sort(([a], [b]) => a.localeCompare(b, 'en'));
+    return JSON.stringify([
+      report.compatibility_id, report.generated_at, row.attack,
+      row.evidence_mode ?? 'white-box', parameters, example.split_row_index
+    ]);
+  }
   function explain(example) {
     if (example.outcome === 'preexisting_error') return 'The model was already wrong. This case is not evidence of a successful attack and is excluded from the ASR denominator.';
     if (example.outcome === 'remained_correct') return 'The model stayed correct after this attempt. That is one resisted case, not a guarantee against every attack.';
@@ -43,10 +50,30 @@
     <section class="panel"><details><summary>Case provenance and comparison limits</summary><p dir="ltr">${esc(report.generated_at)} · ART ${esc(row.library_version)} · CleverHans: ${esc(row.cross_check.status)}</p><p>Constraint review: ${esc(report.constraint.security_review || report.constraint.status)}. Problem-space validity: not established.</p><p>Same recorded model, cohort and policy. The row is a dataset split reference, not an uploaded filename. No executables or complete feature arrays reach the browser.</p><dl class="provenance" dir="ltr"><dt>Model SHA-256</dt><dd data-evidence>${esc(report.identity.model_sha256)}</dd><dt>Cohort SHA-256</dt><dd data-evidence>${esc(report.identity.indices_sha256)}</dd><dt>Policy SHA-256</dt><dd data-evidence>${esc(report.identity.constraint_sha256)}</dd></dl><p>Larger evaluations and an accepted baseline are needed before generalizing. Aggregate-only historical reports remain available in Attack comparison.</p></details></section>`;
 
   }
-  if (typeof module !== 'undefined') module.exports = {cases, explain, renderCase, journeyRows};
+  if (typeof module !== 'undefined') module.exports = {cases, explain, renderCase, journeyRows, caseReference};
   if (typeof document === 'undefined') return;
   const get = id => document.getElementById(id);
   let reports = [];
+  const requestedCase = new URLSearchParams(location.search).get('case');
+  function renderCatalogue() {
+    const report = reports[Number(get('journey-experiment').value)];
+    const query = get('catalogue-filter').value.trim().toLowerCase();
+    const items = document.createDocumentFragment();
+    for (const {row, example} of cases(report)) {
+      const mode = row.evidence_mode === 'transfer' ? 'Black-box transfer' : 'White-box';
+      const title = `${mode} · ${configLabel(row)} · ${outcomes[example.outcome]} · row ${example.split_row_index}`;
+      if (!title.toLowerCase().includes(query)) continue;
+      const item = document.createElement('li');
+      const link = document.createElement('a');
+      const params = new URLSearchParams({case: caseReference(report, row, example)});
+      link.href = `?${params}#journey-content`;
+      link.textContent = title;
+      item.append(link);
+      items.append(item);
+    }
+    get('catalogue-count').textContent = `${items.childElementCount} matching recorded cases`;
+    get('catalogue-cases').replaceChildren(items);
+  }
   function selectedReport() {
     const report = reports[Number(get('journey-experiment').value)];
     return report ? {...report,results:journeyRows(report)} : undefined;
@@ -77,19 +104,21 @@
       showStep(0);
     }
   }
-  function updateCases() {
+  function updateCases(exampleIndex = 0) {
     const row = selectedReport()?.results[Number(get('journey-attack').value)];
     get('journey-case').innerHTML = (row?.examples || []).map((e,i) => `<option value="${i}">${outcomes[e.outcome]} · row ${e.split_row_index}</option>`).join('');
     get('journey-case').disabled = !row?.examples?.length;
+    get('journey-case').value = String(exampleIndex);
     render();
   }
-  function updateAttacks() {
+  function updateAttacks(match) {
     const report = selectedReport();
     get('journey-attack').innerHTML = report.results.map((r,i) => ({r,i})).filter(({r}) => r.examples?.length).map(({r,i}) => `<option value="${i}">${r.evidence_mode === 'transfer' ? 'Black-box transfer' : 'White-box'} · ${esc(configLabel(r))}</option>`).join('');
     const success = report.results.findIndex(r => r.examples?.some(e => e.outcome === 'successful_attack'));
-    if (success >= 0) get('journey-attack').value = String(success);
+    if (match || success >= 0) get('journey-attack').value = String(match?.rowIndex ?? success);
     get('journey-attack').disabled = false;
-    updateCases();
+    updateCases(match?.exampleIndex);
+    renderCatalogue();
   }
   async function load() {
     const controller = new AbortController(), timer = setTimeout(() => controller.abort(),10000);
@@ -102,12 +131,27 @@
       get('journey-experiment').innerHTML = reports.map((r,i) => `<option value="${i}">${esc(r.identity.dataset)} · ${r.identity.samples} rows · ${esc(r.generated_at)} · ${esc(r.compatibility_id.slice(0,8))}</option>`).join('');
       get('journey-experiment').disabled = false;
       get('journey-state').textContent = `Experiments with measured individual cases: ${reports.length}.${data.unavailable_reports ? ` Invalid reports excluded: ${data.unavailable_reports}.` : ''}${data.truncated ? ' The list is bounded; not all reports are shown.' : ''}`;
-      updateAttacks();
+      let match;
+      if (requestedCase) {
+        const index = reports.findIndex(report => {
+          match = cases(report).find(({row, example}) =>
+            caseReference(report, row, example) === requestedCase);
+          return Boolean(match);
+        });
+        if (index >= 0) get('journey-experiment').value = String(index);
+        else {
+          get('journey-state').textContent = 'The linked case is unavailable. Choose another recorded case from the catalogue.';
+        }
+      }
+      get('case-catalogue').hidden = false;
+      updateAttacks(match);
+      if (requestedCase && !match) get('journey-content').replaceChildren();
     } catch (_) { get('journey-state').innerHTML = 'Could not load results. Check that the API is running, then <button id="journey-retry" type="button">Retry</button>.'; get('journey-retry').onclick = load; }
     finally { clearTimeout(timer); }
   }
-  get('journey-experiment').onchange = updateAttacks;
-  get('journey-attack').onchange = updateCases;
+  get('journey-experiment').onchange = () => updateAttacks();
+  get('journey-attack').onchange = () => updateCases();
   get('journey-case').onchange = render;
+  get('catalogue-filter').oninput = renderCatalogue;
   load();
 })();
