@@ -20,7 +20,7 @@ python -m uvicorn api.main:app --host 127.0.0.1 --port 8000 --no-proxy-headers
 ```
 
 Open <http://localhost:8000/dashboard/>. Success means the release label is
-**v0.7.0-preview · Sprint 07**. Expand **Recorded case catalogue** to find
+**v0.8.0 · Sprint 08**. Expand **Recorded case catalogue** to find
 and replay a case from the selected experiment. See the
 [journey guide](../docs/ai_journey.md) for filter and link behavior.
 `make dashboard` or the Compose dashboard service uses
@@ -41,9 +41,10 @@ The UI does not load NumPy arrays, joblib models or torch checkpoints.
 ## Feature prediction
 
 The research page includes a **Feature prediction**
-panel. Load the frozen identity with a local research token, then submit ordered
-raw or explicitly bundle-preprocessed EMBER feature rows. The UI does not save
-tokens, rows or history; it sends the token/rows to the same-origin API.
+panel. Load the frozen identity with a local research token, then paste ordered
+raw or explicitly bundle-preprocessed EMBER feature rows or select a JSON file.
+Successful file submissions save batch results in local API history. Use
+**Load batch history** or **Export history CSV** to retrieve those results.
 Prediction is unavailable until a qualifying local frozen bundle and token are
 provisioned; recorded Sprint 3 results do not provision a model. See
 [Sprint 4 setup](../docs/sprint4.md#feature-inference) and the

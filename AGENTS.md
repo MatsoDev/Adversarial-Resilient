@@ -5,9 +5,10 @@ with adversarial examples (FGSM/PGD/CW), with defenses planned. The repo has a
 pinned CPU environment, ART demo on MNIST,
 read-only FastAPI artifact routes, classical/MLP training and recorded EMBER
 validation runs, CPU MLP/CNN tuning/calibration and gated feature prediction.
-FastAPI serves the HTML/CSS/JS dashboard at `/dashboard/`. The Sprint 7 preview
-on `main` adds a recorded case catalogue and case links. `dashboard/app.py`
-remains the legacy Streamlit reference. See [team handoff](docs/team_handoff.md).
+FastAPI serves the HTML/CSS/JS dashboard at `/dashboard/`. The Sprint 8 release
+on `main` includes a Phase 1 walkthrough, a recorded case catalogue and case
+links. `dashboard/app.py` remains the legacy Streamlit reference.
+See [team handoff](docs/team_handoff.md).
 Sprint 2 supplies cleaned/versioned datasets, loaders, EDA and manifests.
 See docs/progress.md and docs/sprint4_report.md for M1 status; implemented
 freezing/prediction does not establish a passing full-data baseline. Sprint 5

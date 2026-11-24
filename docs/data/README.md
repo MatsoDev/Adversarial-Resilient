@@ -131,8 +131,8 @@ On the reference Linux machine (12 CPU cores, 14 GB RAM, Python 3.11):
 - Full EMBER: about 10 minutes with `--jobs 6` (source hashing, metadata scan,
   vectorisation, scaler, artifact hashing), ~7.6 GB of arrays.
 - Full CICIDS2017: about 1.5 minutes, ~0.8 GB of arrays.
-- Subset smoke runs: about 1–2.5 minutes each (EMBER also hashes the 9.4 GB
-  source even for a subset).
+- Subset smoke runs: about 1–2.5 minutes each (by default EMBER also hashes all
+  9.95 GB of [source JSONL](manifests/ember2018.json) for a subset).
 - `make test` stays dataset-free and runs in under a minute.
 
 Per dataset directory under `data/processed/<dataset>/`:

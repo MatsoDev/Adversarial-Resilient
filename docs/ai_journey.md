@@ -109,11 +109,11 @@ See [the full project plan](project_plan.md). Sprint 6 implemented explicit
 realism and transfer labels, while measurements and SS review remain pending
 ([report](sprint6_report.md)). Transfer cases, when recorded, display source and
 target decisions separately and use the target outcome for the story. Current
-recorded cases remain white-box, feature-space only. The Sprint 7 preview
-on `main` includes case references. The dataset package, history and export
-remain outside that preview. Sprint 8 covers the Phase 1 rehearsal. Sprints
-9–12 add defense results and adaptive re-attacks. Until then, the dashboard
-shows the defense stage as planned.
+recorded cases remain white-box, feature-space only. The Sprint 8 release
+includes the [Phase 1 walkthrough](sprint8_demo.md), recorded-case CSV export
+and authenticated feature-upload history. The full dataset package remains
+pending. Sprints 9–12 add defense results and adaptive re-attacks. Until then,
+the dashboard shows the defense stage as planned.
 Sprints 13–16 finish integration, regression, reporting and handover. The
 16-sprint schedule and research gates are unchanged. The complete versioned
 HTML export is shared in [plans/](plans/README.md); the original local Plan folder

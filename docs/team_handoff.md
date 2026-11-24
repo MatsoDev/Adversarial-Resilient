@@ -1,11 +1,11 @@
 # Team handoff — recorded research results and current environment
 
-## Sprint 7 dashboard handoff
+## Sprint 8 dashboard handoff
 
 Pull `main` and start the API using the commands below. Open
 <http://localhost:8000/dashboard/> and confirm **v0.8.0 · Sprint 08**.
 On Research overview, expand **Recorded case catalogue**, enter `PGD`,
-and open a matching case. The preview opens that case at the start of its
+and open a matching case. The dashboard opens that case at the start of its
 walkthrough. The [journey guide](ai_journey.md#replay-a-case-from-the-catalogue)
 explains experiment selection and shared links.
 

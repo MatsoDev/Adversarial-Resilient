@@ -13,8 +13,8 @@ without handling or redistributing live malware.
   **not** EMBER2024 (feature v3, ~3.2M files), which is out of scope.
 - **Files:** six `train_features_*.jsonl` files, one `test_features.jsonl`,
   and a pretrained `ember_model_2018.txt` (ignored in Sprint 2).
-- **Size:** ~9.4 GB of JSONL on the local machine; raw data is not copied into
-  the repository.
+- **Size:** 9,946,142,816 bytes of JSONL (about 9.95 GB or 9.26 GiB), summed
+  from the [source manifest](../data/manifests/ember2018.json).
 - **Train rows:** 800,000 = 300,000 benign (label 0) + 300,000 malicious
   (label 1) + 200,000 unlabelled (label -1).
 - **Test rows:** 200,000 = 100,000 benign + 100,000 malicious. The official
@@ -51,7 +51,7 @@ arXiv:1804.04637 (2018).
 Actual full-run results from `scripts/preprocess.py --dataset ember`
 (manifest: [`../data/manifests/ember2018.json`](../data/manifests/ember2018.json)):
 
-- JSONL is streamed line by line; the 9.4 GB source is never loaded as a whole.
+- JSONL is streamed line by line.
 - Each record is validated (required keys, sha256 format, `appeared` format,
   label in `{-1,0,1}`, group shapes) and vectorised to 2381 finite `float32`
   values in the official v2 order. Empty imports/exports/sections produce zero

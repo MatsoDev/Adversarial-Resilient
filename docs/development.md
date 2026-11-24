@@ -254,7 +254,7 @@ python -m uvicorn api.main:app --reload --port 8000 --no-proxy-headers
 Open http://127.0.0.1:8000/health — expect `{"status": "ok"}`.
 
 Open <http://localhost:8000/dashboard/> and look for
-**v0.7.0-preview · Sprint 07** and **Recorded case catalogue** on Research overview.
+**v0.8.0 · Sprint 08** and **Recorded case catalogue** on Research overview.
 Alternatively, run `make dashboard` to serve the same app at
 <http://localhost:8501/dashboard/>. See the [journey guide](ai_journey.md).
 `dashboard/app.py` is a legacy Streamlit reference, not the primary entry point.

@@ -1,6 +1,6 @@
 # Sprint 8 | Phase 1 walkthrough
 
-Use the Sprint 8 branch and the existing environment. From the repository
+Use `main` and the existing environment. From the repository
 root, start the API:
 
 ```powershell
