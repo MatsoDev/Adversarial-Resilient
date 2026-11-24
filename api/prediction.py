@@ -20,7 +20,6 @@ from fastapi.responses import Response
 from pydantic import BaseModel, ConfigDict, Field, StrictFloat, StrictInt, ValidationError
 from src.config import FROZEN_BASELINE_DIR, PREDICTION_HISTORY_PATH
 from src.evaluation.prediction_history import PredictionHistory
-from src.models.frozen import FrozenBaseline
 from starlette.concurrency import run_in_threadpool
 
 logger = logging.getLogger(__name__)
@@ -41,7 +40,8 @@ def prediction_router(
 ):
     router = APIRouter()
     model = None
-    lock = threading.Lock()
+    model_lock = threading.Lock()
+    clients_lock = threading.Lock()
     clients = OrderedDict()
     history = PredictionHistory(history_path)
 
@@ -58,7 +58,7 @@ def prediction_router(
         # Trust the actual socket peer, never spoofable forwarding headers.
         peer = request.client.host if request.client else "unknown"
         now = time.monotonic()
-        with lock:
+        with clients_lock:
             start, count = clients.pop(peer, (now, 0))
             if now - start >= 60:
                 start, count = now, 0
@@ -72,9 +72,11 @@ def prediction_router(
 
     def get_model():
         nonlocal model
-        with lock:
+        with model_lock:
             if model is None:
                 try:
+                    from src.models.frozen import FrozenBaseline
+
                     model = FrozenBaseline(bundle_dir)
                 except Exception:
                     logger.exception("Frozen baseline unavailable")

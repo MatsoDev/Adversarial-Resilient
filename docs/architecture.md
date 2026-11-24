@@ -133,8 +133,10 @@ artifact store and bundle directory without changing production paths.
   committed reference, deduplicates run IDs and excludes invalid batches.
 - Prediction first checks the exact bearer token, then charges the socket peer's
   in-memory budget. It streams a bounded JSON body and validates the feature
-  contract. Model loading and prediction run in a thread pool; first successful
-  loading is locked and cached per router/process. Restart to replace that model.
+  contract. The first authorized request that needs the model imports PyTorch
+  and loads the bundle in a worker thread. Model loading has its own lock and
+  the first successful load is cached per router/process. Restart to replace
+  that model.
 - `FrozenBaseline` validates the trusted bundle, required hashes, feature order,
   scaler, finite parameters and freeze status, and loads a CPU state dictionary
   with `weights_only=True`. HTTP callers cannot select filesystem paths/models.
