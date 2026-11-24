@@ -1,20 +1,24 @@
 # Documentation index
 
-**Opening the recorded results?** Start with [team_handoff.md](team_handoff.md) for
-pulling main, synchronizing requirements and opening the HTML dashboard with
-the recorded baseline results. For tuning/prediction use [Sprint 4](sprint4.md);
-for M1 availability consult [progress](progress.md), not the historical handoff.
+Use the [team handoff](team_handoff.md) to update an existing checkout and open
+the recorded results. The [project README](../README.md) covers first-time setup,
+[Sprint 4](sprint4.md) covers tuning and prediction, and
+[progress](progress.md) tracks M1 availability.
 
-Start here. The root [`README.md`](../README.md) explains what the project is
-and how to get it running; this page is the map to everything else.
+## Where to look
 
-## Which document owns the answer?
+- [Development](development.md) covers setup and operations.
+  [Configuration](configuration.md) lists settings.
+- [Project structure](project-structure.md) covers file placement.
+  [Architecture](architecture.md) explains component boundaries and dependencies.
+- The component references below describe HTTP, data and model contracts.
+  [Testing](testing.md) covers validation.
+- [Progress](progress.md) tracks current status.
+  The [project plan](project_plan.md) defines scope and schedule.
+- [Decisions](DECISIONS.md) records technical rationale. Sprint and audit reports
+  preserve dated evidence.
 
-- **Setup and operations:** [development](development.md); **settings:** [configuration](configuration.md).
-- **Placement and dependencies:** [project structure](project-structure.md) and [architecture](architecture.md).
-- **HTTP/data/model contracts:** the component references linked below; **validation:** [testing](testing.md).
-- **Current status:** [progress](progress.md); **scope:** [project plan](project_plan.md).
-- **Why:** [decisions](DECISIONS.md); **dated evidence:** sprint and audit reports, not new setup instructions.
+## Dashboard and Sprint 6
 
 - [AI journey and UI v0.6.0](ai_journey.md): guided measured cases, team version check and future sprint work.
 - [Academic bilingual presentation review](dashboard_presentation.md): design,
