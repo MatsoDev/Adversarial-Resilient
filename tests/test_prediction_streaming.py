@@ -4,8 +4,10 @@ import asyncio
 
 import httpx2 as httpx
 import pytest
-from api.prediction import MAX_BODY, prediction_router
+from api.main import create_app
+from api.prediction import MAX_BODY, PredictionInput, prediction_router
 from fastapi import FastAPI
+from pydantic import ValidationError
 
 
 def _post_prediction(app, body, headers):
@@ -55,6 +57,45 @@ def test_body_at_exact_cap_reaches_schema_validation(tmp_path, monkeypatch):
     )
     assert response.status_code == 422  # Valid JSON, invalid schema; not 413 or a model load.
     assert response.json() == {"detail": "Invalid feature prediction request"}
+
+
+def test_stalled_body_releases_request(tmp_path, monkeypatch):
+    monkeypatch.setenv("PREDICTION_API_TOKEN", "x" * 32)
+    monkeypatch.setattr("api.prediction.BODY_TIMEOUT_SECONDS", 0.05)
+    app = create_app(baseline_dir=tmp_path / "missing")
+
+    async def body():
+        yield b"{"
+        await asyncio.sleep(0.5)
+        yield b"}"
+
+    response = _post_prediction(
+        app,
+        body(),
+        {
+            "Authorization": "Bearer " + "x" * 32,
+            "Content-Type": "application/json",
+            "Host": "testserver",
+        },
+    )
+    assert response.status_code == 408
+    assert response.json() == {"detail": "Prediction request body timed out"}
+
+
+@pytest.mark.parametrize("rows", [[[0] * 2382], [[0] * 2380], [[None] * 2381] * 2])
+def test_feature_validation_bounds_each_row_and_stops_at_first_error(rows):
+    payload = {
+        "model_version": "baseline_v1",
+        "representation": "raw",
+        "preprocessing_id": "0" * 64,
+        "feature_schema_sha256": "0" * 64,
+        "rows": rows,
+    }
+    with pytest.raises(ValidationError) as error:
+        PredictionInput.model_validate(payload)
+    assert error.value.error_count() <= 2  # At most one failure for each numeric union branch.
+    schema = PredictionInput.model_json_schema()["properties"]["rows"]
+    assert schema["items"]["minItems"] == schema["items"]["maxItems"] == 2381
 
 
 @pytest.mark.parametrize(

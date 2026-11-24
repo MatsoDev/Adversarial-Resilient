@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import csv
 import hmac
 import io
@@ -13,17 +14,21 @@ import threading
 import time
 from collections import OrderedDict
 from pathlib import Path
-from typing import Literal
+from typing import Annotated, Literal
 
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import Response
-from pydantic import BaseModel, ConfigDict, Field, StrictFloat, StrictInt, ValidationError
+from pydantic import BaseModel, ConfigDict, FailFast, Field, StrictFloat, StrictInt
 from src.config import FROZEN_BASELINE_DIR, PREDICTION_HISTORY_PATH
 from src.evaluation.prediction_history import PredictionHistory
 from starlette.concurrency import run_in_threadpool
 
 logger = logging.getLogger(__name__)
 MAX_BODY = 2 * 1024 * 1024
+BODY_TIMEOUT_SECONDS = 15
+FeatureRow = Annotated[
+    list[StrictFloat | StrictInt], Field(min_length=2381, max_length=2381), FailFast()
+]
 
 
 class PredictionInput(BaseModel):
@@ -32,7 +37,7 @@ class PredictionInput(BaseModel):
     representation: Literal["raw", "scaled"]
     preprocessing_id: str = Field(min_length=64, max_length=64)
     feature_schema_sha256: str = Field(min_length=64, max_length=64)
-    rows: list[list[StrictFloat | StrictInt]] = Field(min_length=1, max_length=32)
+    rows: Annotated[list[FeatureRow], Field(min_length=1, max_length=32), FailFast()]
 
 
 def prediction_router(
@@ -119,13 +124,17 @@ def prediction_router(
         if request.headers.get("content-type", "").split(";")[0].strip() != "application/json":
             raise HTTPException(415, "Expected application/json")
         body = bytearray()
-        async for chunk in request.stream():
-            if len(body) + len(chunk) > MAX_BODY:
-                raise HTTPException(413, "Prediction request too large")
-            body.extend(chunk)
+        try:
+            async with asyncio.timeout(BODY_TIMEOUT_SECONDS):
+                async for chunk in request.stream():
+                    if len(body) + len(chunk) > MAX_BODY:
+                        raise HTTPException(413, "Prediction request too large")
+                    body.extend(chunk)
+        except TimeoutError:
+            raise HTTPException(408, "Prediction request body timed out") from None
         try:
             payload = PredictionInput.model_validate(json.loads(body))
-        except (ValueError, ValidationError, UnicodeError, RecursionError):
+        except (ValueError, RecursionError):
             raise HTTPException(422, "Invalid feature prediction request") from None
         baseline = await run_in_threadpool(get_model)
         try:

@@ -1,7 +1,9 @@
 """Local history for authenticated batch predictions."""
 
 import json
+import os
 import sqlite3
+import stat
 from contextlib import closing
 from datetime import UTC, datetime
 
@@ -12,8 +14,20 @@ class PredictionHistory:
     def __init__(self, path):
         self.path = path
 
+    def _connect(self):
+        if os.name == "posix":
+            mode = stat.S_IMODE(self.path.stat().st_mode)
+            if mode & 0o077:
+                self.path.chmod(mode & ~0o077)
+        # Create files only through the private creation path in append().
+        return sqlite3.connect(f"{self.path.resolve().as_uri()}?mode=rw", uri=True)
+
     def append(self, result, representation):
         self.path.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            self.path.touch(mode=0o600, exist_ok=False)
+        except FileExistsError:
+            pass
         entry = {
             "recorded_at": datetime.now(UTC).isoformat(),
             "representation": representation,
@@ -24,7 +38,7 @@ class PredictionHistory:
             "detector_status": None,
             "predictions": result["predictions"],
         }
-        with closing(sqlite3.connect(self.path)) as db, db:
+        with closing(self._connect()) as db, db:
             db.execute(
                 "CREATE TABLE IF NOT EXISTS batches (id INTEGER PRIMARY KEY AUTOINCREMENT, payload TEXT NOT NULL)"
             )
@@ -38,7 +52,7 @@ class PredictionHistory:
     def list(self):
         if not self.path.is_file():
             return []
-        with closing(sqlite3.connect(self.path)) as db:
+        with closing(self._connect()) as db:
             # A first writer may have opened the file and still be creating the table.
             exists = db.execute(
                 "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'batches'"

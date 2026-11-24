@@ -189,6 +189,11 @@ feature arrays are excluded. History is shared by holders of the local bearer
 token. Detector status is unavailable. New classifications require a verified
 frozen bundle.
 
+On POSIX, new history files are created with owner-only permissions, and the
+app removes group and other permissions from existing files before opening
+them. Run both Compose instances under the same account. On Windows, limit
+access through the history directory's ACL.
+
 First follow [Sprint 4 provisioning and freeze gates](../docs/sprint4.md#feature-inference).
 Both routes require the exact header `Authorization: Bearer <token>` matching
 `PREDICTION_API_TOKEN` (at least 32 characters). Without a sufficiently long
@@ -267,6 +272,7 @@ consume budget. Unknown paths return 404 and unsupported methods return 405.
 | Status | Cause / action |
 |---|---|
 | 401 | Missing/wrong bearer header; `WWW-Authenticate: Bearer` is returned |
+| 408 | Request body did not finish streaming within 15 seconds |
 | 413 | Streamed body exceeds 2 MiB (not dependent on Content-Length) |
 | 415 | Missing/wrong content type |
 | 422 | Invalid JSON/fields, row shape/types/bounds or mismatched identities |

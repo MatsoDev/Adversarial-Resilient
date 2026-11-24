@@ -132,8 +132,8 @@ artifact store and bundle directory without changing production paths.
   aggregate run budgets. `/v1/runs` combines local comparison JSON with the
   committed reference, deduplicates run IDs and excludes invalid batches.
 - Prediction first checks the exact bearer token, then charges the socket peer's
-  in-memory budget. It streams a bounded JSON body and validates the feature
-  contract. The first authorized request that needs the model imports PyTorch
+  in-memory budget. It streams JSON with byte and time limits and validates the
+  feature contract. The first authorized request that needs the model imports PyTorch
   and loads the bundle in a worker thread. Model loading has its own lock and
   the first successful load is cached per router/process. Restart to replace
   that model.
@@ -142,18 +142,18 @@ artifact store and bundle directory without changing production paths.
   with `weights_only=True`. HTTP callers cannot select filesystem paths/models.
 - Unhandled exceptions are logged server-side and return generic 500 JSON with
   security headers. Bundle-load exceptions are also logged; clients receive no
-  filesystem details. There is no application audit/history persistence.
+  filesystem details. Upload history stores prediction results in local SQLite.
 
 `/health` is liveness only. It says nothing about artifact availability, model
-readiness, data integrity or MLflow. Artifact routes are unauthenticated;
-`/v1/baseline` and `/predict` require a local token. This is not multi-user
-authorization. Query limits/caches are per process, not distributed; the actual
-socket peer is used, not forwarded IP headers.
+readiness, data integrity or MLflow. Artifact routes are unauthenticated.
+`/v1/baseline`, `/predict`, `/upload`, `/history`, and `/report` use a shared
+local token. The query budget and model cache are per process. The budget is
+keyed by the socket peer.
 
 ## Persistence and deployment
 
-There is no application database, ORM, migration system, account store or upload
-service. Persistence is files: JSON/Markdown/PNG evidence, NumPy arrays, neural
+Prediction history uses a local SQLite database with owner-only permissions on
+POSIX. Other persistence uses JSON/Markdown/PNG evidence, NumPy arrays, neural
 state dictionaries, local trusted joblib checkpoints and MLflow's file store.
 Raw/processed datasets, weights, `.env` and `mlruns/` are ignored. Compact
 reference results/manifests/EDA outputs are intentionally committed.
