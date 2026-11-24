@@ -116,6 +116,12 @@ def test_trivy_image_is_sha_pinned():
     assert re.search(r"aquasec/trivy@sha256:[0-9a-f]{64}", makefile)
 
 
+def test_pre_commit_hook_revisions_are_sha_pinned():
+    config = yaml.safe_load((ROOT / ".pre-commit-config.yaml").read_text(encoding="utf-8"))
+    assert config["repos"]
+    assert all(re.fullmatch(r"[0-9a-f]{40}", hook["rev"]) for hook in config["repos"])
+
+
 def test_ci_actions_are_sha_pinned_and_security_job_runs():
     text = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
     uses = re.findall(r"uses:\s*(\S+)", text)
