@@ -479,8 +479,7 @@
     document.title = translate(originalTitle,language);
     // Translating an option's label must never change the value sent to the API.
     document.querySelectorAll('option:not([value])').forEach(option => { option.value = option.textContent; });
-    // Raw evidence remains in its recorded language; status prose inside <pre>
-    // is explicitly opted in. JSON keys/values and identifiers are never rewritten.
+    // Only <pre> blocks marked with data-ui-copy contain translatable status prose.
     const walker = document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);
     let node;
     while ((node=walker.nextNode())) {
@@ -488,8 +487,6 @@
       let record = originals.get(node);
       if (!record || node.textContent !== record.rendered) record = {original:node.textContent};
       record.rendered = translate(record.original,language);
-      // Isolate Latin identifiers, timestamps, counts and ratios inside Arabic.
-      // Stored source text and numeric evidence stay unchanged.
       if (language === 'ar' && !node.parentElement.closest('[dir="ltr"],bdi')) {
         record.rendered = isolate(record.rendered);
       }
