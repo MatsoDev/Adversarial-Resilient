@@ -276,6 +276,7 @@ assert.ok(escaped.includes('&lt;b&gt;unexpected markup&lt;/b&gt;'));
         check=False,
     )
     assert result.returncode == 0, result.stderr
+    _assert_catalogue_filters_and_shared_case_links()
 
 
 def test_published_cases_link_to_the_same_cohort_and_keep_failed_controls():
@@ -288,6 +289,115 @@ def test_published_cases_link_to_the_same_cohort_and_keep_failed_controls():
         assert all(e["changes"] == [] for e in row["examples"])
         assert all(e["clean_prediction"] == e["attacked_prediction"] for e in row["examples"])
     assert all(r["examples"] for r in report["results"])
+
+
+def _assert_catalogue_filters_and_shared_case_links():
+    script = r"""
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const vm = require('node:vm');
+const source = fs.readFileSync(process.argv[1], 'utf8');
+const report = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
+
+function element() {
+  return {
+    children: [], value: '0', innerHTML: '', textContent: '',
+    get childElementCount() { return this.children.length; },
+    append(child) { this.children.push(child); },
+    replaceChildren(fragment) {
+      this.children = fragment?.children ?? [];
+      this.innerHTML = '';
+    }
+  };
+}
+
+async function loadJourney(experiments, search = '') {
+  const elements = new Map();
+  const get = id => {
+    if (!elements.has(id)) elements.set(id, element());
+    return elements.get(id);
+  };
+  get('catalogue-filter').value = '';
+  get('case-catalogue').hidden = true;
+  const document = {
+    getElementById: get,
+    createElement: element,
+    createDocumentFragment: element,
+    querySelectorAll: () => []
+  };
+  const requests = [];
+  vm.runInNewContext(source, {
+    document, location: {search}, URLSearchParams, AbortController, setTimeout, clearTimeout,
+    fetch: async path => {
+      requests.push(path);
+      return {ok: true, json: async () => ({experiments})};
+    }
+  });
+  await new Promise(setImmediate);
+  assert.deepEqual(requests, ['/v1/attacks']);
+  assert.equal(get('case-catalogue').hidden, false);
+  return get;
+}
+
+(async () => {
+  const get = await loadJourney([report]);
+  const filter = get('catalogue-filter');
+  const links = () => get('catalogue-cases').children.map(item => item.children[0]);
+  const count = expected => {
+    assert.equal(links().length, expected);
+    assert.equal(get('catalogue-count').textContent, expected + ' matching recorded cases');
+  };
+  count(report.results.reduce((sum, row) => sum + row.examples.length, 0));
+
+  filter.value = '  pGd  ';
+  filter.oninput();
+  count(report.results.filter(row => row.attack === 'PGD')
+    .reduce((sum, row) => sum + row.examples.length, 0));
+  assert.ok(links().every(link => link.textContent.startsWith('White-box · PGD')));
+
+  filter.value = 'no matching case';
+  filter.oninput();
+  count(0);
+
+  filter.value = '7568';
+  filter.oninput();
+  const link = links().find(link =>
+    link.textContent === 'White-box · FGSM · ε 0.05 · Preexisting error · row 7568');
+  assert.ok(link, 'the requested row and configuration must be listed');
+  const url = new URL(link.href, 'https://example.test/dashboard/');
+  assert.equal(url.hash, '#journey-content');
+
+  const newerReport = {...report, generated_at: '2026-11-15T00:00:00+00:00'};
+  const reorderedReport = {...report, results: [...report.results].reverse().map(row => ({
+    ...row, parameters: Object.fromEntries(Object.entries(row.parameters).reverse())
+  }))};
+  const reopened = await loadJourney([newerReport, reorderedReport], url.search);
+  const story = reopened('journey-content').innerHTML;
+  assert.ok(story.includes(report.generated_at));
+  assert.match(story, /row 7568<\/span>/);
+  assert.match(story, /FGSM · ε 0\.05<\/p>/);
+  assert.match(story, /<h3>Preexisting error<\/h3>/);
+
+  const stale = await loadJourney([newerReport], url.search);
+  assert.match(stale('journey-state').textContent, /The linked case is unavailable/);
+  assert.equal(stale('journey-content').innerHTML, '');
+  assert.ok(stale('catalogue-cases').childElementCount > 0);
+})().catch(error => { console.error(error); process.exitCode = 1; });
+"""
+    result = subprocess.run(
+        [
+            shutil.which("node"),
+            "-e",
+            script,
+            str(ROOT / "dashboard/web/journey.js"),
+            str(ROOT / "docs/results/attack_reference.json"),
+        ],
+        capture_output=True,
+        text=True,
+        timeout=30,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr
 
 
 @pytest.mark.skipif(shutil.which("node") is None, reason="Optional Node unavailable")
