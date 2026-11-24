@@ -185,6 +185,10 @@ Trivy scan (`make docker-scan`). The local equivalents are `make check`,
 `make coverage`, `make security`, `make docker-build`, and `make docker-scan`.
 Coverage is reported as a diagnostic; there is no arbitrary global threshold.
 
+The security job installs the pinned tools in `requirements-security.txt`.
+`make security` still audits `requirements-dev.txt` and its included
+requirements, then runs Bandit over the application and scripts.
+
 CI runs on every pull request and on pushes to `main`. Feature branches need an
 open PR for hosted checks; their pushes do not launch a second, duplicate run.
 New updates cancel older runs for the same PR/ref. Integration pushes to `main`

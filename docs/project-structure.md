@@ -119,6 +119,7 @@ uses only the standard library so it can run before dependencies are installed.
 | `pyproject.toml` | Ruff lint/format, pytest discovery and line/branch coverage; no separate type checker |
 | `requirements.txt` | Pinned non-torch runtime requirements; not a transitive lockfile |
 | `requirements-dev.txt` | Runtime plus tests, formatting, hooks and security tooling |
+| `requirements-security.txt` | Pinned audit tools included by the dev requirements and installed separately by CI |
 | `requirements-torch.txt` | CPU-only wheels with the PyTorch index scoped to this file |
 | `requirements-cleverhans.txt` | Optional isolated legacy cross-check; not default setup |
 | `requirements-cleverhans-torch.txt` | Optional Sprint 5 `--no-deps --target` torch-only overlay; no TensorFlow or replacement torch |
