@@ -64,7 +64,8 @@ Allowlisted IDs are defined in
 
 `/v1/datasets/{name}` returns `schema_version: 1`, `dataset`, `manifest`,
 `manifest_sha256`, `eda`, `eda_generated_at`, `local_verification` and an
-`availability_note`. No local arrays are loaded or checked.
+`availability_note`. The digest is computed from the same manifest bytes used for
+the response. No local arrays are loaded or checked.
 
 `/v1/runs` returns `schema_version: 1`, `runs` (list), `unavailable_batches`
 (integer) and `truncated` (boolean). It reads local `docs/results/baselines/*.json`

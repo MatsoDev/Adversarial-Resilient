@@ -125,7 +125,17 @@ def test_ci_actions_are_sha_pinned_and_security_job_runs():
     assert "make security" in text
     assert "make docker-scan" in text
     workflow = yaml.safe_load(text)
-    assert "security" in workflow["jobs"]
+    steps = workflow["jobs"]["security"]["steps"]
+    setup = next(step for step in steps if step.get("uses", "").startswith("actions/setup-python@"))
+    assert setup["with"]["cache-dependency-path"] == "requirements-security.txt"
+    install = next(step["run"] for step in steps if step.get("name") == "Install security tooling")
+    assert "python -m pip install -r requirements-security.txt" in install.splitlines()
+    assert "requirements-dev.txt" not in install
+
+    dev = (ROOT / "requirements-dev.txt").read_text(encoding="utf-8")
+    assert "-r requirements-security.txt" in dev.splitlines()
+    makefile = (ROOT / "Makefile").read_text(encoding="utf-8")
+    assert "pip_audit -r requirements-dev.txt" in makefile
 
 
 def test_ci_runs_the_coverage_target_and_pytest_cov_is_pinned():

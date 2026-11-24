@@ -151,6 +151,10 @@ class ArtifactStore:
         return content
 
     def json(self, relative: str) -> dict:
+        data, _ = self._read_json(relative)
+        return data
+
+    def _read_json(self, relative: str) -> tuple[dict, bytes]:
         try:
 
             def reject_constant(value):
@@ -162,12 +166,11 @@ class ArtifactStore:
                     raise ValueError("Nonfinite JSON value")
                 return number
 
-            data = json.loads(
-                self.read(relative), parse_constant=reject_constant, parse_float=finite_float
-            )
+            content = self.read(relative)
+            data = json.loads(content, parse_constant=reject_constant, parse_float=finite_float)
             if not isinstance(data, dict):
                 raise ValueError("Expected JSON object")
-            return data
+            return data, content
         except (ValueError, UnicodeError, RecursionError) as error:
             raise ArtifactUnavailable("Artifact JSON is unavailable or malformed") from error
 
@@ -175,7 +178,7 @@ class ArtifactStore:
         if name not in DATASETS:
             raise KeyError(name)
         manifest_file = f"data/manifests/{name}.json"
-        manifest = self.json(manifest_file)
+        manifest, manifest_bytes = self._read_json(manifest_file)
         eda = self.json("results/data_eda.json")
         try:
             if manifest["dataset"] != name or not isinstance(manifest["subset"], bool):
@@ -191,7 +194,7 @@ class ArtifactStore:
             "schema_version": 1,
             "dataset": name,
             "manifest": manifest,
-            "manifest_sha256": hashlib.sha256(self.read(manifest_file)).hexdigest(),
+            "manifest_sha256": hashlib.sha256(manifest_bytes).hexdigest(),
             "eda": summary,
             "eda_generated_at": eda.get("generated_at"),
             "local_verification": "not_checked",

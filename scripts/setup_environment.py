@@ -33,7 +33,12 @@ def main(argv=None) -> int:
             )
     # Read each direct pin and verify metadata without importing native libraries.
     pins = {}
-    for filename in ("requirements.txt", "requirements-dev.txt", "requirements-torch.txt"):
+    for filename in (
+        "requirements.txt",
+        "requirements-dev.txt",
+        "requirements-security.txt",
+        "requirements-torch.txt",
+    ):
         for line in (ROOT / filename).read_text().splitlines():
             if "==" in line and not line.lstrip().startswith("#"):
                 name, version = line.strip().split("==", 1)

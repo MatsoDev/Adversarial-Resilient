@@ -1,7 +1,33 @@
 """HTML delivery must work without weakening JSON API protections."""
 
+import os
+import subprocess
+import sys
+
 from api.main import create_app
 from fastapi.testclient import TestClient
+
+
+def test_dashboard_can_start_and_serve_without_importing_torch():
+    subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            """
+import sys
+
+from api.main import app
+from fastapi.testclient import TestClient
+
+with TestClient(app) as client:
+    assert client.get("/health").status_code == 200
+    assert client.get("/dashboard/").status_code == 200
+assert "torch" not in sys.modules
+""",
+        ],
+        env={**os.environ, "API_ALLOWED_HOSTS": "testserver"},
+        check=True,
+    )
 
 
 def test_dashboard_html_and_assets_keep_separate_csp():
