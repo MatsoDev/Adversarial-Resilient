@@ -18,9 +18,9 @@ the recorded results. The [project README](../README.md) covers first-time setup
 - [Decisions](DECISIONS.md) records technical rationale. Sprint and audit reports
   preserve dated evidence.
 
-## Dashboard and Sprint 6
+## Dashboard and research evidence
 
-- [AI journey and UI v0.6.0](ai_journey.md): guided measured cases, team version check and future sprint work.
+- [AI journey](ai_journey.md) covers the Sprint 7 preview, catalogue filters and case links.
 - [Academic bilingual presentation review](dashboard_presentation.md): design,
   localization, demonstration route and actual browser/verification limits.
 - [Light-mode dashboard review](light_dashboard_review.md): current presentation

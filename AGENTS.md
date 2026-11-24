@@ -1,12 +1,13 @@
 # AGENTS.md — repository map
 
 Adversarial-Resilient Security Models: ML malware/network detectors attacked
-with adversarial examples (FGSM/PGD/CW) and hardened with defenses. Current
-state (Sprint 4 implementation): pinned CPU environment, ART demo on MNIST,
+with adversarial examples (FGSM/PGD/CW), with defenses planned. The repo has a
+pinned CPU environment, ART demo on MNIST,
 read-only FastAPI artifact routes, classical/MLP training and recorded EMBER
 validation runs, CPU MLP/CNN tuning/calibration and gated feature prediction.
-The primary UI is now plain HTML/CSS/JS under dashboard/web, served at
-/dashboard/ by FastAPI; dashboard/app.py is legacy Streamlit reference.
+FastAPI serves the HTML/CSS/JS dashboard at `/dashboard/`. The Sprint 7 preview
+on `main` adds a recorded case catalogue and case links. `dashboard/app.py`
+remains the legacy Streamlit reference. See [team handoff](docs/team_handoff.md).
 Sprint 2 supplies cleaned/versioned datasets, loaders, EDA and manifests.
 See docs/progress.md and docs/sprint4_report.md for M1 status; implemented
 freezing/prediction does not establish a passing full-data baseline. Sprint 5
@@ -14,9 +15,10 @@ adds offline ART/CleverHans adapters, a reviewed scalar-policy projector and a
 read-only HTML attack explorer with 21 measured exploratory EMBER configurations.
 Frozen-benchmark acceptance remains pending M1 and SS review; see docs/sprint5.md.
 Sprint 6 adds offline surrogate transfer evaluation and read-only bilingual
-threat/realism views. Real transfer measurements await colleague-provided inputs
-and authorization; no laptop training/downloads. See docs/sprint6.md and
-docs/sprint6_report.md. Proposed mappings are not technical Security approval.
+threat/realism views. Real transfer measurements await inputs and authorization.
+The owner-authorized baseline follow-up remained below the freeze gate.
+Proposed mappings still await technical Security review.
+See the [Sprint 6 report](docs/sprint6_report.md).
 Candidate exploration is explicit, operating-validation only, and cannot enable
 prediction. Defenses remain later-sprint work.
 

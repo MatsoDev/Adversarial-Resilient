@@ -151,9 +151,8 @@ python -m bandit -q -r src scripts api dashboard -ll
 
 Runtime depends on the machine. Fast tests use synthetic fixtures. Three
 real-data checks skip unless `RUN_REAL_DATA_TESTS=1`; three optional CleverHans
-cases skip without its torch backend. Four Node-backed component cases skip
-when Node is absent. The 2026-11-17 Linux baseline had 468 passing cases and six
-skips, with Node available and neither optional dataset checks nor CleverHans enabled.
+cases skip without its torch backend. Node-dependent component tests skip
+when Node.js is absent. See the [testing guide](testing.md) for skip reasons.
 Tests write only to pytest temporary directories, never to committed
 `docs/results/`, `docs/figures/`, or `docs/data/` artifacts. Test layout,
 single-test commands, and the optional real-data checks are documented in
@@ -254,8 +253,10 @@ python -m uvicorn api.main:app --reload --port 8000 --no-proxy-headers
 
 Open http://127.0.0.1:8000/health — expect `{"status": "ok"}`.
 
-Open <http://localhost:8000/dashboard/>. Alternatively, `make dashboard` starts
-the same application on port 8501; open <http://localhost:8501/dashboard/>.
+Open <http://localhost:8000/dashboard/> and look for
+**v0.7.0-preview · Sprint 07** and **Recorded case catalogue** on Research overview.
+Alternatively, run `make dashboard` to serve the same app at
+<http://localhost:8501/dashboard/>. See the [journey guide](ai_journey.md).
 `dashboard/app.py` is a legacy Streamlit reference, not the primary entry point.
 Its separate API/client workflow is documented in [the dashboard README](../dashboard/README.md).
 

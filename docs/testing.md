@@ -28,9 +28,9 @@ The default suite does not download MNIST or read the raw EMBER/CICIDS
 datasets. Three optional real-data checks are skipped unless
 `RUN_REAL_DATA_TESTS=1` is set (see below).
 Three CleverHans cross-check cases also skip without its optional torch backend.
-Four Node-backed cases (prediction, explorer and two journey cases) skip without
-Node; platform-dependent filesystem cases can skip when unsupported. Use `-rs`
-to see the actual reason rather than comparing a fixed skip count.
+Nine component tests skip without Node.js. They cover prediction, the attack
+explorer, the journey, presentation copy and transfer rendering. Filesystem
+checks can also skip on unsupported platforms. Use `-rs` to see skip reasons.
 
 Success means no failures and no unexpected skips. The 2026-11-17 Linux baseline
 was **468 passed, 6 skipped**, with Node available, CleverHans absent and real-data
@@ -221,7 +221,7 @@ unit/integration markers. From the repository root:
 ```
 
 All groups must have no failures, with only the documented optional skips.
-For JavaScript syntax, the six current files can also be checked directly:
+Check the seven shipped JavaScript files directly:
 
 ```bash
 node --check dashboard/web/app.js
@@ -233,7 +233,7 @@ node --check dashboard/web/release.js
 node --check dashboard/web/transfer.js
 ```
 
-All six commands exited 0 without output in the documentation audit.
+Success means all seven commands exit 0 without output.
 
 The prediction integration tests load actual CPU torch checkpoints, assert known
 temperature-calibrated probabilities and labels (including equality at 0.5), and

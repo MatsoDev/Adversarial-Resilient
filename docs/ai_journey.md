@@ -1,4 +1,4 @@
-# AI journey — UI v0.6.0 · Sprint 06
+# AI journey — UI v0.7.0-preview · Sprint 07
 
 The light-mode academic dashboard first explains train → evaluate → planned defense work in
 plain language, then walks through one measured EMBER case in English or formal
@@ -10,7 +10,7 @@ not a new antivirus product. Research pages remain available with the shared lan
 
 Run the usual FastAPI command from [team handoff](team_handoff.md), then open
 <http://localhost:8000/dashboard/>. Every page displays
-**v0.6.0 · Sprint 06**, sourced from one `release.js` constant.
+**v0.7.0-preview · Sprint 07**, sourced from one `release.js` constant.
 Use the header’s **English / العربية** buttons. English is the default; the choice
 is saved in browser local storage and applies across pages, with LTR/RTL layout.
 If storage is blocked, switching still works for the open page. `locale.js`
@@ -22,9 +22,8 @@ formal Arabic glossary and desktop/mobile-width verification. The earlier
 [presentation review](dashboard_presentation.md) and browser results below are
 historical.
 
-This identifies the UI, not the model or an approved frozen benchmark. The
-current source branch is `sprint6/transfer-threat-context`; the team updates from main
-using the handoff commands and verifies the visible release. No new dependencies.
+The label identifies the dashboard release. Use the handoff commands to
+update `main` and the [progress tracker](progress.md) to check model acceptance.
 
 - Landing page: project introduction and a three-step interactive recorded
   walkthrough (original sample → change → result), with next/back/restart.
@@ -37,8 +36,21 @@ using the handoff commands and verifies the visible release. No new dependencies
   feature prediction. Existing prediction protection is unchanged.
 
 Hard-refresh after switching versions. A teammate should verify the visible
-release on all four pages and check the branch/commit as well. Pulling code
-does not install dependencies: use the documented environment bootstrap.
+release on all four pages and check the branch and commit. Use the handoff
+bootstrap to synchronize dependencies after pulling.
+
+## Replay a case from the catalogue
+
+1. On Research overview, choose an **Experiment** under **Choose a different
+   experiment, attack or case**. With only the committed reference available,
+   the catalogue contains 57 cases across 21 configurations.
+2. Expand **Recorded case catalogue** and filter by method, outcome or row number.
+   For example, enter `PGD` and check that the matching count and entries update.
+   The filter searches the English case labels case-insensitively.
+3. Open a match to replay its three-step walkthrough. Copy the URL to share the
+   same case. Reopening it selects the same case when the report is still
+   available in `/v1/attacks`. If other cases are available but that report
+   or case is missing, the page displays **The linked case is unavailable**.
 
 ## Measured cases and interpretation
 
@@ -83,8 +95,10 @@ metrics for all 21 configurations and adding 57 measured case summaries.
 All 21 CleverHans cross-checks completed. Fresh checkouts can play back the
 recorded journey without datasets, model weights or CleverHans.
 
-The full candidate validation remains **92.1778%**, below the 93% freeze gate;
-the 128-row cohort has 122 initially correct rows. Positive-budget FGSM/PGD
+The candidate used for these cases scored **92.1778%** on full validation.
+A later baseline run reached **92.5778%**, short of the 93% freeze gate.
+See the [training follow-up](sprint6_report.md#baseline-training-follow-up--2026-11-21).
+The recorded 128-row cohort has 122 initially correct rows. Positive-budget FGSM/PGD
 have one successful error induction out of those 122. CW has zero after
 projection. These limited size-scalar probes do not establish general model
 robustness, SS-approved feasibility, valid PE edits or completed M1.
@@ -95,9 +109,11 @@ See [the full project plan](project_plan.md). Sprint 6 implemented explicit
 realism and transfer labels, while measurements and SS review remain pending
 ([report](sprint6_report.md)). Transfer cases, when recorded, display source and
 target decisions separately and use the target outcome for the story. Current
-recorded cases remain white-box, feature-space only. Sprint 7 versions case references/history/export; Sprint 8
-rehearses Phase 1. Sprints 9–12 add actual defense results and adaptive
-re-attacks; until then the defense stage is visibly planned, without scores.
+recorded cases remain white-box, feature-space only. The Sprint 7 preview
+on `main` includes case references. The dataset package, history and export
+remain outside that preview. Sprint 8 covers the Phase 1 rehearsal. Sprints
+9–12 add defense results and adaptive re-attacks. Until then, the dashboard
+shows the defense stage as planned.
 Sprints 13–16 finish integration, regression, reporting and handover. The
 16-sprint schedule and research gates are unchanged. The complete versioned
 HTML export is shared in [plans/](plans/README.md); the original local Plan folder

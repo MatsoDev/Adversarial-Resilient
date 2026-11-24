@@ -4,7 +4,16 @@ Living status of the project against [`project_plan.md`](project_plan.md).
 Update this file as work lands (at least at each sprint boundary); keep it
 short. Evidence of record stays in the sprint reports, PRs, and MLflow runs.
 
-**Last updated:** 2026-11-21 · **Current sprint:** Sprint 7 started locally with a recorded case catalogue. Sprint 6 real transfer measurements, M1 and technical Security review remain pending. See the [Sprint 6 training follow-up](sprint6_report.md#baseline-training-follow-up--2026-11-21).
+**Last updated:** 2026-11-24 · **Current sprint on `main`:** Sprint 7 dashboard preview.
+Sprint 6 real transfer measurements, M1 and technical Security review remain pending.
+See the [Sprint 6 training follow-up](sprint6_report.md#baseline-training-follow-up--2026-11-21).
+
+## Sprint 7 dashboard preview — v0.7.0-preview
+
+- Research overview lets readers filter cases in the selected experiment and
+  reopen a specific recording by URL. See the [team handoff](team_handoff.md).
+- Dataset packaging, Phase 1 plots, feature uploads, persistent history and CSV
+  export remain pending on `main`.
 
 ## Sprint 6 implementation — v0.6.0
 
@@ -71,7 +80,7 @@ short. Evidence of record stays in the sprint reports, PRs, and MLflow runs.
 | S4     | 7–8    | Tune and freeze the baseline (M1)       | Full CPU/GPU measurements complete; 93% freeze gate not met | [`sprint4_report.md`](sprint4_report.md), [`sprint4.md`](sprint4.md) |
 | S5     | 9–10   | Attack implementation (FGSM/PGD/CW)     | Merged in PR #19: implementation + 21 real exploratory configurations; frozen benchmark/SS acceptance pending | [`sprint5_report.md`](sprint5_report.md), [`sprint5.md`](sprint5.md) |
 | S6     | 11–12  | Realistic attacks + black-box           | Transfer/API/bilingual UI implemented; real measurements and SS/M1 acceptance blocked | [Protocol](sprint6.md), [report](sprint6_report.md), [mappings](sprint6_mappings.md) |
-| S7     | 13–14  | Adversarial dataset + analysis          | Started locally: recorded case catalogue and stable links | `sprint7/dataset-analysis` |
+| S7     | 13–14  | Adversarial dataset + analysis          | Preview on `main`: recorded case catalogue and case links | [Team handoff](team_handoff.md#sprint-7-dashboard-handoff) |
 | S8     | 15–16  | Phase 1 wrap-up and defense planning (M2) | Not started | — |
 | S9     | S2 1–2 | Adversarial training                    | Not started | — |
 | S10    | S2 3–4 | Ensemble + distillation (M3)            | Not started | — |

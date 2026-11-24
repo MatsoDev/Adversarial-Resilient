@@ -4,21 +4,23 @@
 
 Pull `main` and start the API using the commands below. Open
 <http://localhost:8000/dashboard/> and confirm **v0.7.0-preview · Sprint 07**.
-On Research overview, expand **Recorded case catalogue**, filter by method,
-outcome or row number, and open a case link to replay that exact result.
+On Research overview, expand **Recorded case catalogue**, enter `PGD`,
+and open a matching case. The preview opens that case at the start of its
+walkthrough. The [journey guide](ai_journey.md#replay-a-case-from-the-catalogue)
+explains experiment selection and shared links.
 
 The catalogue uses recorded reports and needs no dataset or model downloads.
 Dataset packaging, Phase 1 plots, feature uploads, persistent history and CSV
-export are pending. The latest baseline reached **92.5778%** validation accuracy,
+export remain pending on `main`. The latest baseline reached **92.5778%** validation accuracy,
 below the 93% threshold for opening the official test. Live prediction remains
 gated. See the [progress tracker](progress.md) for current status.
 
 ## Sprint 6 dashboard release — v0.6.0 (historical)
 
-Sprint 6 displayed **v0.6.0 · Sprint 06** on all four pages. That release retained the
-bilingual recorded walkthrough and adds threat/transfer/realism views. No new dependencies.
-Detailed setup, measured-case reproduction and limitations: [AI journey](ai_journey.md).
-The source branch is `sprint6/transfer-threat-context`; main is the team's shared
+Sprint 6 displayed **v0.6.0 · Sprint 06** on all four pages and added threat,
+transfer and realism views to the bilingual walkthrough. The
+[journey guide](ai_journey.md) preserves the recorded-case evidence.
+The source branch was `sprint6/transfer-threat-context`; main is the team's shared
 integration branch. Dataset/model downloads are not needed for recorded playback.
 Real transfer results are pending; existing white-box results are not black-box
 evidence. The owner-authorized local baseline follow-up reached **92.5778%**
@@ -69,12 +71,13 @@ git pull --ff-only origin main
 python scripts/setup_environment.py
 ```
 
-Use Python **3.11 or 3.12** (`python3` on Linux/macOS if needed). The setup
-command creates/reuses `.venv`, installs/synchronizes all runtime, developer
-and CPU torch pins, verifies exact versions and runs `pip check`. Already
-satisfied versions are reused. It may need internet for missing/changed
-packages. Git pull updates source files; it does not execute installers.
-No Git hooks or automatic downloads are installed by this command.
+Use Python **3.11 or 3.12**. On Linux, select `python3.11` or `python3.12` if
+`python` points to a different version. See the
+[platform prerequisites](development.md#prerequisites) for native macOS limits.
+The setup command creates or reuses `.venv`, verifies exact dependency pins,
+runs `pip check`, and reports `Ready:` on success. Pip may download missing
+or changed packages. Setup skips Git hooks and leaves datasets and models alone.
+`git pull` only updates source files.
 
 Handoff verification on 2026-11-06: full suite **275 passed, 3 opt-in skips**,
 **89% total line/branch coverage**, lint/format and Bandit passed. Running
@@ -95,7 +98,7 @@ Windows (no activation required):
 .\.venv\Scripts\python.exe -m uvicorn api.main:app --host 127.0.0.1 --port 8000 --no-proxy-headers
 ```
 
-Linux/macOS:
+Linux:
 
 ```bash
 .venv/bin/python -m uvicorn api.main:app --host 127.0.0.1 --port 8000 --no-proxy-headers

@@ -1,8 +1,9 @@
 # Documentation audit — 2026-11-11
 
-For the current review, see [the 2026-11-17 follow-up](#follow-up-audit--2026-11-17),
-including the full inventory and approved first-pass scope. The earlier report
-below remains dated evidence, not a claim that its checks ran again.
+The [2026-11-24 follow-up](#follow-up-audit--2026-11-24) covers the Sprint 7
+preview. The [2026-11-17 follow-up](#follow-up-audit--2026-11-17) contains the
+full baseline inventory and approved first-pass scope. Each report records
+the checks run on its date.
 
 **Follow-up clarification:** code-labelled links were already checked by the
 original file-link test; this report initially overstated that limitation.
@@ -534,3 +535,81 @@ every test or obvious wrapper.
 | `tests/test_sprint3_real.py` | 1 | — |
 | `tests/test_sprint4.py` | 1 | 33,204,482,553 |
 | `tests/test_sprint4_ui.py` | 1 | — |
+
+## Follow-up audit — 2026-11-24
+
+Reviewed the documentation on `main` at `4bce2f4`. This pass prioritizes
+contributors setting up a checkout and teammates replaying existing research
+evidence. GitHub renders the Markdown and FastAPI serves the HTML directly.
+The existing link tests check Markdown paths and index discoverability. There
+is no separate documentation, frontend or Python-package build.
+
+### Inventory changes since 2026-11-17
+
+The earlier inventory lists the retained paths. The current baseline has 208
+tracked files, including 59 Markdown, five HTML, seven JavaScript, five CSS,
+12 JSON, ten PNG and 88 Python files. The Python files contain 180 docstrings
+and 115 comment tokens, including test descriptions and tool pragmas.
+
+- Markdown additions under `docs/` are `dashboard_presentation.md`,
+  `efficiency_audit.md`, `light_dashboard_review.md`, `sprint6.md`,
+  `sprint6_mappings.md`, `sprint6_report.md`, and the generated
+  `results/sprint6_comparison.md`.
+- UI additions under `dashboard/web/` are `transfer.html`, `transfer.js`
+  and `transfer.css`. The HTML and JavaScript contain labels and explanations
+  of the transfer and realism views.
+- Python additions are `scripts/summarize_attacks.py`,
+  `src/attacks/transfer.py`, `src/evaluation/threat_context.py`,
+  `src/evaluation/transfer_results.py`, and
+  `tests/test_{attack_constraints,dashboard_presentation,run_attacks_cli,transfer,transfer_ui}.py`.
+- The earlier inventory still covers the license, templates, config files,
+  tracked figures, JSON and placeholder directories. The original checkout
+  also contains a local untracked design brief under `docs/`.
+
+### Findings and prioritized fixes
+
+Line references in the table refer to the reviewed baseline.
+
+| Priority | Finding | Resolution |
+|---|---|---|
+| Incorrect | `README.md:26`, `dashboard/README.md:14`, and `docs/ai_journey.md:13` show the Sprint 6 label. `dashboard/web/release.js:4` serves the Sprint 7 preview. | Update the startup criteria and identify all four dashboard pages. |
+| Incorrect | `docs/progress.md:7,76` calls the catalogue local, although the preview is on `main`. `README.md:50` and `AGENTS.md:16–19` omit the later local baseline run. | Record what is available on `main` and link the dated training evidence. Keep the M1 and transfer blockers explicit. |
+| Missing | `docs/ai_journey.md:30` describes guided playback without covering the selected-experiment catalogue, its filter, or its report-dependent case links. | Document the filter and shared-link flow and add links from onboarding and handoff. |
+| Unclear | `docs/team_handoff.md:72–77` mentions macOS and says there are no automatic downloads. The bootstrap may download missing pinned dependencies and requires a supported Python version. | Link platform prerequisites and explain exactly what setup installs and verifies. |
+| Inconsistent | `docs/testing.md:31,224–235` gives outdated Node test and JavaScript file counts. | Correct the counts and put the complete dashboard component commands in the dashboard README. |
+
+The changes cover ten existing Markdown files. Dated reports, research
+artifacts, examples that require real datasets, code, configuration and tests
+retain their existing scope.
+
+### Verification and remaining work
+
+- The pre-edit local run passed Ruff and the environment pin check. Coverage
+  in the original checkout reported 629 passes, six optional skips, 90%
+  coverage and one index-discoverability failure. The test scans all local
+  Markdown files under `docs/`, including the untracked design brief. The
+  baseline link suite passed in the isolated worktree.
+- After the documentation changes, Ruff and the isolated full suite passed.
+  The suite reported 629 passes, six optional skips, and 90% combined
+  line/branch coverage. Three skips require real datasets and three require
+  CleverHans. The focused dashboard and link tests also passed.
+- Loopback uvicorn returned the health response and all four HTML pages.
+  HTTP confirmed the preview release asset, 21 configurations and 57 cases
+  in the reference report, recorded baseline comparisons, and 503 for frozen
+  prediction metadata with the token unset. This smoke test checked HTTP and
+  the recorded data. Interactive browser rendering was outside this check.
+- A minimal-DOM Node check verified 57 catalogue entries, PGD filtering,
+  exact case replay by URL and the unavailable-link message. Syntax checks
+  passed for all seven shipped scripts. Docker Compose
+  configuration passed with an isolated copy of `.env.example` as `.env`.
+  The Docker image was available locally. Fresh setup, a new image build/scan,
+  live Compose services and real-data experiments were outside local verification.
+- Should the local design brief become a shared document? If so, review it
+  before linking it in the index. The failure is reported at
+  `tests/test_docs_links.py:122`.
+- The dataset guide and EMBER data card still use the ambiguous size figure
+  at `docs/data/README.md:134` and `docs/data_cards/ember2018.md:16,54`.
+  Reconcile both with `source.files[].size_bytes` in the committed manifest.
+- The API reference records manually enforced authentication and partial
+  response schemas at `api/README.md:43–46`. Improving those declarations
+  requires a separate code change.

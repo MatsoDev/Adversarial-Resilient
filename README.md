@@ -23,10 +23,10 @@ Works today:
 - Test suite (`pytest`) and lint/format checks (`ruff`).
 - FastAPI service with liveness, read-only research artifacts, and gated,
   bearer-token-protected feature prediction. See the [API reference](api/README.md).
-- HTML dashboard v0.6.0 (Sprint 06): guided measured AI journey with an
-  English / Egyptian Arabic language switch, attack comparisons and detailed
-  model/data/methodology/tooling pages; baseline comparisons use recorded
-  validation artifacts. See [the journey guide](docs/ai_journey.md).
+- HTML dashboard v0.7.0-preview (Sprint 07): a guided walkthrough and searchable
+  catalogue of recorded cases, with English and Arabic display options.
+  The attack, transfer and model views show recorded research evidence.
+  See [the journey guide](docs/ai_journey.md).
   The earlier Streamlit implementation is retained as a legacy reference.
 - `Dockerfile` and `docker-compose.yml` for api, dashboard, and mlflow services
   (the image is built in CI; Compose publishes ports on localhost by default and
@@ -48,8 +48,9 @@ feature prediction. See [`docs/sprint4.md`](docs/sprint4.md) and the
 Sprint 5 adds an offline attack pipeline and [HTML results explorer](docs/sprint5.md).
 Sprint 6 adds offline surrogate transfer evaluation and a bilingual
 [threat/realism explorer](docs/sprint6.md). Real transfer measurements remain
-pending colleague-provided bundles/data and authorization; no training or
-downloads were run on this laptop. See [Sprint 6 evidence](docs/sprint6_report.md).
+pending. A later owner-authorized run reached 92.5778% validation accuracy,
+below the 93% freeze gate. The official test remains unopened.
+See the [training follow-up](docs/sprint6_report.md#baseline-training-follow-up--2026-11-21).
 The planned frozen benchmark requires M1 and technical feature-policy review.
 Explicit offline candidate exploration
 uses operating validation only and is labelled **development—not frozen**;
@@ -98,11 +99,10 @@ datasets, trained models, token, database, or `.env`. Prediction remains disable
 without both a qualifying frozen bundle and a local token; implementation is
 not evidence that M1 has passed. See [current status](docs/progress.md).
 
-Success: `/health` returns `{"status":"ok"}`, the dashboard shows recorded
-results, lint is clean and tests pass. Three real-data tests skip without
-`RUN_REAL_DATA_TESTS=1`; three CleverHans cases skip without its optional
-installation. Four JavaScript component cases skip without Node.js, which is
-test tooling, not a UI runtime dependency. See [optional checks](docs/testing.md).
+Success means `/health` returns `{"status":"ok"}`, the dashboard shows
+**v0.7.0-preview · Sprint 07**, and **Recorded case catalogue** lists measured
+cases. Lint and tests pass, with optional skips described in the
+[testing guide](docs/testing.md).
 
 The existing Linux environment, checks and HTTP responses were verified on
 2026-11-17; a fresh clone/install was not rerun. See the

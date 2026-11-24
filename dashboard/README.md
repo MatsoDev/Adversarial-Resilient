@@ -7,23 +7,24 @@ See [Sprint 5](../docs/sprint5.md) for prerequisites and commands.
 
 ## Current UI: HTML / CSS / JavaScript
 
-The primary dashboard is `dashboard/web/index.html` with `journey.js` and
-`journey.css`: a bilingual measured-case journey (English default, formal Modern Standard Arabic). `research.html` retains the
-model/data views (`app.js`) and gated prediction; `attacks.html` retains the
-attack explorer. `theme.css` supplies the shared light-mode academic palette and
-`release.js` supplies the visible v0.6.0 / Sprint 06 UI identity. See the
-[journey guide](../docs/ai_journey.md). It is served by FastAPI at **/dashboard/** and reads `/v1/*` on the
-same origin. From the repository root with the environment active:
+FastAPI serves the primary dashboard at **/dashboard/**. Research overview
+(`index.html`, `journey.js`) shows a guided replay and a searchable catalogue.
+`attacks.html` shows attack comparisons, `transfer.html` shows threat context and
+transfer evidence, and `research.html` shows models, data and gated prediction.
+All four pages use the shared English/Arabic controls, light theme and release
+label from `release.js`. The UI reads `/v1/*` on the same origin.
+From the repository root with the environment active:
 
 ```bash
 python -m uvicorn api.main:app --host 127.0.0.1 --port 8000 --no-proxy-headers
 ```
 
 Open <http://localhost:8000/dashboard/>. Success means the release label is
-**v0.6.0 · Sprint 06** and recorded cases load. The original three HTML
-routes and the stored experiment were checked over HTTP; browser interaction
-was not rerun in the documentation pass. `make dashboard` or the Compose
-dashboard service uses <http://localhost:8501/dashboard/>.
+**v0.7.0-preview · Sprint 07**. Expand **Recorded case catalogue** to find
+and replay a case from the selected experiment. See the
+[journey guide](../docs/ai_journey.md) for filter and link behavior.
+`make dashboard` or the Compose dashboard service uses
+<http://localhost:8501/dashboard/>.
 
 No frontend build or third-party CDN is needed. CSS/JavaScript are local files;
 the UI has a separate restrictive self-only CSP, with JSON API headers retained.
@@ -56,20 +57,20 @@ absolute same-origin `/v1/*` and `/predict` paths. `API_URL` does not change the
 Serve at `/dashboard/` (including the trailing slash for relative assets).
 
 ```bash
-python -m pytest tests/test_html_dashboard.py tests/test_sprint4_ui.py tests/test_attacks_ui.py tests/test_journey.py -q
+python -m pytest tests/test_html_dashboard.py tests/test_sprint4_ui.py tests/test_attacks_ui.py tests/test_journey.py tests/test_transfer_ui.py tests/test_dashboard_presentation.py -q
 node --check dashboard/web/app.js
 node --check dashboard/web/prediction.js
 node --check dashboard/web/attacks.js
 node --check dashboard/web/journey.js
 node --check dashboard/web/locale.js
 node --check dashboard/web/release.js
+node --check dashboard/web/transfer.js
 ```
 
 Success means pytest has no failures and syntax checks exit 0 without output.
-These files were checked in the documentation pass. Node.js is optional test
-tooling, not required to serve the UI. Four component cases skip without Node
-and use pure helpers/minimal DOMs, not a full browser. There is no
-frontend package manager, build pipeline or browser end-to-end runner.
+The Node.js component tests use JavaScript helpers and minimal DOMs. Node.js
+is optional for tests and the FastAPI UI can run without it. See the
+[testing guide](../docs/testing.md) for skip reasons and verification scope.
 
 Sprint 6 adds `/dashboard/transfer.html` and `transfer.js`: one-snapshot
 white-box/transfer table, attacker/source/target provenance, four distinct
