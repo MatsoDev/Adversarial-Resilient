@@ -1,5 +1,6 @@
 """Regression tests for the read-only artifact service's resource boundaries."""
 
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -9,6 +10,40 @@ from api.main import create_app
 from fastapi.testclient import TestClient
 from src.config import ROOT
 from src.evaluation.artifacts import ArtifactStore, ArtifactUnavailable
+
+
+def test_dataset_manifest_and_digest_use_one_read(tmp_path, monkeypatch):
+    name = "ember2018"
+    relative = f"data/manifests/{name}.json"
+    manifest = tmp_path / relative
+    manifest.parent.mkdir(parents=True)
+    original = {"dataset": name, "subset": False, "splits": {}}
+    original_bytes = json.dumps(original).encode()
+    manifest.write_bytes(original_bytes)
+    eda = tmp_path / "results/data_eda.json"
+    eda.parent.mkdir()
+    eda.write_text(json.dumps({"datasets": {name: {"source": {"rows": 1}}}}), encoding="utf-8")
+    store = ArtifactStore(tmp_path)
+    read = store.read
+    manifest_reads = 0
+
+    def read_and_replace(path):
+        nonlocal manifest_reads
+        content = read(path)
+        if path == relative:
+            manifest_reads += 1
+            replacement = manifest.with_suffix(".tmp")
+            replacement.write_text(json.dumps({**original, "subset": True}), encoding="utf-8")
+            replacement.replace(manifest)
+        return content
+
+    monkeypatch.setattr(store, "read", read_and_replace)
+    response = TestClient(create_app(store)).get(f"/v1/datasets/{name}")
+
+    assert response.status_code == 200
+    assert response.json()["manifest"] == original
+    assert response.json()["manifest_sha256"] == hashlib.sha256(original_bytes).hexdigest()
+    assert manifest_reads == 1
 
 
 @pytest.mark.parametrize("value", ["1e999", "-1e999", "NaN", "Infinity"])
