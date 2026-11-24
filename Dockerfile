@@ -29,7 +29,8 @@ RUN python -m pip install --upgrade pip==26.2.2 \
     && python -m pip check \
     && python -m pip uninstall -y pip
 
-RUN useradd --create-home --shell /usr/sbin/nologin appuser
+RUN useradd --create-home --shell /usr/sbin/nologin appuser \
+    && install -d -o appuser -g appuser /app/data/external
 
 COPY --chown=appuser:appuser src/ src/
 COPY --chown=appuser:appuser api/ api/

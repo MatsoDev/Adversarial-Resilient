@@ -23,7 +23,7 @@ Works today:
 - Test suite (`pytest`) and lint/format checks (`ruff`).
 - FastAPI service with liveness, read-only research artifacts, and gated,
   bearer-token-protected feature prediction. See the [API reference](api/README.md).
-- HTML dashboard v0.7.0-preview (Sprint 07): a guided walkthrough and searchable
+- HTML dashboard v0.8.0 (Sprint 08): a guided walkthrough and searchable
   catalogue of recorded cases, with English and Arabic display options.
   The attack, transfer and model views show recorded research evidence.
   See [the journey guide](docs/ai_journey.md).
@@ -100,7 +100,7 @@ without both a qualifying frozen bundle and a local token; implementation is
 not evidence that M1 has passed. See [current status](docs/progress.md).
 
 Success means `/health` returns `{"status":"ok"}`, the dashboard shows
-**v0.7.0-preview · Sprint 07**, and **Recorded case catalogue** lists measured
+**v0.8.0 · Sprint 08**, and **Recorded case catalogue** lists measured
 cases. Lint and tests pass, with optional skips described in the
 [testing guide](docs/testing.md).
 

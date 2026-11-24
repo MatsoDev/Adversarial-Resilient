@@ -23,6 +23,34 @@
       row.evidence_mode ?? 'white-box', parameters, example.split_row_index
     ]);
   }
+  function phaseOneSnapshot(experiments) {
+    return experiments.find(report =>
+      report.compatibility_id === 'a1fb1499fc5b3f2f8a75763436c6320ddec725b811924ef1390c340ca36627a1' &&
+      report.generated_at === '2026-11-14T16:52:51.359715+00:00');
+  }
+  function phaseOneRows(report) {
+    const rows = [['run', 'snapshot', 'dataset', 'split', 'seed', 'cohort_sha256',
+      'model_sha256', 'policy_sha256', 'method', 'norm', 'parameters', 'samples',
+      'clean_correct', 'clean_accuracy', 'attacked_correct', 'attacked_accuracy',
+      'successful_attacks', 'asr_denominator', 'attack_success_rate', 'cross_check']];
+    const id = report.identity;
+    for (const row of report.results) {
+      const m = row.metrics;
+      rows.push([report.compatibility_id, report.generated_at, id.dataset, id.split,
+        id.seed, id.indices_sha256, id.model_sha256, id.constraint_sha256,
+        row.attack, row.norm, JSON.stringify(row.parameters), m.samples, m.clean_correct,
+        m.clean_accuracy, m.attacked_correct, m.attacked_accuracy, m.successful_attacks,
+        m.asr_denominator, m.attack_success_rate ?? '', row.cross_check.status]);
+    }
+    return rows;
+  }
+  function catalogueEntries(report, query) {
+    return cases(report).map(({row, example}) => {
+      const mode = row.evidence_mode === 'transfer' ? 'Black-box transfer' : 'White-box';
+      const title = `${mode} · ${configLabel(row)} · ${row.norm} · seed ${report.identity.seed} · ${outcomes[example.outcome]} · row ${example.split_row_index}`;
+      return {row, example, mode, title};
+    }).filter(({title}) => title.toLowerCase().includes(query));
+  }
   function explain(example) {
     if (example.outcome === 'preexisting_error') return 'The model was already wrong. This case is not evidence of a successful attack and is excluded from the ASR denominator.';
     if (example.outcome === 'remained_correct') return 'The model stayed correct after this attempt. That is one resisted case, not a guarantee against every attack.';
@@ -52,19 +80,46 @@
     <section class="panel"><details><summary>Case provenance and comparison limits</summary><p dir="ltr">${esc(report.generated_at)} · ART ${esc(row.library_version)} · CleverHans: ${esc(row.cross_check.status)}</p><p>Constraint review: ${esc(report.constraint.security_review || report.constraint.status)}. Problem-space validity: not established.</p><p>Same recorded model, cohort and policy. The row is a dataset split reference, not an uploaded filename. No executables or complete feature arrays reach the browser.</p><dl class="provenance" dir="ltr"><dt>Model SHA-256</dt><dd data-evidence>${esc(report.identity.model_sha256)}</dd><dt>Cohort SHA-256</dt><dd data-evidence>${esc(report.identity.indices_sha256)}</dd><dt>Policy SHA-256</dt><dd data-evidence>${esc(report.identity.constraint_sha256)}</dd></dl><p>Larger evaluations and an accepted baseline are needed before generalizing. Aggregate-only historical reports remain available in Attack comparison.</p></details></section>`;
 
   }
-  if (typeof module !== 'undefined') module.exports = {cases, explain, renderCase, journeyRows, caseReference};
+  if (typeof module !== 'undefined') module.exports = {cases, explain, renderCase, journeyRows, caseReference, phaseOneSnapshot, phaseOneRows};
   if (typeof document === 'undefined') return;
   const get = id => document.getElementById(id);
   let reports = [];
+  const phaseState = get('phase1-state');
+  function showPhaseOne(experiments) {
+    if (!phaseState) return;
+    get('phase1-cases').replaceChildren();
+    get('phase1-export').disabled = true;
+    const report = phaseOneSnapshot(experiments);
+    if (!report) {
+      phaseState.textContent = 'The recorded Phase 1 snapshot is unavailable.';
+      return;
+    }
+    phaseState.textContent = 'Fixed demonstration cohort: 128 operating-validation rows (seed 42).';
+    const configuration = report.results.find(row => row.attack === 'FGSM' && row.parameters.epsilon === 0.05);
+    for (const [index, title] of [[50020, 'Replay: decision changed'], [1614, 'Replay: decision stayed correct']]) {
+      const example = configuration?.examples?.find(record => record.split_row_index === index);
+      if (!example) continue;
+      const item = document.createElement('li');
+      const link = document.createElement('a');
+      link.textContent = title;
+      const params = new URLSearchParams({case: caseReference(report, configuration, example)});
+      link.href = `?${params}#journey-content`;
+      item.append(link);
+      get('phase1-cases').append(item);
+    }
+    get('phase1-export').disabled = false;
+    get('phase1-export').onclick = () => downloadRows(phaseOneRows(report), 'phase1-cohort.csv');
+  }
   const requestedCase = new URLSearchParams(location.search).get('case');
-  function renderCatalogue() {
+  function catalogueSelection() {
     const report = reports[Number(get('journey-experiment').value)];
     const query = get('catalogue-filter').value.trim().toLowerCase();
+    return {report, entries: catalogueEntries(report, query)};
+  }
+  function renderCatalogue() {
+    const {report, entries} = catalogueSelection();
     const items = document.createDocumentFragment();
-    for (const {row, example} of cases(report)) {
-      const mode = row.evidence_mode === 'transfer' ? 'Black-box transfer' : 'White-box';
-      const title = `${mode} · ${configLabel(row)} · ${outcomes[example.outcome]} · row ${example.split_row_index}`;
-      if (!title.toLowerCase().includes(query)) continue;
+    for (const {row, example, title} of entries) {
       const item = document.createElement('li');
       const link = document.createElement('a');
       const params = new URLSearchParams({case: caseReference(report, row, example)});
@@ -74,7 +129,38 @@
       items.append(item);
     }
     get('catalogue-count').textContent = `${items.childElementCount} matching recorded cases`;
+    const {dataset, split, seed, samples} = report.identity;
+    get('catalogue-provenance').textContent = `${dataset} · ${split} · seed ${seed} · ${samples} evaluated rows`;
     get('catalogue-cases').replaceChildren(items);
+    get('catalogue-export').disabled = entries.length === 0;
+  }
+  function exportCatalogue() {
+    const {report, entries} = catalogueSelection();
+    const {dataset, split, seed, manifest_sha256, model_sha256, constraint_sha256} = report.identity;
+    const rows = [['case_reference', 'dataset', 'split', 'seed', 'manifest_sha256', 'model_sha256',
+      'policy_sha256', 'row', 'method', 'norm', 'mode', 'outcome',
+      'reference_label', 'original_prediction', 'changed_prediction']];
+    for (const {row, example, mode} of entries) {
+      rows.push([caseReference(report, row, example), dataset, split, seed, manifest_sha256,
+        model_sha256, constraint_sha256, example.split_row_index,
+        row.attack, row.norm, mode, outcomes[example.outcome], example.true_label,
+        example.clean_prediction, example.attacked_prediction]);
+    }
+    downloadRows(rows, 'recorded-cases.csv');
+  }
+  function downloadRows(rows, filename) {
+    const quote = value => {
+      const text = String(value);
+      const safe = /^[\s\uFEFF]*[=+@-]|^[\r\n\t]/.test(text) ? "'" + text : text;
+      return '"' + safe.replaceAll('"', '""') + '"';
+    };
+    const csv = rows.map(row => row.map(quote).join(',')).join('\r\n') + '\r\n';
+    const url = URL.createObjectURL(new Blob([csv], {type:'text/csv;charset=utf-8'}));
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
   function selectedReport() {
     const report = reports[Number(get('journey-experiment').value)];
@@ -128,6 +214,7 @@
       const response = await fetch('/v1/attacks', {signal:controller.signal});
       if (!response.ok) throw Error('API unavailable');
       const attackResults = await response.json();
+      showPhaseOne(attackResults.experiments);
       reports = attackResults.experiments.filter(r => cases(r).length);
       if (!reports.length) { get('journey-state').textContent = 'No recorded individual cases are available. Aggregate results may be available in Attack comparison.'; return; }
       get('journey-experiment').innerHTML = reports.map((r,i) => `<option value="${i}">${esc(r.identity.dataset)} · ${r.identity.samples} rows · ${esc(r.generated_at)} · ${esc(r.compatibility_id.slice(0,8))}</option>`).join('');
@@ -148,12 +235,13 @@
       get('case-catalogue').hidden = false;
       updateAttacks(match);
       if (requestedCase && !match) get('journey-content').replaceChildren();
-    } catch (_) { get('journey-state').innerHTML = 'Could not load results. Check that the API is running, then <button id="journey-retry" type="button">Retry</button>.'; get('journey-retry').onclick = load; }
+    } catch (_) { showPhaseOne([]); get('journey-state').innerHTML = 'Could not load results. Check that the API is running, then <button id="journey-retry" type="button">Retry</button>.'; get('journey-retry').onclick = load; }
     finally { clearTimeout(timer); }
   }
   get('journey-experiment').onchange = () => updateAttacks();
   get('journey-attack').onchange = () => updateCases();
   get('journey-case').onchange = render;
   get('catalogue-filter').oninput = renderCatalogue;
+  get('catalogue-export').onclick = exportCatalogue;
   load();
 })();

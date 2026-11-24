@@ -99,7 +99,9 @@ async def _unhandled_exception(request: Request, exc: Exception) -> Response:
     return response
 
 
-def create_app(store: ArtifactStore | None = None, *, baseline_dir=None) -> FastAPI:
+def create_app(
+    store: ArtifactStore | None = None, *, baseline_dir=None, history_path=None
+) -> FastAPI:
     """Build the API app from environment settings (factory is test-friendly)."""
     docs_enabled = _env_flag("API_DOCS_ENABLED", default=True)
     app = FastAPI(
@@ -113,9 +115,12 @@ def create_app(store: ArtifactStore | None = None, *, baseline_dir=None) -> Fast
     app.add_api_route("/health", health, methods=["GET"], summary="Liveness probe")
     app.add_api_route("/", root, methods=["GET"], summary="Service message")
     app.include_router(artifact_router(store or ArtifactStore()))
-    app.include_router(
-        prediction_router() if baseline_dir is None else prediction_router(baseline_dir)
-    )
+    prediction_options = {}
+    if baseline_dir is not None:
+        prediction_options["bundle_dir"] = baseline_dir
+    if history_path is not None:
+        prediction_options["history_path"] = history_path
+    app.include_router(prediction_router(**prediction_options))
     app.mount(
         "/dashboard", StaticFiles(directory=ROOT / "dashboard" / "web", html=True), name="dashboard"
     )

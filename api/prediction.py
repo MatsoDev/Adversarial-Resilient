@@ -1,11 +1,14 @@
-"""Bounded authenticated feature inference; no uploads, file paths or training over HTTP."""
+"""Bounded authenticated feature inference and local batch history."""
 
 from __future__ import annotations
 
+import csv
 import hmac
+import io
 import json
 import logging
 import os
+import sqlite3
 import threading
 import time
 from collections import OrderedDict
@@ -13,8 +16,10 @@ from pathlib import Path
 from typing import Literal
 
 from fastapi import APIRouter, HTTPException, Request
+from fastapi.responses import Response
 from pydantic import BaseModel, ConfigDict, Field, StrictFloat, StrictInt, ValidationError
-from src.config import FROZEN_BASELINE_DIR
+from src.config import FROZEN_BASELINE_DIR, PREDICTION_HISTORY_PATH
+from src.evaluation.prediction_history import PredictionHistory
 from src.models.frozen import FrozenBaseline
 from starlette.concurrency import run_in_threadpool
 
@@ -31,11 +36,14 @@ class PredictionInput(BaseModel):
     rows: list[list[StrictFloat | StrictInt]] = Field(min_length=1, max_length=32)
 
 
-def prediction_router(bundle_dir: Path = FROZEN_BASELINE_DIR):
+def prediction_router(
+    bundle_dir: Path = FROZEN_BASELINE_DIR, *, history_path=PREDICTION_HISTORY_PATH
+):
     router = APIRouter()
     model = None
     lock = threading.Lock()
     clients = OrderedDict()
+    history = PredictionHistory(history_path)
 
     def authorize(request):
         token = os.getenv("PREDICTION_API_TOKEN", "")
@@ -94,6 +102,7 @@ def prediction_router(bundle_dir: Path = FROZEN_BASELINE_DIR):
             )
         }
 
+    @router.post("/upload")
     @router.post(
         "/predict",
         openapi_extra={
@@ -118,7 +127,7 @@ def prediction_router(bundle_dir: Path = FROZEN_BASELINE_DIR):
             raise HTTPException(422, "Invalid feature prediction request") from None
         baseline = await run_in_threadpool(get_model)
         try:
-            return await run_in_threadpool(
+            result = await run_in_threadpool(
                 baseline.predict,
                 payload.rows,
                 representation=payload.representation,
@@ -127,5 +136,54 @@ def prediction_router(bundle_dir: Path = FROZEN_BASELINE_DIR):
             )
         except (ValueError, OverflowError):
             raise HTTPException(422, "Invalid features or schema/preprocessing identity") from None
+        if request.url.path == "/upload":
+            return await run_in_threadpool(
+                history_call, history.append, result, payload.representation
+            )
+        return result
+
+    def history_call(operation, *args):
+        try:
+            return operation(*args)
+        except (OSError, sqlite3.Error, ValueError):
+            logger.exception("Prediction history unavailable")
+            raise HTTPException(503, "Prediction history unavailable") from None
+
+    @router.get("/history")
+    def list_history(request: Request):
+        authorize(request)
+        return {"batches": history_call(history.list)}
+
+    @router.get("/report")
+    def report(request: Request):
+        authorize(request)
+        output = io.StringIO(newline="")
+        writer = csv.writer(output)
+        fields = (
+            "batch_id",
+            "recorded_at",
+            "representation",
+            "model_version",
+            "preprocessing_id",
+            "feature_schema_sha256",
+            "threshold",
+        )
+        writer.writerow((*fields, "row", "label", "score", "detector_status"))
+        for batch in history_call(history.list):
+            for index, prediction in enumerate(batch["predictions"], 1):
+                writer.writerow(
+                    (
+                        *(batch[field] for field in fields),
+                        index,
+                        prediction["label"],
+                        prediction["score"],
+                        "unavailable",
+                    )
+                )
+        return Response(
+            output.getvalue(),
+            media_type="text/csv",
+            headers={"Content-Disposition": 'attachment; filename="prediction-history.csv"'},
+        )
 
     return router

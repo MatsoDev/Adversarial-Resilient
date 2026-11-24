@@ -16,7 +16,11 @@
 <p><label for="prediction-representation">Feature representation</label> <select id="prediction-representation"><option value="raw">Raw EMBER feature values</option><option value="scaled">Already signed-log1p standardized with this model's scaler</option></select></p>
 <p><label for="prediction-rows">Ordered numeric rows as JSON (1–32 rows × 2381 features)</label></p>
 <textarea id="prediction-rows" rows="6" cols="60" spellcheck="false" placeholder="[[...2381 numeric values...]]"></textarea>
+<p><label for="prediction-file">Or select a JSON file of numeric feature rows</label> <input id="prediction-file" type="file" accept=".json,application/json"></p>
+<p>A successful file submission records the batch results locally. Clear the file selection to classify pasted rows.</p>
 <p><button id="prediction-submit" type="button" disabled>Predict features</button></p>
 <pre id="prediction-result" data-ui-copy role="status">Load a verified frozen baseline first.</pre>
+<p><button id="history-load" type="button">Load batch history</button> <button id="history-export" type="button">Export history CSV</button></p>
+<pre id="history-result" data-ui-copy role="status"></pre>
 </details></section>
 <footer><span>ARSM / Models and data</span><span><span id="connection" class="status">Connecting</span> · <span id="updated">—</span> · <span data-release></span></span></footer></div></main></body></html>

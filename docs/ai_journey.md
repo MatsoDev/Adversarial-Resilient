@@ -1,4 +1,4 @@
-# AI journey — UI v0.7.0-preview · Sprint 07
+# AI journey — UI v0.8.0 · Sprint 08
 
 The light-mode academic dashboard first explains train → evaluate → planned defense work in
 plain language, then walks through one measured EMBER case in English or formal
@@ -10,7 +10,7 @@ not a new antivirus product. Research pages remain available with the shared lan
 
 Run the usual FastAPI command from [team handoff](team_handoff.md), then open
 <http://localhost:8000/dashboard/>. Every page displays
-**v0.7.0-preview · Sprint 07**, sourced from one `release.js` constant.
+**v0.8.0 · Sprint 08**, sourced from one `release.js` constant.
 Use the header’s **English / العربية** buttons. English is the default; the choice
 is saved in browser local storage and applies across pages, with LTR/RTL layout.
 If storage is blocked, switching still works for the open page. `locale.js`

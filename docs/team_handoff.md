@@ -3,15 +3,16 @@
 ## Sprint 7 dashboard handoff
 
 Pull `main` and start the API using the commands below. Open
-<http://localhost:8000/dashboard/> and confirm **v0.7.0-preview · Sprint 07**.
+<http://localhost:8000/dashboard/> and confirm **v0.8.0 · Sprint 08**.
 On Research overview, expand **Recorded case catalogue**, enter `PGD`,
 and open a matching case. The preview opens that case at the start of its
 walkthrough. The [journey guide](ai_journey.md#replay-a-case-from-the-catalogue)
 explains experiment selection and shared links.
 
 The catalogue uses recorded reports and needs no dataset or model downloads.
-Dataset packaging, Phase 1 plots, feature uploads, persistent history and CSV
-export remain pending on `main`. The latest baseline reached **92.5778%** validation accuracy,
+Export matching recorded cases as CSV from the catalogue. Models and data
+accepts ordered JSON feature rows from a file and offers authenticated batch
+history and CSV export. The latest baseline reached **92.5778%** validation accuracy,
 below the 93% threshold for opening the official test. Live prediction remains
 gated. See the [progress tracker](progress.md) for current status.
 

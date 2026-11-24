@@ -484,6 +484,42 @@ def prediction_clock(monkeypatch):
     return now
 
 
+def test_feature_upload_persists_ordered_results_across_app_restart(frozen, tmp_path, monkeypatch):
+    import csv
+    import io
+
+    root, model = frozen
+    history = tmp_path / "history.sqlite3"
+    monkeypatch.setenv("PREDICTION_API_TOKEN", "x" * 32)
+    headers = {"Authorization": "Bearer " + "x" * 32}
+    payload = {
+        "model_version": "baseline_v1",
+        "representation": "raw",
+        "preprocessing_id": model["preprocessing_sha256"],
+        "feature_schema_sha256": model["feature_schema_sha256"],
+        "rows": [[0] * 2381, [1] * 2381],
+    }
+    with TestClient(create_app(baseline_dir=root, history_path=history)) as client:
+        assert client.get("/history").status_code == 401
+        assert client.post("/upload", headers=headers, json={}).status_code == 422
+        assert client.get("/history", headers=headers).json() == {"batches": []}
+        original = client.post("/predict", headers=headers, json=payload).json()
+        response = client.post("/upload", headers=headers, json=payload)
+        assert response.status_code == 200
+        batch = response.json()
+        assert batch["predictions"] == original["predictions"]
+        assert batch["detector_status"] is None
+        assert "rows" not in batch
+    with TestClient(create_app(baseline_dir=root, history_path=history)) as client:
+        assert client.get("/history", headers=headers).json() == {"batches": [batch]}
+        report = client.get("/report", headers=headers)
+        assert report.status_code == 200
+        rows = list(csv.DictReader(io.StringIO(report.text)))
+        assert [int(row["row"]) for row in rows] == [1, 2]
+        assert [float(row["score"]) for row in rows] == [p["score"] for p in batch["predictions"]]
+        assert all(row["detector_status"] == "unavailable" for row in rows)
+
+
 def test_prediction_budget_is_shared_by_routes_and_resets_at_60_seconds(
     prediction_client, prediction_clock
 ):
