@@ -69,7 +69,7 @@ def _validate_split(split: str) -> None:
         raise ValueError(f"split must be one of {SPLITS}, got {split!r}")
 
 
-def _load_metadata(root: Path, split: str, *, dataset: str) -> pd.DataFrame | None:
+def _load_metadata(root: Path, split: str) -> pd.DataFrame | None:
     path = root / f"{split}_metadata.csv"
     if not path.is_file():
         return None
@@ -156,7 +156,7 @@ def load_ember(
     return ProcessedDataset(
         X=X,
         y=np.asarray(y),
-        metadata=_load_metadata(root, split, dataset=dataset),
+        metadata=_load_metadata(root, split),
         feature_names=list(feature_names),
         split=split,
         dataset=dataset,
@@ -219,7 +219,7 @@ def load_cicids2017(
     return ProcessedDataset(
         X=X,
         y=np.asarray(y),
-        metadata=_load_metadata(root, split, dataset=dataset),
+        metadata=_load_metadata(root, split),
         feature_names=list(feature_names),
         split=split,
         dataset=dataset,
