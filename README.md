@@ -1,226 +1,45 @@
 # Adversarial-Resilient Security Models
 
-Defensive ML research for developers and researchers building malware and
-network-intrusion detectors. The repository implements dataset preprocessing,
-baseline training, evaluation, offline feature-space attacks and a research
-dashboard. Measured exploratory EMBER validation results are available; the
-frozen-baseline benchmark still awaits M1 and reviewed policy. Defenses remain planned.
+Defensive machine learning research on malware and network-intrusion detection.
+It includes preprocessing and baseline training for the public EMBER2018 and
+CIC-IDS-2017 feature datasets. Its FastAPI dashboard replays recorded EMBER
+experiments in English and Arabic.
 
-The MNIST demo in this repo is only an environment check that proves the attack
-tooling works — it is not the project's security result.
-
-The primary UI is plain **HTML, CSS and JavaScript** served by FastAPI; no
-frontend build or Streamlit process is needed. A fresh checkout includes recorded
-comparison results, not datasets or trained models. Start with [Quick start](#quick-start),
-or follow [the team handoff](docs/team_handoff.md) to synchronize an existing checkout.
-
-## Current status
-
-Works today:
-
-- ART demo on MNIST with FGSM, PGD, and CW-L2 (`scripts/art_quickstart.py`),
-  including accuracy-vs-epsilon plots, a JSON report, and local MLflow logging.
-- Test suite (`pytest`) and lint/format checks (`ruff`).
-- FastAPI service with liveness, read-only research artifacts, and gated,
-  bearer-token-protected feature prediction. See the [API reference](api/README.md).
-- HTML dashboard v0.8.0 (Sprint 08): a guided walkthrough and searchable
-  catalogue of recorded cases, with English and Arabic display options.
-  The attack, transfer and model views show recorded research evidence.
-  See [the journey guide](docs/ai_journey.md).
-  The earlier Streamlit implementation is retained as a legacy reference.
-- `Dockerfile` and `docker-compose.yml` for api, dashboard, and mlflow services
-  (the image is built in CI; Compose publishes ports on localhost by default and
-  runs the API/dashboard with dropped capabilities).
-- Cleaned/versioned EMBER2018 v2 and CIC-IDS-2017 datasets with manifest-based
-  versioning, reusable loaders, EDA, data cards, and a reproducible
-  `scripts/preprocess.py` pipeline.
-- Security baseline: upgraded vulnerable dependencies, API host/header
-  hardening, defensive dashboard URL handling, manifest path containment,
-  loopback-only Compose defaults, and CI dependency/static checks. Evidence
-  and residual risks are in [`docs/security/SECURITY_AUDIT.md`](docs/security/SECURITY_AUDIT.md).
-
-Sprint 3 adds Logistic Regression, Random Forest, Linear SVM and PyTorch MLP
-training with reproducible validation reports and MLflow tracking. Follow
-[`docs/sprint3.md`](docs/sprint3.md) for local data setup and commands.
-Sprint 4 adds CPU MLP/CNN tuning, calibration, gated freezing and authenticated
-feature prediction. See [`docs/sprint4.md`](docs/sprint4.md) and the
-[Sprint 4 report](docs/sprint4_report.md) for measured results and M1 status.
-Sprint 5 adds an offline attack pipeline and [HTML results explorer](docs/sprint5.md).
-Sprint 6 adds offline surrogate transfer evaluation and a bilingual
-[threat/realism explorer](docs/sprint6.md). Real transfer measurements remain
-pending. A later owner-authorized run reached 92.5778% validation accuracy,
-below the 93% freeze gate. The official test remains unopened.
-See the [training follow-up](docs/sprint6_report.md#baseline-training-follow-up--2026-11-21).
-The planned frozen benchmark requires M1 and technical feature-policy review.
-Explicit offline candidate exploration
-uses operating validation only and is labelled **development—not frozen**;
-it does not enable prediction or complete M1. The explorer shows pending until
-measured reports exist. Defenses remain later-sprint work.
-Sprint-by-sprint status is tracked in
-[`docs/progress.md`](docs/progress.md); scope and schedule are in
-[`docs/project_plan.md`](docs/project_plan.md).
-
-Sprint 5 has 21 completed torch-only CleverHans cross-checks and 57 measured
-case summaries; this does not extend the historical MNIST demo evidence.
-Docker is covered differently: the image builds
-in CI on pull requests and pushes to `main`; the 2026-10 security audit rebuilt
-the image, started the full three-service stack on loopback, and health-checked
-the API, dashboard, and MLflow. Browser/MLflow artifact workflows and sustained load were not
-exercised, and the official MLflow container runs as root. See the
-[security audit](docs/security/SECURITY_AUDIT.md) and the
-[troubleshooting section](docs/development.md#troubleshooting) for details.
+[Dashboard preview](#dashboard) · [Documentation](docs/README.md) · [Project status](docs/progress.md)
 
 ## Quick start
 
-Prerequisites: Git and Python 3.11–3.12 on Linux or Windows. The Linux example
-uses GNU Make and `python3.11`; use `PY=python3.12` if that is your installed
-supported interpreter. Docker is optional. The first install needs internet;
-viewing recorded results does not download MNIST.
-
-**Native macOS setup is not supported by the current exact CPU torch pins:**
-the configured index has no matching macOS wheels. Do not replace the pins
-silently. See the [platform notes](docs/development.md#prerequisites).
+On Linux with Git, GNU Make, and Python 3.11 or 3.12, run:
 
 ```bash
 git clone https://github.com/MatsoDev/Adversarial-Resilient.git
 cd Adversarial-Resilient
-python3.11 --version  # must report Python 3.11.x
-make setup PY=python3.11  # .venv, pinned dependencies, attempts Git-hook installation
-make lint      # ruff check + format check (same as CI)
-make test      # pytest, synthetic fixtures only
-make coverage  # pytest with line/branch coverage
-make security  # dependency + static security checks
-source .venv/bin/activate  # Linux; Make uses .venv automatically, Python does not
-python -m uvicorn api.main:app --host 127.0.0.1 --port 8000 --no-proxy-headers
+make setup PY=python3.11
+make dashboard
 ```
 
-Open <http://localhost:8000/dashboard/>. Viewing the recorded results needs no
-datasets, trained models, token, database, or `.env`. Prediction remains disabled
-without both a qualifying frozen bundle and a local token; implementation is
-not evidence that M1 has passed. See [current status](docs/progress.md).
+Use `PY=python3.12` if that is your installed version. Open
+<http://localhost:8501/dashboard/> and look for **v0.8.0 · Sprint 08**.
+Recorded results are included in the checkout and require no datasets,
+model weights, or token. For Windows, Docker, and platform requirements,
+see the [development guide](docs/development.md).
 
-Success means `/health` returns `{"status":"ok"}`, the dashboard shows
-**v0.8.0 · Sprint 08**, and **Recorded case catalogue** lists measured
-cases. Lint and tests pass, with optional skips described in the
-[testing guide](docs/testing.md).
+## Dashboard
 
-The existing Linux environment, checks and HTTP responses were verified on
-2026-11-17; a fresh clone/install was not rerun. See the
-[documentation audit](docs/documentation_audit.md) for evidence and limits.
+![Research overview showing the Phase 1 demonstration and recorded case links](docs/figures/dashboard/research-overview.png)
 
-Windows and non-Make setups are documented in the
-[development guide](docs/development.md). `make setup PY=python3` is also valid
-if `python3 --version` reports 3.11 or 3.12, not a newer unsupported version.
-With the environment active, the equivalent lint/test commands without Make are:
+![Attack comparison showing cohort statistics and the recorded accuracy-versus-epsilon chart](docs/figures/dashboard/attack-comparison.png)
 
-```bash
-python -m ruff check src scripts tests api dashboard
-python -m ruff format --check src scripts tests api dashboard
-python -m pytest
-```
+Follow the [Phase 1 walkthrough](docs/sprint8_demo.md) to replay cases and export the cohort CSV.
 
-## Common commands
+## Research status
 
-| Command | What it does |
-|---|---|
-| `make demo` | Run the fast ART MNIST demo (downloads MNIST, takes a few minutes) |
-| `make data` | Full EMBER + CICIDS preprocessing (needs local raw datasets) |
-| `make data-smoke` | Deterministic 2000-row subsets into `/tmp` |
-| `make eda` | Regenerate EDA JSON, figures, and report under `docs/` |
-| `make dashboard` | Run FastAPI + HTML dashboard at http://localhost:8501/dashboard/ |
-| `make docker-build` / `make docker-up` | Build the image / start the compose stack (`cp .env.example .env` first) |
-| `make docker-scan` | Scan the built image for fixed HIGH/CRITICAL vulnerabilities |
-| `make format` | Rewrite files with `ruff format` |
-| `make coverage` | Full test suite with line/branch coverage (CI uses this) |
-| `make security` | Dependency audit (`pip-audit`) + static security scan (`bandit`) |
-| `make check` | `make lint` + `make test` |
-| `make clean` | Remove caches and `mlruns/` (committed demo/EDA artifacts stay) |
+Phase 1 results cover exploratory feature-space experiments. The latest
+baseline achieved **92.5778%** operating-validation accuracy, below the
+**93%** freeze gate. The official test remains unopened. Live prediction
+requires a verified frozen model and a token. Real transfer measurements,
+technical Security review, and defense evaluation are pending.
+See the [Phase 1 report](docs/sprint8_phase1_report.md).
 
-The API and HTML dashboard share one process; choose the uvicorn command above
-or `make dashboard`, not both. Full setup, legacy Streamlit instructions,
-demo flags, service details, and troubleshooting are in
-[`docs/development.md`](docs/development.md).
-
-## Documentation
-
-Start with the documentation index: [`docs/README.md`](docs/README.md).
-Highlights:
-
-- [`docs/development.md`](docs/development.md) — setup, verification, ART demo,
-  API/dashboard, Docker, troubleshooting.
-- [`docs/configuration.md`](docs/configuration.md) — environment variables,
-  dataset resolution, Compose ports, paths, and seeds.
-- [`docs/testing.md`](docs/testing.md) — test layout, commands, fixtures, and
-  optional real-data checks.
-- [`docs/architecture.md`](docs/architecture.md) — components, dependency
-  rules, and data flows.
-- [`docs/project-structure.md`](docs/project-structure.md) — directory
-  responsibilities and where new code belongs.
-- [`docs/repository_audit.md`](docs/repository_audit.md) — maintenance findings,
-  cleanup evidence, verification and intentionally retained files.
-- [`docs/data/README.md`](docs/data/README.md) — dataset locations,
-  preprocessing/EDA commands, and loaders.
-- [`api/README.md`](api/README.md) — HTTP endpoints, responses, and OpenAPI
-  URLs.
-- [`docs/progress.md`](docs/progress.md) — current sprint and milestone status
-  (scope baseline: [`docs/project_plan.md`](docs/project_plan.md)).
-- [`AGENTS.md`](AGENTS.md) — quick navigation map for AI coding agents.
-- [`CONTRIBUTING.md`](CONTRIBUTING.md) — branching, commit style, PR rules.
-- [`docs/DECISIONS.md`](docs/DECISIONS.md) — non-obvious technical decisions.
-- [`docs/threat_model_v0.1.md`](docs/threat_model_v0.1.md) — security scope
-  and attacker model.
-- [`docs/security/SECURITY_AUDIT.md`](docs/security/SECURITY_AUDIT.md) —
-  application security audit, fixes, verification, and remaining risks.
-
-## Project structure
-
-```text
-api/            FastAPI health/artifact routes, authenticated feature prediction
-dashboard/      web/ HTML/CSS/JS (primary), app.py + client.py (legacy Streamlit)
-data/           raw/, processed/, adversarial/, external/ runtime data (gitignored)
-docs/           documentation (index at docs/README.md), data guides, reports
-docs/data/      feature layout, data guide, generated EDA report, manifests
-docs/figures/   demo + EDA plots (generated, committed on purpose)
-docs/results/   demo + EDA JSON (generated, committed on purpose)
-models/         local baseline checkpoints and Sprint 4 bundles (gitignored)
-notebooks/      exploratory notebooks (later)
-scripts/        environment setup, demo, preprocessing, EDA, training and tuning CLIs
-src/            config.py paths/seeds, utils/, data/, models/, attacks/, defenses/, evaluation/
-tests/          seed, config, API, data (synthetic), docs links, and smoke tests
-```
-
-Full reference: [`docs/project-structure.md`](docs/project-structure.md).
-
-## Working with Git
-
-- Branch names: `feat/<topic>`, `fix/<topic>`, `docs/<topic>`, `chore/<topic>` (or
-  `sprint<N>/<topic>`).
-- Commits use Conventional Commits: `feat:`, `fix:`, `refactor:`, `docs:`, `chore:`,
-  `test:`, `ci:`.
-- Verified direct pushes and autonomous agent integration are allowed when GitHub
-  rules permit; required PRs, checks and approvals still apply. See
-  [the Git workflow](CONTRIBUTING.md#git-workflow-and-agent-authorization).
-- Never commit datasets, model weights, `.env`, or `mlruns/`. Check `git status`
-  before every commit.
-
-## Roadmap
-
-Semester 1:
-
-- Foundations: environment, ART demo on MNIST, threat model draft.
-- Data: EMBER and CIC-IDS-2017 download, EDA, preprocessing pipeline.
-- Attacks: FGSM, PGD, and CW against the real detectors.
-- Defenses: adversarial training, distillation, ensembles, sanitization,
-  detector.
-
-Semester 2:
-
-- Backend: extend the existing gated feature prediction with attack/defense endpoints.
-- Frontend: extend the research dashboard with robustness comparisons.
-- Hardening: containers, CI checks, and the final evaluation.
-
-## Safety and ethics
-
-Defensive research only. This repo works with public feature datasets and the
-MNIST demo images — no malware samples and no weaponized tooling are included
-or accepted here.
+Run `make check` before contributing. See the [contribution guide](CONTRIBUTING.md)
+and [threat model](docs/threat_model_v0.1.md) for the project workflow and scope.

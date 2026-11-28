@@ -1,207 +1,30 @@
 # Progress tracker
 
-Living status of the project against [`project_plan.md`](project_plan.md).
-Update this file as work lands (at least at each sprint boundary); keep it
-short. Evidence of record stays in the sprint reports, PRs, and MLflow runs.
-
 **Last updated:** 2026-11-24 · **Current sprint:** Sprint 8 Phase 1 review preparation.
-See the [report](sprint8_phase1_report.md) and [demo](sprint8_demo.md). M1,
-real transfer measurements and technical Security review remain pending. See the
-[Sprint 6 training follow-up](sprint6_report.md#baseline-training-follow-up--2026-11-21).
 
-## Sprint 7 dashboard capabilities
+| Milestone | Status |
+|---|---|
+| M0 · Foundations | Complete. [Sprint 1 report](sprint1_report.md) |
+| M1 · Frozen baseline | Blocked. The latest candidate reached **92.5778%** operating-validation accuracy, below the **93%** freeze gate. The official test remains unopened. [Training follow-up](sprint6_report.md#baseline-training-follow-up--2026-11-21) |
+| M2 · Phase 1 report and adversarial dataset | In progress. The report, demo, case catalogue, CSV, and recorded cohort analysis are available. Independent reproduction, technical Security review, real transfer measurements, and the full versioned adversarial dataset remain pending. [Phase 1 acceptance items](sprint8_phase1_report.md#demo-and-review) |
+| M3–M7 · Phase 2 | Planned. [Milestone schedule](project_plan.md#milestone-summary) |
 
-- Research overview lets readers filter cases in the selected experiment and
-  reopen a specific recording by URL. See the [team handoff](team_handoff.md).
-- Recorded cases can be exported as CSV; feature-row uploads and authenticated
-  batch history are implemented. Prediction remains gated by the baseline freeze.
+## Sprint evidence
 
-## Sprint 6 implementation — v0.6.0
-
-- The primary HTML interface now uses a light academic presentation with revised
-  English/Arabic wording, patterned chart series and explicit evidence status.
-  This changes no research acceptance. See
-  [light-mode verification and outstanding reviews](light_dashboard_review.md).
-
-- Academic presentation follow-up: consistent four-route navigation, restrained
-  shared styling, formal Arabic/RTL and localized prediction/chart/status copy.
-  Local lint/coverage: 625 passed, 6 optional skips, 90% coverage; bilingual
-  desktop/mobile-width browser review completed. See
-  [presentation evidence and limits](dashboard_presentation.md).
-  No research milestone or acceptance blocker changed.
-
-- Offline source-only transfer crafting, matched target white-box evaluation,
-  provenance/partition gates, explicit metric denominators and read-only API.
-- Bilingual threat/realism page and source/target journey evidence support;
-  recorded Sprint 5 playback retained. Real transfer remains pending.
-- Local verification: 618 passed, 6 expected optional skips, 90% combined
-  coverage; lint, security and architecture/docs/hygiene checks passed.
-  Browser/mobile verification limits are in [the report](sprint6_report.md).
-- The original implementation pass used no local training or model/data downloads. M1, technical Security review,
-  actual transfer measurements and problem-space evidence remain blockers.
-
-## Sprint 5 UI release — v0.5.2 (historical)
-
-- Dark bilingual three-step measured AI journey is the landing page; detailed research
-  pages remain available with the shared language switch. Plain-language introduction/FAQ and optional technical details added. Shared
-  release label, dark navy/cyan palette and
-  official logo treatment added; no new runtime dependencies.
-- Reran the same 21 configurations: same identity and aggregate metrics, with
-  57 selected individual cases and completed CleverHans checks. Research gates
-  unchanged. Source branch: `sprint5/ai-journey-dashboard`; team release
-  identity: v0.5.2 / Sprint 05.
-- Verification: 467 passed, 4 skipped; 88% combined coverage, lint/format,
-  JavaScript, docs links and Bandit checks passed. Desktop/mobile language
-  switching reviewed in-browser. Later UI-only v0.5.2 dark guided-flow follow-up:
-  81 focused tests plus lint/JS checks passed; browser reviewed step navigation,
-  case reset, languages and mobile layout.
-- Future work stays in the existing 16-sprint order; see the updated
-  [plan](project_plan.md) and [journey guide](ai_journey.md).
-
-## Milestones
-
-| #   | When   | Milestone                                      | Status |
-|-----|--------|------------------------------------------------|--------|
-| M0  | S1 W2  | Repo, environment, threat model v0.1           | Done — PR #1, [`sprint1_report.md`](sprint1_report.md) |
-| M1  | S1 W8  | `baseline_v1` frozen                           | Blocked by measured validation accuracy: latest candidate 92.5778%, below 93%; official test unopened |
-| M2  | S1 W16 | Phase 1 report + adversarial dataset           | In progress: report draft and demo available; acceptance gates and review pending |
-| M3  | S2 W4  | Adversarial training + ensemble + distillation | Not started |
-| M4  | S2 W8  | Full defense stack + Comparison Report v1      | Not started |
-| M5  | S2 W12 | Feature freeze, system deployed in Docker      | Not started |
-| M6  | S2 W14 | Thesis draft + demo ready                      | Not started |
-| M7  | S2 W16 | Final defense                                  | Not started |
-
-## Sprints
-
-| Sprint | Weeks  | Focus                                   | Status      | Evidence |
-|--------|--------|-----------------------------------------|-------------|----------|
-| S1     | 1–2    | Foundations                             | Done        | [`sprint1_report.md`](sprint1_report.md), PR #1 |
-| S2     | 3–4    | Data (EMBER v2, CICIDS2017, EDA, preprocessing) | Done (required); optional datasets skipped | [`sprint2_report.md`](sprint2_report.md), [`data/manifests/`](data/manifests/) |
-| S3     | 5–6    | Classical baselines + first neural model + Dashboard MVP | Done (development subset) | [`sprint3_report.md`](sprint3_report.md), [`team_handoff.md`](team_handoff.md) |
-| S4     | 7–8    | Tune and freeze the baseline (M1)       | Full CPU/GPU measurements complete; 93% freeze gate not met | [`sprint4_report.md`](sprint4_report.md), [`sprint4.md`](sprint4.md) |
-| S5     | 9–10   | Attack implementation (FGSM/PGD/CW)     | Merged in PR #19: implementation + 21 real exploratory configurations; frozen benchmark/SS acceptance pending | [`sprint5_report.md`](sprint5_report.md), [`sprint5.md`](sprint5.md) |
-| S6     | 11–12  | Realistic attacks + black-box           | Transfer/API/bilingual UI implemented; real measurements and SS/M1 acceptance blocked | [Protocol](sprint6.md), [report](sprint6_report.md), [mappings](sprint6_mappings.md) |
-| S7     | 13–14  | Adversarial dataset + analysis          | Case catalogue and CSV, authenticated upload and history, and recorded-cohort confusion matrices and L0 distributions implemented. L2/L∞ distributions and real frozen-model validation pending. | [Case card](data_cards/sprint7_recorded_cases.md), [cohort analysis](results/sprint7_cohort_analysis.md), [handoff](team_handoff.md) |
-| S8     | 15–16  | Phase 1 wrap-up and defense planning (M2) | Report, fixed demo and Phase 2 workshop drafted; independent replay and review pending | [Report](sprint8_phase1_report.md), [demo](sprint8_demo.md), [workshop](sprint8_defense_workshop.md) |
-
-| S9     | S2 1–2 | Adversarial training                    | Not started | — |
-| S10    | S2 3–4 | Ensemble + distillation (M3)            | Not started | — |
-| S11    | S2 5–6 | Sanitization + adversarial detector     | Not started | — |
-| S12    | S2 7–8 | Stack, tune, re-attack (M4)             | Not started | — |
-| S13    | S2 9–10 | Backend + dashboard                    | Not started | — |
-| S14    | S2 11–12 | Containerization, automation, testing (M5) | Not started | — |
-| S15    | S2 13–14 | Thesis, slides, demo (M6)             | Not started | — |
-| S16    | S2 15–16 | Polish, rehearse, defend (M7)         | Not started | — |
-
-## Sprint 2 — Data (done, required scope)
-
-Goal (from the plan): cleaned, versioned datasets; EDA report; preprocessing
-that reproduces everything from raw data.
-
-- [x] EMBER2018 v2 local files verified (SHA-256 + counts); 2381-dim layout
-  documented in [`data/ember_feature_layout.md`](data/ember_feature_layout.md)
-  and [`data_cards/ember2018.md`](data_cards/ember2018.md). Full manifest:
-  [`data/manifests/ember2018.json`](data/manifests/ember2018.json).
-- [x] CICIDS2017 original eight CSVs verified (SHA-256 + 2,830,743 rows); attack
-  classes documented in [`data_cards/cicids2017.md`](data_cards/cicids2017.md).
-  Full manifest: [`data/manifests/cicids2017.json`](data/manifests/cicids2017.json).
-- [ ] **CIC-MalMem**: not present locally; skipped as optional supplement (not faked).
-- [ ] **NSL-KDD**: not downloaded; skipped as optional stretch (not faked).
-- [x] EDA generated from real data: [`data/eda_report.md`](data/eda_report.md),
-  [`results/data_eda.json`](results/data_eda.json), `figures/data_*.png`.
-- [x] Preprocessing pipeline (`scripts/preprocess.py`): cleaning, float32
-  normalization stats, time-based EMBER val split, CICIDS stratified 70/15/15.
-  Full runs completed; manifest hashing/verify-only pass.
-- [x] Manifest-based versioning + reusable loaders (`src/data/loader.py`,
-  `load_ember` / `load_cicids2017`); DVC/LFS deliberately deferred (see
-  [`DECISIONS.md`](DECISIONS.md)).
-- [x] Data cards for both datasets: source, composition, license, known biases,
-  ethical/safety notes.
-
-Evidence: [`sprint2_report.md`](sprint2_report.md) (commands, actual counts,
-known issues, skipped items).
-
-## Cross-cutting — Security audit (2026-10-26)
-
-- [x] Repository-wide application security review, dependency upgrades,
-  HTTP/dashboard hardening, manifest path containment, container/CI defaults,
-  and security regression tests. Evidence: [`security/SECURITY_AUDIT.md`](security/SECURITY_AUDIT.md).
-- [x] Full three-service Compose smoke test on loopback (API/dashboard/MLflow
-  health endpoints 200). Browser/MLflow artifact workflows and sustained load
-  remain unverified; the official MLflow container runs as root.
-- [x] Dashboard entrypoint fix (2026-10-26): documented commands now use
-  `python -m streamlit run ...`; a real-CLI regression test loads the script,
-  and the Compose probe uses `/_stcore/script-health-check` instead of the
-  runtime-only health endpoint. Rebuilt api/dashboard containers reach
-   `healthy`, and the script probe returns `ok`.
-
-### Security follow-up (2026-11-11)
-
-- [x] Bind training verification to canonical filenames and required SHA-256
-  digests; cap aggregate run responses; reject nonfinite/special-file artifacts.
-- [x] Add 15 security regression cases; full suite **290 passed, 3 skipped**,
-  **89% combined line/branch coverage**. Lint, pip-audit/Bandit, image build and
-  filtered fixed HIGH/CRITICAL Trivy scan passed.
-- [x] Refresh threat boundaries, findings and residual risks in
-  [`security/SECURITY_AUDIT.md`](security/SECURITY_AUDIT.md). No public deployment,
-  browser DAST or Sprint 4 branch assessment performed.
-
-## Cross-cutting — Test hardening (2026-10-26)
-
-- [x] Suite expanded from 105 to 260 collected tests (**258 passed, 2 opt-in
-  real-data checks skipped**), adding direct coverage for preprocessing/splits,
-  atomic writes and manifest verification, dataset resolution, the EDA CLI,
-  ART metrics, model shapes, the dashboard placeholder, and API/dashboard error
-  paths.
-- [x] Branch coverage measured with `make coverage`: **91% total** (baseline
-  65%); CI now runs `make coverage` instead of bare `make test`.
-- [x] Fixed malformed IPv6 `API_URL` values and redirect targets raising raw
-  `ValueError` instead of the documented `ApiUrlError`/`HTTPError`.
-- [x] Hardened unhandled API errors: 500 responses now retain security headers
-  and return a generic body without exception details.
-- [x] `make lint`, `make test`, `make coverage`, and `make security` pass;
-  test layout and commands are documented in [`testing.md`](testing.md).
-
-### Sprint 4 test follow-up (2026-11-11)
-
-- [x] Reproduce and fix highest-qualifying-TPR threshold selection and mandatory
-  integrity-digest checks for tuning, gated test evaluation and frozen loading.
-- [x] Add independent prediction-validation cases, controlled-clock budget
-  boundaries, socket-peer isolation, streamed-body caps, inclusive numeric
-  limits and known-score real-checkpoint HTTP tests. Focused suite: **92 passed**.
-- [x] Full suite: **376 passed, 3 skipped**; statement coverage **91.91%**,
-  branch coverage **80.95%**. Lint, compilation, security tooling and rebuilt
-  non-root container import/route-registration checks pass.
-- Evidence, before/after measurements and remaining gaps:
-  [`testing_hardening_report.md`](testing_hardening_report.md). No research
-  results were regenerated and M1 status is unchanged.
-
-## Cross-cutting — Repository maintenance (2026-11-11)
-
-- [x] Audit structure, tracked/ignored artifacts, dependencies and documentation;
-  preserve stable paths and supported legacy/reference workflows.
-- [x] Extract shared experiment sampling, reuse mandatory digest validation,
-  tighten runtime/build ignore policy and remove verified redundant configuration.
-- [x] Add pytest guards for layer boundaries, documentation navigation and ignore
-  semantics; update the contributor/agent map. Research milestone status is unchanged.
-- Evidence and verification: [repository audit](repository_audit.md).
-
-## CI efficiency and CLI characterization — 2026-11-18 (local)
-
-- PR/main-only CI triggers and persistent Docker layers configured; image
-  publishing remains disabled. Hosted cache reuse awaits an authorized push.
-- Added 16 attack-CLI characterization cases and two CI configuration guards:
-  568 passed, 6 optional skips; 90% combined coverage, 96% for the CLI.
-  Lint, security checks, local image/cache builds and filtered Trivy scan passed.
-- Evidence and limits: [efficiency audit](efficiency_audit.md). No research
-  milestone or prediction gate changed; commits remain local and unmerged.
+| Sprint | Outcome |
+|---|---|
+| 1 · Foundations | Pinned environment, threat model draft, and MNIST tooling demo. [Report](sprint1_report.md) |
+| 2 · Data | EMBER2018 v2 and CIC-IDS-2017 preprocessing, manifests, and EDA. Optional CIC-MalMem and NSL-KDD were skipped. [Report](sprint2_report.md) |
+| 3 · Baselines | Recorded development-subset validation and dashboard MVP. [Report](sprint3_report.md) |
+| 4 · Tuning | CPU/GPU measurements, calibration, and authenticated prediction gate. [Report](sprint4_report.md) |
+| 5 · Exploratory evaluation | 21 recorded EMBER configurations with CleverHans cross-checks and 57 recorded case summaries. Frozen-benchmark acceptance remains pending. [Report](sprint5_report.md) |
+| 6 · Transfer and realism | Offline transfer infrastructure and bilingual evidence views. [Report](sprint6_report.md) · [Presentation reviews](README.md#maintenance-records) |
+| 7 · Recorded cases | Searchable catalogue, shareable replay links, authenticated upload and history, and recovered cohort confusion matrices and L0 distributions. L2/L∞ distributions remain unavailable. [Case card](data_cards/sprint7_recorded_cases.md) · [Cohort analysis](results/sprint7_cohort_analysis.md) |
+| 8 · Phase 1 review | Report draft, fixed-case walkthrough, and Phase 2 workshop draft. [Report](sprint8_phase1_report.md) · [Walkthrough](sprint8_demo.md) · [Workshop](sprint8_defense_workshop.md) |
 
 ## How to update this file
 
-- Tick checklist items as they land and add a one-line pointer to the
-  evidence (PR, commit, report, MLflow run).
-- Update the **Last updated** line and the current-sprint section whenever
-  status changes; keep finished sprints to a table row plus evidence link.
-- Scope or schedule changes do **not** go here: edit
-  [`project_plan.md`](project_plan.md) and log the change in
-  [`DECISIONS.md`](DECISIONS.md).
+Update the date and milestone row when project status changes. Link to the
+report, PR, or run that supports the change. Record schedule changes in the
+[project plan](project_plan.md) and rationale in the [decisions log](DECISIONS.md).
+Dated maintenance evidence is linked from the [docs index](README.md#maintenance-records).
